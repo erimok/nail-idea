@@ -2,6 +2,7 @@ import { useEffect, useRef, useState, type SubmitEvent } from 'react';
 import type { IAIResponse } from '../libs/ai/types';
 import { searchNails, type NailRecord } from '../libs/ai/nail-search';
 import aiService from '../libs/ai/local';
+import NailGrid from './NailGrid';
 
 const examples = [
 	{
@@ -18,8 +19,8 @@ const examples = [
 	},
 ];
 
-export default function IdeaExplorer({ nails = [] }: { nails?: readonly NailRecord[] }) {
-	const [prompt, setPrompt] = useState('');
+export default function IdeaExplorer({ nails = [], initialPrompt = '' }: { nails?: readonly NailRecord[]; initialPrompt?: string }) {
+	const [prompt, setPrompt] = useState(initialPrompt);
 	const [result, setResult] = useState<IAIResponse | null>(null);
 	const [error, setError] = useState('');
 	const [isAnalyzing, setIsAnalyzing] = useState(false);
@@ -139,26 +140,7 @@ export default function IdeaExplorer({ nails = [] }: { nails?: readonly NailReco
 						{matches.length === 0 ? (
 							<p className="mt-4 text-sm leading-6 text-[#617269]">No close matches yet. Try another color, style, or nail shape.</p>
 						) : (
-							<div className="mt-5 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
-								{visibleMatches.map(({ nail, score }) => (
-									<article className="overflow-hidden rounded-xl border border-[#d9dfd4] bg-white" key={nail.slug}>
-										<img
-										alt={nail.title}
-										className="aspect-[4/3] w-full object-cover"
-										decoding="async"
-										loading="lazy"
-										src={nail.image}
-									/>
-									<div className="p-5">
-										<div className="flex items-start justify-between gap-3">
-											<h3 className="font-display text-xl leading-tight">{nail.title}</h3>
-											<span className="shrink-0 text-xs font-semibold tabular-nums text-[#718b42]">{Math.round(score * 100)}%</span>
-										</div>
-										<p className="mt-2 text-sm leading-5 text-[#617269]">{nail.description}</p>
-									</div>
-								</article>
-								))}
-							</div>
+							<NailGrid items={visibleMatches} />
 						)}
 					</section>
 				)}

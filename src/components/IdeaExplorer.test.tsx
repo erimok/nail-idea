@@ -9,6 +9,13 @@ import type { NailRecord } from '../libs/ai/nail-search';
 afterEach(cleanup);
 
 describe('IdeaExplorer', () => {
+	it('starts with the page context when an initial prompt is provided', () => {
+		render(<IdeaExplorer initialPrompt="red manicure ideas" />);
+
+		expect((screen.getByRole('textbox', { name: 'Describe your nail idea' }) as HTMLTextAreaElement).value)
+			.toBe('red manicure ideas');
+	});
+
 	it('disables analysis until the prompt contains text', async () => {
 		const user = userEvent.setup();
 		render(<IdeaExplorer />);
