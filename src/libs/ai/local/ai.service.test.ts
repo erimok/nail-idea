@@ -14,6 +14,8 @@ describe('AIService', () => {
 				types: ['french'],
 				occasions: ['wedding'],
 				typesOfNails: 'manicure',
+				finishes: [],
+				nailConcerns: [],
 			});
 	});
 
@@ -25,6 +27,8 @@ describe('AIService', () => {
 				occasions: [],
 				season: 'spring',
 				typesOfNails: 'manicure',
+				finishes: [],
+				nailConcerns: [],
 			});
 	});
 });

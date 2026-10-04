@@ -5,10 +5,8 @@ export class TypesParser extends DictionaryParser {
         super({
             'french tip': 'french',
             abstract: 'abstract',
-            chrome: 'chrome',
             floral: 'floral',
             french: 'french',
-            glitter: 'glitter',
             marble: 'marble',
             ombre: 'ombre',
         });

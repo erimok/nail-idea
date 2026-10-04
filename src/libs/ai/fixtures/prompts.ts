@@ -16,6 +16,8 @@ export const prompts: PromptFixture[] = [
 			occasions: ['wedding'],
 			season: 'spring',
 			typesOfNails: 'manicure',
+			finishes: [],
+			nailConcerns: [],
 		},
 	},
 	{
@@ -27,6 +29,8 @@ export const prompts: PromptFixture[] = [
 			occasions: ['beach vacation'],
 			season: 'summer',
 			typesOfNails: 'manicure',
+			finishes: [],
+			nailConcerns: [],
 		},
 	},
 	{
@@ -38,6 +42,8 @@ export const prompts: PromptFixture[] = [
 			occasions: ['wedding', 'birthday'],
 			season: 'autumn',
 			typesOfNails: 'both',
+			finishes: [],
+			nailConcerns: [],
 		},
 	},
 	{
@@ -45,10 +51,12 @@ export const prompts: PromptFixture[] = [
 		prompt: 'Suggest a lavender glitter pedicure for Christmas in winter.',
 		expected: {
 			colors: ['lavender'],
-			types: ['glitter'],
+			types: [],
 			occasions: ['christmas'],
 			season: 'winter',
 			typesOfNails: 'pedicure',
+			finishes: ['glitter'],
+			nailConcerns: [],
 		},
 	},
 	{
@@ -60,6 +68,8 @@ export const prompts: PromptFixture[] = [
 			occasions: [],
 			season: 'spring',
 			typesOfNails: 'manicure',
+			finishes: [],
+			nailConcerns: [],
 		},
 	},
 	{
@@ -71,6 +81,8 @@ export const prompts: PromptFixture[] = [
 			occasions: [],
 			season: 'summer',
 			typesOfNails: 'pedicure',
+			finishes: [],
+			nailConcerns: [],
 		},
 	},
 	{
@@ -82,6 +94,38 @@ export const prompts: PromptFixture[] = [
 			occasions: [],
 			season: 'winter',
 			typesOfNails: 'manicure',
+			finishes: [],
+			nailConcerns: [],
+		},
+	},
+	{
+		name: 'shape, length, finish, and nail concerns',
+		prompt: 'A short almond manicure with a glossy finish for spring, suitable for weak and brittle nails.',
+		expected: {
+			colors: [],
+			types: [],
+			occasions: [],
+			season: 'spring',
+			typesOfNails: 'manicure',
+			shape: 'almond',
+			length: 'short',
+			finishes: ['glossy'],
+			nailConcerns: ['weak', 'brittle'],
+		},
+	},
+	{
+		name: 'multiple finishes and nail concerns',
+		prompt: 'For summer, create a long square manicure with chrome and shimmer finishes; help with peeling and ridged nails.',
+		expected: {
+			colors: [],
+			types: [],
+			occasions: [],
+			typesOfNails: 'manicure',
+			season: 'summer',
+			shape: 'square',
+			length: 'long',
+			finishes: ['chrome', 'shimmer'],
+			nailConcerns: ['peeling', 'ridged'],
 		},
 	},
 ];
