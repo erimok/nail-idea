@@ -2,7 +2,7 @@
 
 import { cleanup, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { afterEach, describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import IdeaExplorer from './IdeaExplorer';
 import type { NailRecord } from '../libs/ai/nail-search';
 
@@ -97,5 +97,33 @@ describe('IdeaExplorer', () => {
 		const results = await screen.findByRole('region', { name: 'Matching nail ideas' });
 		expect(results.textContent).toContain('Bridal French');
 		expect(results.textContent).toContain('100%');
+	});
+
+	it('smoothly scrolls to matching ideas after analysis', async () => {
+		const user = userEvent.setup();
+		const originalDescriptor = Object.getOwnPropertyDescriptor(HTMLElement.prototype, 'scrollIntoView');
+		const scrollIntoView = vi.fn();
+		Object.defineProperty(HTMLElement.prototype, 'scrollIntoView', {
+			configurable: true,
+			value: scrollIntoView,
+		});
+		render(<IdeaExplorer />);
+
+		try {
+			await user.type(
+				screen.getByRole('textbox', { name: 'Describe your nail idea' }),
+				'Short almond nails in glossy red.',
+			);
+			await user.click(screen.getByRole('button', { name: /analyze this idea/i }));
+			await screen.findByRole('region', { name: 'Matching nail ideas' });
+
+			expect(scrollIntoView).toHaveBeenCalledWith({ behavior: 'smooth', block: 'start' });
+		} finally {
+			if (originalDescriptor) {
+				Object.defineProperty(HTMLElement.prototype, 'scrollIntoView', originalDescriptor);
+			} else {
+				delete (HTMLElement.prototype as Partial<HTMLElement>).scrollIntoView;
+			}
+		}
 	});
 });
