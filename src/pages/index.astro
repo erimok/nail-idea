@@ -1,7 +1,9 @@
 ---
-
+import IdeaExplorer from '../components/IdeaExplorer';
+import '../styles/global.css';
 ---
 
+<!doctype html>
 <html lang="en">
 	<head>
 		<meta charset="utf-8" />
@@ -9,9 +11,10 @@
 		<link rel="icon" href="/favicon.ico" />
 		<meta name="viewport" content="width=device-width" />
 		<meta name="generator" content={Astro.generator} />
-		<title>Nail.ai</title>
+		<meta name="description" content="Shape your next manicure or pedicure idea." />
+		<title>Nail.ai | Idea studio</title>
 	</head>
 	<body>
-		<h1>Nail.ai</h1>
+		<IdeaExplorer client:load />
 	</body>
 </html>

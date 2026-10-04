@@ -1,0 +1,56 @@
+// @vitest-environment jsdom
+
+import { cleanup, render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import { afterEach, describe, expect, it } from 'vitest';
+import IdeaExplorer from './IdeaExplorer';
+
+afterEach(cleanup);
+
+describe('IdeaExplorer', () => {
+	it('disables analysis until the prompt contains text', async () => {
+		const user = userEvent.setup();
+		render(<IdeaExplorer />);
+
+		const prompt = screen.getByRole('textbox', { name: 'Describe your nail idea' });
+		const submit = screen.getByRole('button', { name: /analyze this idea/i });
+
+		expect((submit as HTMLButtonElement).disabled).toBe(true);
+		await user.type(prompt, '   ');
+		expect((submit as HTMLButtonElement).disabled).toBe(true);
+		await user.type(prompt, ' red nails');
+		expect((submit as HTMLButtonElement).disabled).toBe(false);
+	});
+
+	it('loads a starter prompt into the form', async () => {
+		const user = userEvent.setup();
+		render(<IdeaExplorer />);
+
+		await user.click(screen.getByRole('button', { name: 'Spring French' }));
+
+		expect((screen.getByRole('textbox', { name: 'Describe your nail idea' }) as HTMLTextAreaElement).value)
+			.toBe('Short almond nails, glossy red French manicure for a spring wedding.');
+	});
+
+	it('shows parsed details after submitting an idea', async () => {
+		const user = userEvent.setup();
+		render(<IdeaExplorer />);
+
+		await user.type(
+			screen.getByRole('textbox', { name: 'Describe your nail idea' }),
+			'Short almond nails, glossy red French manicure for a spring wedding.',
+		);
+		await user.click(screen.getByRole('button', { name: /analyze this idea/i }));
+
+		const analysis = await screen.findByRole('region', { name: 'Idea analysis' });
+		const text = analysis.textContent ?? '';
+		expect(text).toContain('manicure');
+		expect(text).toContain('red');
+		expect(text).toContain('french');
+		expect(text).toContain('wedding');
+		expect(text).toContain('spring');
+		expect(text).toContain('almond');
+		expect(text).toContain('short');
+		expect(text).toContain('glossy');
+	});
+});
