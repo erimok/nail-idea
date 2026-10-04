@@ -4,6 +4,7 @@ import { cleanup, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, describe, expect, it } from 'vitest';
 import IdeaExplorer from './IdeaExplorer';
+import type { NailRecord } from '../libs/ai/nail-search';
 
 afterEach(cleanup);
 
@@ -52,5 +53,35 @@ describe('IdeaExplorer', () => {
 		expect(text).toContain('almond');
 		expect(text).toContain('short');
 		expect(text).toContain('glossy');
+	});
+
+	it('shows matching nails from the CMS collection', async () => {
+		const user = userEvent.setup();
+		const nails: NailRecord[] = [{
+			slug: 'bridal-french',
+			title: 'Bridal French',
+			image: 'https://images.example/bridal-french.jpg',
+			description: 'A crisp French manicure for a spring wedding.',
+			typesOfNails: 'manicure',
+			colors: ['red', 'white'],
+			types: ['french'],
+			occasions: ['wedding'],
+			season: 'spring',
+			shape: 'almond',
+			length: 'short',
+			finishes: ['glossy'],
+			nailConcerns: [],
+		}];
+		render(<IdeaExplorer nails={nails} />);
+
+		await user.type(
+			screen.getByRole('textbox', { name: 'Describe your nail idea' }),
+			'Short almond nails, glossy red French manicure for a spring wedding.',
+		);
+		await user.click(screen.getByRole('button', { name: /analyze this idea/i }));
+
+		const results = await screen.findByRole('region', { name: 'Matching nail ideas' });
+		expect(results.textContent).toContain('Bridal French');
+		expect(results.textContent).toContain('100%');
 	});
 });

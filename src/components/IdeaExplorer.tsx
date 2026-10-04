@@ -1,5 +1,6 @@
 import { useState, type SubmitEvent } from 'react';
 import type { IAIResponse } from '../libs/ai/types';
+import { searchNails, type NailRecord } from '../libs/ai/nail-search';
 import aiService from '../libs/ai/local';
 
 const examples = [
@@ -31,11 +32,13 @@ function getResultRows(result: IAIResponse) {
 	].filter(({ values }) => values.length > 0);
 }
 
-export default function IdeaExplorer() {
+export default function IdeaExplorer({ nails = [] }: { nails?: readonly NailRecord[] }) {
 	const [prompt, setPrompt] = useState('');
 	const [result, setResult] = useState<IAIResponse | null>(null);
 	const [error, setError] = useState('');
 	const [isAnalyzing, setIsAnalyzing] = useState(false);
+	const matches = result ? searchNails(result, nails) : [];
+	const visibleMatches = matches.slice(0, 3);
 
 	async function handleSubmit(event: SubmitEvent<HTMLFormElement>) {
 		event.preventDefault();
@@ -97,6 +100,7 @@ export default function IdeaExplorer() {
 								onChange={(event) => {
 									setPrompt(event.target.value);
 									setError('');
+									setResult(null);
 								}}
 							/>
 							<div className="mt-3 flex items-center justify-between gap-4 border-t border-[#edf0e9] pt-4">
@@ -126,6 +130,7 @@ export default function IdeaExplorer() {
 									onClick={() => {
 										setPrompt(example.prompt);
 										setError('');
+										setResult(null);
 									}}
 								>
 									{example.label}
@@ -175,6 +180,42 @@ export default function IdeaExplorer() {
 								))}
 							</dl>
 						</div>
+					)}
+
+					{result && (
+						<section className="enter-view border-t border-[#d9dfd4] pt-5" aria-label="Matching nail ideas" aria-live="polite">
+							<div className="flex items-end justify-between gap-4">
+								<div>
+									<p className="text-xs font-bold uppercase tracking-[0.14em] text-[#718b42]">From the Nails collection</p>
+									<h2 className="mt-1 font-display text-3xl">Closest matches</h2>
+								</div>
+								<span className="text-xs font-semibold text-[#7c8980]">{matches.length} found</span>
+							</div>
+							{matches.length === 0 ? (
+								<p className="mt-4 text-sm leading-6 text-[#617269]">No close matches yet. Try another color, style, or nail shape.</p>
+							) : (
+								<div className="mt-5 grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+										{visibleMatches.map(({ nail, score }) => (
+										<article className="overflow-hidden rounded-xl border border-[#d9dfd4] bg-white" key={nail.slug}>
+											<img
+												alt={nail.title}
+												className="aspect-[4/3] w-full object-cover"
+												decoding="async"
+												loading="lazy"
+												src={nail.image}
+											/>
+											<div className="p-4">
+												<div className="flex items-start justify-between gap-3">
+													<h3 className="font-display text-xl leading-tight">{nail.title}</h3>
+													<span className="shrink-0 text-xs font-semibold tabular-nums text-[#718b42]">{Math.round(score * 100)}%</span>
+												</div>
+												<p className="mt-2 text-sm leading-5 text-[#617269]">{nail.description}</p>
+											</div>
+										</article>
+									))}
+								</div>
+							)}
+						</section>
 					)}
 				</section>
 			</main>

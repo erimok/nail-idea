@@ -1,6 +1,28 @@
 ---
+import { createReader } from '@keystatic/core/reader';
+import { fileURLToPath } from 'node:url';
+import keystaticConfig from '../../keystatic.config';
 import IdeaExplorer from '../components/IdeaExplorer';
+import type { NailRecord } from '../libs/ai/nail-search';
 import '../styles/global.css';
+
+const reader = createReader(fileURLToPath(new URL('../../', import.meta.url)), keystaticConfig);
+const entries = await reader.collections.nails.all();
+const nails: NailRecord[] = entries.map(({ slug, entry }) => ({
+	slug,
+	title: entry.title,
+	image: entry.image ?? '',
+	description: entry.description,
+	typesOfNails: entry.typesOfNails,
+	colors: entry.colors,
+	types: entry.types,
+	occasions: entry.occasions,
+	season: entry.season,
+	shape: entry.shape,
+	length: entry.length,
+	finishes: entry.finishes,
+	nailConcerns: entry.nailConcerns,
+}));
 ---
 
 <!doctype html>
@@ -15,6 +37,6 @@ import '../styles/global.css';
 		<title>Nail.ai | Idea studio</title>
 	</head>
 	<body>
-		<IdeaExplorer client:load />
+		<IdeaExplorer nails={nails} client:load />
 	</body>
 </html>

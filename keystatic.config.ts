@@ -1,7 +1,7 @@
 import { config, fields, collection } from '@keystatic/core';
 import { aiSearchOptions } from './src/libs/ai/vocabulary';
 
-const optionsFor = (values: readonly string[]) => values.map((value) => ({
+const optionsFor = <Value extends string>(values: readonly Value[]) => values.map((value) => ({
 	label: value.replaceAll('-', ' ').replace(/\b\w/g, (letter) => letter.toUpperCase()),
 	value,
 }));
