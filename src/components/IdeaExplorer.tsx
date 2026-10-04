@@ -18,20 +18,6 @@ const examples = [
 	},
 ];
 
-function getResultRows(result: IAIResponse) {
-	return [
-		{ label: 'Nail service', values: [result.typesOfNails] },
-		{ label: 'Colors', values: result.colors },
-		{ label: 'Design', values: result.types },
-		{ label: 'Occasion', values: result.occasions ?? [] },
-		{ label: 'Season', values: result.season ? [result.season] : [] },
-		{ label: 'Shape', values: result.shape ? [result.shape] : [] },
-		{ label: 'Length', values: result.length ? [result.length] : [] },
-		{ label: 'Finish', values: result.finishes ?? [] },
-		{ label: 'Nail care notes', values: result.nailConcerns ?? [] },
-	].filter(({ values }) => values.length > 0);
-}
-
 export default function IdeaExplorer({ nails = [] }: { nails?: readonly NailRecord[] }) {
 	const [prompt, setPrompt] = useState('');
 	const [result, setResult] = useState<IAIResponse | null>(null);
@@ -39,6 +25,9 @@ export default function IdeaExplorer({ nails = [] }: { nails?: readonly NailReco
 	const [isAnalyzing, setIsAnalyzing] = useState(false);
 	const matches = result ? searchNails(result, nails) : [];
 	const visibleMatches = matches.slice(0, 3);
+	const matchCountLabel = matches.length > visibleMatches.length
+		? `Showing ${visibleMatches.length} of ${matches.length} matches`
+		: `${matches.length} ${matches.length === 1 ? 'match' : 'matches'}`;
 
 	async function handleSubmit(event: SubmitEvent<HTMLFormElement>) {
 		event.preventDefault();
@@ -57,28 +46,17 @@ export default function IdeaExplorer({ nails = [] }: { nails?: readonly NailReco
 	}
 
 	return (
-		<div className="min-h-screen overflow-hidden bg-[#f5f6f0] text-[#172b24]">
-			<header className="mx-auto flex w-full max-w-[1440px] items-center justify-between px-5 py-5 sm:px-8 lg:px-14">
-				<a className="flex items-center gap-3" href="/" aria-label="Nail.ai home">
-					<span className="grid size-9 place-items-center rounded-full bg-[#c9f36a] font-display text-xl font-bold text-[#172b24]">n</span>
-					<span className="text-lg font-bold tracking-normal">nail.ai</span>
-				</a>
-				<div className="flex items-center gap-3 text-xs font-semibold uppercase tracking-[0.12em] text-[#617269]">
-					<span className="hidden sm:inline">Idea studio</span>
-					<span className="size-1.5 rounded-full bg-[#d6694c]" aria-hidden="true" />
-					<a className="transition-colors hover:text-[#172b24]" href="/keystatic">Editor</a>
-				</div>
-			</header>
-
-			<main className="mx-auto grid w-full max-w-[1440px] gap-10 px-5 pb-12 pt-5 sm:px-8 lg:grid-cols-[minmax(0,0.92fr)_minmax(420px,1.08fr)] lg:gap-16 lg:px-14 lg:pb-16 lg:pt-10">
+		<div className="overflow-hidden bg-[#f5f6f0] text-[#172b24]">
+			<main className="w-full pb-12 lg:pb-16">
+				<div className="mx-auto grid w-full max-w-[1440px] gap-10 px-5 pb-12 pt-5 sm:px-8 lg:grid-cols-[minmax(0,0.92fr)_minmax(420px,1.08fr)] lg:gap-16 lg:px-14 lg:pb-16 lg:pt-10">
 				<section className="enter-view flex flex-col justify-center lg:py-8" aria-labelledby="page-title">
 					<p className="mb-5 flex items-center gap-3 text-xs font-bold uppercase tracking-[0.16em] text-[#d6694c]">
 						<span className="h-px w-8 bg-[#d6694c]" aria-hidden="true" />
 						Your next set starts here
 					</p>
 					<h1 id="page-title" className="max-w-xl font-display text-5xl leading-[1.04] sm:text-6xl lg:text-[4.5rem]">
-						A little idea.
-						<span className="mt-1 block text-[#718b42]">A look all yours.</span>
+						Manicure and pedicure ideas.
+						<span className="mt-1 block text-[#718b42]">Made personal.</span>
 					</h1>
 					<p className="mt-6 max-w-lg text-base leading-7 text-[#617269] sm:text-lg">
 						Describe the manicure or pedicure on your mind. We’ll pick out the colors, shape, finish, and details.
@@ -140,7 +118,7 @@ export default function IdeaExplorer({ nails = [] }: { nails?: readonly NailReco
 					</div>
 				</section>
 
-				<section className="enter-view flex flex-col gap-5 [animation-delay:100ms]" aria-label="Manicure inspiration and analysis">
+				<section className="enter-view flex flex-col gap-5 [animation-delay:100ms]" aria-label="Manicure inspiration">
 					<figure className="group relative min-h-[420px] overflow-hidden rounded-[1.5rem] bg-[#dce5d3] sm:min-h-[500px] lg:min-h-[640px]">
 						<img
 							alt="A close-up manicure inspiration in soft natural light"
@@ -159,65 +137,44 @@ export default function IdeaExplorer({ nails = [] }: { nails?: readonly NailReco
 							<span className="hidden size-12 shrink-0 place-items-center rounded-full border border-white/55 text-lg sm:grid" aria-hidden="true">↘</span>
 						</figcaption>
 					</figure>
-
-					{result && (
-						<div className="enter-view border-t border-[#d9dfd4] pt-5" role="region" aria-label="Idea analysis" aria-live="polite">
-							<div className="flex items-end justify-between gap-4">
-								<div>
-									<p className="text-xs font-bold uppercase tracking-[0.14em] text-[#718b42]">Your idea, decoded</p>
-									<h2 className="mt-1 font-display text-3xl">The details</h2>
-								</div>
-								<span className="text-xs font-semibold text-[#7c8980]">{getResultRows(result).length} traits</span>
-							</div>
-							<dl className="mt-5 divide-y divide-[#dfe4dc]">
-								{getResultRows(result).map(({ label, values }) => (
-									<div className="grid grid-cols-[minmax(7rem,0.7fr)_minmax(0,1fr)] gap-4 py-3 first:pt-0" key={label}>
-										<dt className="text-sm text-[#7c8980]">{label}</dt>
-										<dd className="flex flex-wrap gap-2 text-sm font-semibold capitalize text-[#172b24]">
-											{values.map((value) => <span key={value}>{value}</span>)}
-										</dd>
-									</div>
-								))}
-							</dl>
-						</div>
-					)}
-
-					{result && (
-						<section className="enter-view border-t border-[#d9dfd4] pt-5" aria-label="Matching nail ideas" aria-live="polite">
-							<div className="flex items-end justify-between gap-4">
-								<div>
-									<p className="text-xs font-bold uppercase tracking-[0.14em] text-[#718b42]">From the Nails collection</p>
-									<h2 className="mt-1 font-display text-3xl">Closest matches</h2>
-								</div>
-								<span className="text-xs font-semibold text-[#7c8980]">{matches.length} found</span>
-							</div>
-							{matches.length === 0 ? (
-								<p className="mt-4 text-sm leading-6 text-[#617269]">No close matches yet. Try another color, style, or nail shape.</p>
-							) : (
-								<div className="mt-5 grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-										{visibleMatches.map(({ nail, score }) => (
-										<article className="overflow-hidden rounded-xl border border-[#d9dfd4] bg-white" key={nail.slug}>
-											<img
-												alt={nail.title}
-												className="aspect-[4/3] w-full object-cover"
-												decoding="async"
-												loading="lazy"
-												src={nail.image}
-											/>
-											<div className="p-4">
-												<div className="flex items-start justify-between gap-3">
-													<h3 className="font-display text-xl leading-tight">{nail.title}</h3>
-													<span className="shrink-0 text-xs font-semibold tabular-nums text-[#718b42]">{Math.round(score * 100)}%</span>
-												</div>
-												<p className="mt-2 text-sm leading-5 text-[#617269]">{nail.description}</p>
-											</div>
-										</article>
-									))}
-								</div>
-							)}
-						</section>
-					)}
 				</section>
+				</div>
+
+				{result && (
+					<section className="enter-view mx-auto w-full max-w-[1440px] px-5 sm:px-8 lg:px-14" aria-label="Matching nail ideas" aria-live="polite">
+						<div className="flex items-end justify-between gap-4 border-b border-[#d9dfd4] pb-4">
+							<div>
+								<p className="text-xs font-bold uppercase tracking-[0.14em] text-[#718b42]">From the Nails collection</p>
+								<h2 className="mt-1 font-display text-3xl">Closest matches</h2>
+							</div>
+							<span className="text-xs font-semibold text-[#7c8980]">{matchCountLabel}</span>
+						</div>
+						{matches.length === 0 ? (
+							<p className="mt-4 text-sm leading-6 text-[#617269]">No close matches yet. Try another color, style, or nail shape.</p>
+						) : (
+							<div className="mt-5 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
+								{visibleMatches.map(({ nail, score }) => (
+									<article className="overflow-hidden rounded-xl border border-[#d9dfd4] bg-white" key={nail.slug}>
+										<img
+										alt={nail.title}
+										className="aspect-[4/3] w-full object-cover"
+										decoding="async"
+										loading="lazy"
+										src={nail.image}
+									/>
+									<div className="p-5">
+										<div className="flex items-start justify-between gap-3">
+											<h3 className="font-display text-xl leading-tight">{nail.title}</h3>
+											<span className="shrink-0 text-xs font-semibold tabular-nums text-[#718b42]">{Math.round(score * 100)}%</span>
+										</div>
+										<p className="mt-2 text-sm leading-5 text-[#617269]">{nail.description}</p>
+									</div>
+								</article>
+								))}
+							</div>
+						)}
+					</section>
+				)}
 			</main>
 		</div>
 	);

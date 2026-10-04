@@ -12,4 +12,8 @@ describe('NailShapeParser', () => {
 	it('normalizes ballerina to coffin', () => {
 		expect(parser.parse('Use a ballerina nail shape.')).toEqual(['coffin']);
 	});
+
+	it('recognizes less common nail shapes', () => {
+		expect(parser.parse('Try lipstick and mountain peak nails.')).toEqual(['lipstick', 'mountain peak']);
+	});
 });

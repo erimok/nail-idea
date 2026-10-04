@@ -8,6 +8,7 @@ import tailwindcss from '@tailwindcss/vite';
 
 // https://astro.build/config
 export default defineConfig({
+	site: process.env.SITE_URL ?? 'https://nail.ai',
 	output: 'static',
 	adapter: node({ mode: 'standalone' }),
 	integrations: [react(), markdoc(), keystatic()],

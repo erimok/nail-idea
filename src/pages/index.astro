@@ -2,9 +2,9 @@
 import { createReader } from '@keystatic/core/reader';
 import { fileURLToPath } from 'node:url';
 import keystaticConfig from '../../keystatic.config';
+import BaseLayout from '../layouts/BaseLayout.astro';
 import IdeaExplorer from '../components/IdeaExplorer';
 import type { NailRecord } from '../libs/ai/nail-search';
-import '../styles/global.css';
 
 const reader = createReader(fileURLToPath(new URL('../../', import.meta.url)), keystaticConfig);
 const entries = await reader.collections.nails.all();
@@ -23,20 +23,23 @@ const nails: NailRecord[] = entries.map(({ slug, entry }) => ({
 	finishes: entry.finishes,
 	nailConcerns: entry.nailConcerns,
 }));
+const title = 'Nail.ai | Manicure and Pedicure Idea Finder';
+const description = 'Describe your manicure or pedicure idea and find matching nail designs by color, style, occasion, shape, and finish.';
+const canonical = new URL('/', Astro.site ?? new URL('https://nail.ai')).toString();
+const socialImage = 'https://images.unsplash.com/photo-1604654894610-df63bc536371?auto=format&fit=crop&w=1200&q=85';
+const structuredData = {
+	'@context': 'https://schema.org',
+	'@type': 'WebApplication',
+	'@id': `${canonical}#app`,
+	name: 'Nail.ai',
+	url: canonical,
+	description,
+	applicationCategory: 'LifestyleApplication',
+	operatingSystem: 'Any',
+	image: socialImage,
+};
 ---
 
-<!doctype html>
-<html lang="en">
-	<head>
-		<meta charset="utf-8" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<link rel="icon" href="/favicon.ico" />
-		<meta name="viewport" content="width=device-width" />
-		<meta name="generator" content={Astro.generator} />
-		<meta name="description" content="Shape your next manicure or pedicure idea." />
-		<title>Nail.ai | Idea studio</title>
-	</head>
-	<body>
-		<IdeaExplorer nails={nails} client:load />
-	</body>
-</html>
+<BaseLayout title={title} description={description} canonical={canonical} socialImage={socialImage} structuredData={structuredData}>
+	<IdeaExplorer nails={nails} client:load />
+</BaseLayout>

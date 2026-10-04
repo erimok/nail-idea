@@ -22,7 +22,7 @@ export default config({
 				description: fields.text({ label: 'Description', multiline: true }),
 				typesOfNails: fields.select({
 					label: 'Nail service',
-					options: optionsFor(['manicure', 'pedicure', 'both']),
+					options: optionsFor(aiSearchOptions.typesOfNails),
 					defaultValue: 'manicure',
 				}),
 				colors: fields.multiselect({ label: 'Colors', options: optionsFor(aiSearchOptions.colors), defaultValue: [] }),

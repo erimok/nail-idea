@@ -33,9 +33,29 @@ describe('IdeaExplorer', () => {
 			.toBe('Short almond nails, glossy red French manicure for a spring wedding.');
 	});
 
-	it('shows parsed details after submitting an idea', async () => {
+	it('shows only three cards and reports the total match count', async () => {
 		const user = userEvent.setup();
-		render(<IdeaExplorer />);
+		const matchingNail: NailRecord = {
+			slug: 'bridal-french',
+			title: 'Bridal French',
+			image: 'https://images.example/bridal-french.jpg',
+			description: 'A crisp French manicure for a spring wedding.',
+			typesOfNails: 'manicure',
+			colors: ['red', 'white'],
+			types: ['french'],
+			occasions: ['wedding'],
+			season: 'spring',
+			shape: 'almond',
+			length: 'short',
+			finishes: ['glossy'],
+			nailConcerns: [],
+		};
+		const nails = Array.from({ length: 4 }, (_, index) => ({
+			...matchingNail,
+			slug: `bridal-french-${index + 1}`,
+			title: `Bridal French ${index + 1}`,
+		}));
+		render(<IdeaExplorer nails={nails} />);
 
 		await user.type(
 			screen.getByRole('textbox', { name: 'Describe your nail idea' }),
@@ -43,16 +63,10 @@ describe('IdeaExplorer', () => {
 		);
 		await user.click(screen.getByRole('button', { name: /analyze this idea/i }));
 
-		const analysis = await screen.findByRole('region', { name: 'Idea analysis' });
-		const text = analysis.textContent ?? '';
-		expect(text).toContain('manicure');
-		expect(text).toContain('red');
-		expect(text).toContain('french');
-		expect(text).toContain('wedding');
-		expect(text).toContain('spring');
-		expect(text).toContain('almond');
-		expect(text).toContain('short');
-		expect(text).toContain('glossy');
+		const results = await screen.findByRole('region', { name: 'Matching nail ideas' });
+		expect(results.textContent).toContain('Showing 3 of 4 matches');
+		expect(results.querySelectorAll('article')).toHaveLength(3);
+		expect(screen.queryByText('Your idea, decoded')).toBeNull();
 	});
 
 	it('shows matching nails from the CMS collection', async () => {

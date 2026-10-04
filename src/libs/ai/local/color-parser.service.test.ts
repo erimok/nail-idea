@@ -20,4 +20,9 @@ describe('ColorsParser', () => {
 	it('keeps a positive color after a negated alternative', () => {
 		expect(parser.parse('Not red, but blue.')).toEqual(['blue']);
 	});
+
+	it('normalizes common color aliases', () => {
+		expect(parser.parse('Baby blue with hot pink and wine red details.'))
+			.toEqual(['blue', 'fuchsia', 'burgundy']);
+	});
 });

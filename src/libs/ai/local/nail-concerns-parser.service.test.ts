@@ -12,4 +12,8 @@ describe('NailConcernsParser', () => {
 	it('normalizes weakness to weak', () => {
 		expect(parser.parse('I have nail weakness.')).toEqual(['weak']);
 	});
+
+	it('recognizes splitting and bitten nail concerns', () => {
+		expect(parser.parse('My nails are splitting and bitten.')).toEqual(['split', 'bitten']);
+	});
 });

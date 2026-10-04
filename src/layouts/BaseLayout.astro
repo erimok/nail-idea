@@ -1,0 +1,68 @@
+---
+import '../styles/global.css';
+
+interface Props {
+	title: string;
+	description: string;
+	canonical?: string;
+	socialImage?: string;
+	structuredData?: Record<string, unknown>;
+}
+
+const {
+	title,
+	description,
+	canonical = Astro.site ? new URL(Astro.url.pathname, Astro.site).toString() : undefined,
+	socialImage,
+	structuredData,
+} = Astro.props;
+const serializedStructuredData = structuredData
+	? JSON.stringify(structuredData).replace(/</g, '\\u003c')
+	: undefined;
+---
+
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width" />
+		<meta name="generator" content={Astro.generator} />
+		<meta name="description" content={description} />
+		<meta name="robots" content="index,follow" />
+		<title>{title}</title>
+		{canonical && <link rel="canonical" href={canonical} />}
+		<meta property="og:type" content="website" />
+		<meta property="og:site_name" content="Nail.ai" />
+		<meta property="og:title" content={title} />
+		<meta property="og:description" content={description} />
+		{canonical && <meta property="og:url" content={canonical} />}
+		{socialImage && <meta property="og:image" content={socialImage} />}
+		<meta name="twitter:card" content={socialImage ? 'summary_large_image' : 'summary'} />
+		<meta name="twitter:title" content={title} />
+		<meta name="twitter:description" content={description} />
+		{socialImage && <meta name="twitter:image" content={socialImage} />}
+		{serializedStructuredData && <script type="application/ld+json" set:html={serializedStructuredData} />}
+		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+		<link rel="icon" href="/favicon.ico" />
+	</head>
+	<body class="flex min-h-screen flex-col">
+		<header class="w-full border-b border-[#e1e5dc]">
+			<div class="mx-auto flex w-full max-w-[1440px] items-center justify-between px-5 py-5 sm:px-8 lg:px-14">
+				<a class="flex items-center gap-3" href="/" aria-label="Nail.ai home">
+					<span class="grid size-9 place-items-center rounded-full bg-[#c9f36a] font-display text-xl font-bold text-[#172b24]">n</span>
+					<span class="text-lg font-bold tracking-normal text-[#172b24]">nail.ai</span>
+				</a>
+				<nav aria-label="Main navigation">
+					<a class="text-xs font-semibold uppercase tracking-[0.12em] text-[#617269] transition-colors hover:text-[#172b24]" href="/keystatic">Editor</a>
+				</nav>
+			</div>
+		</header>
+		<slot />
+		<footer class="mt-auto border-t border-[#e1e5dc]">
+			<div class="mx-auto flex w-full max-w-[1440px] flex-wrap items-center justify-between gap-3 px-5 py-5 text-xs text-[#718078] sm:px-8 lg:px-14">
+				<p class="font-semibold text-[#45594d]">Nail.ai</p>
+				<p>Manicure and pedicure ideas, made personal.</p>
+			</div>
+		</footer>
+	</body>
+</html>

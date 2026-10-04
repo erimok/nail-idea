@@ -12,4 +12,13 @@ describe('NailFinishParser', () => {
 	it('normalizes finish synonyms', () => {
 		expect(parser.parse('A shiny metallic manicure.')).toEqual(['glossy', 'chrome']);
 	});
+
+	it('recognizes effect finishes', () => {
+		expect(parser.parse('A sheer jelly manicure with a holographic top coat.'))
+			.toEqual(['sheer', 'jelly', 'holographic']);
+	});
+
+	it('normalizes magnetic and glazed finishes', () => {
+		expect(parser.parse('Cat eye with a glazed donut finish.')).toEqual(['cat-eye', 'glazed']);
+	});
 });

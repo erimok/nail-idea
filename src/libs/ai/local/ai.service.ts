@@ -1,35 +1,29 @@
 import type { IAIResponse, IAIService } from '../index';
+import { aiSearchVocabulary } from '../vocabulary';
 import type { IParser } from './types';
 
-const seasons = ['spring', 'summer', 'autumn', 'winter'] as const;
-const nailTypes = ['manicure', 'pedicure', 'both'] as const;
-const nailShapes = ['almond', 'coffin', 'oval', 'round', 'squoval', 'square', 'stiletto'] as const;
-const nailLengths = ['short', 'medium', 'long'] as const;
-const nailFinishes = ['chrome', 'glitter', 'glossy', 'matte', 'pearl', 'shimmer'] as const;
-const nailConcerns = ['weak', 'brittle', 'peeling', 'ridged', 'damaged'] as const;
-
 function isSeason(value: string | undefined): value is Exclude<IAIResponse['season'], undefined> {
-    return seasons.some((season) => season === value);
+    return value !== undefined && Object.values(aiSearchVocabulary.seasons).some((season) => season === value);
 }
 
 function isNailType(value: string | undefined): value is IAIResponse['typesOfNails'] {
-    return nailTypes.some((nailType) => nailType === value);
+    return value !== undefined && Object.values(aiSearchVocabulary.typesOfNails).some((nailType) => nailType === value);
 }
 
 function isNailShape(value: string | undefined): value is NonNullable<IAIResponse['shape']> {
-    return nailShapes.some((shape) => shape === value);
+    return value !== undefined && Object.values(aiSearchVocabulary.shapes).some((shape) => shape === value);
 }
 
 function isNailLength(value: string | undefined): value is NonNullable<IAIResponse['length']> {
-    return nailLengths.some((length) => length === value);
+    return value !== undefined && Object.values(aiSearchVocabulary.lengths).some((length) => length === value);
 }
 
-function isNailFinish(value: string): value is (typeof nailFinishes)[number] {
-    return nailFinishes.some((finish) => finish === value);
+function isNailFinish(value: string): value is NonNullable<IAIResponse['finishes']>[number] {
+    return Object.values(aiSearchVocabulary.finishes).some((finish) => finish === value);
 }
 
-function isNailConcern(value: string): value is (typeof nailConcerns)[number] {
-    return nailConcerns.some((concern) => concern === value);
+function isNailConcern(value: string): value is NonNullable<IAIResponse['nailConcerns']>[number] {
+    return Object.values(aiSearchVocabulary.nailConcerns).some((concern) => concern === value);
 }
 
 export class AIService implements IAIService {

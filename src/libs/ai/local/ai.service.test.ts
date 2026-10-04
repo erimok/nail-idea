@@ -36,8 +36,21 @@ describe('AIService', () => {
 		await expect(service.parsePrompt('A wine cat eye manicure for fall.'))
 			.resolves.toMatchObject({
 				colors: ['burgundy'],
-				types: ['cat-eye'],
+				finishes: ['cat-eye'],
 				season: 'autumn',
+			});
+	});
+
+	it('returns expanded static values across all response properties', async () => {
+		await expect(service.parsePrompt('Japanese manicure for office: long mountain peak nails with holographic finish for thin nails.'))
+			.resolves.toMatchObject({
+				types: ['japanese manicure'],
+				occasions: ['office'],
+				typesOfNails: 'manicure',
+				shape: 'mountain peak',
+				length: 'long',
+				finishes: ['holographic'],
+				nailConcerns: ['thin'],
 			});
 	});
 });

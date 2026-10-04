@@ -12,4 +12,8 @@ describe('TypesOfNailsParser', () => {
 	it('returns no nail type when none is mentioned', () => {
 		expect(parser.parse('A red design for spring.')).toEqual([]);
 	});
+
+	it('recognizes common service abbreviations', () => {
+		expect(parser.parse('A mani and pedi set.')).toEqual(['both']);
+	});
 });
