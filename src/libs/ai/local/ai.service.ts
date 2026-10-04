@@ -1,10 +1,10 @@
-import { AIPasrseError, type IAIResponse, type IAIService } from '../index';
+import type { IAIResponse, IAIService } from '../index';
 import type { IParser } from './types';
 
 const seasons = ['spring', 'summer', 'autumn', 'winter'] as const;
 const nailTypes = ['manicure', 'pedicure', 'both'] as const;
 
-function isSeason(value: string | undefined): value is IAIResponse['season'] {
+function isSeason(value: string | undefined): value is Exclude<IAIResponse['season'], undefined> {
     return seasons.some((season) => season === value);
 }
 
@@ -22,21 +22,16 @@ export class AIService implements IAIService {
     ) {}
 
     async parsePrompt(prompt: string): Promise<IAIResponse> {
-        const season = this.seasonParser.parse(prompt)[0];
-        if (!isSeason(season)) {
-            throw new AIPasrseError('Could not determine a valid season');
-        }
-
-        const typesOfNails = this.typesOfNailsParser.parse(prompt)[0];
-        if (!isNailType(typesOfNails)) {
-            throw new AIPasrseError('Could not determine manicure or pedicure');
-        }
+        const parsedSeason = this.seasonParser.parse(prompt)[0];
+        const season = isSeason(parsedSeason) ? parsedSeason : undefined;
+        const parsedTypesOfNails = this.typesOfNailsParser.parse(prompt)[0];
+        const typesOfNails = isNailType(parsedTypesOfNails) ? parsedTypesOfNails : 'manicure';
 
         return {
             colors: this.colorParser.parse(prompt),
             types: this.typeParser.parse(prompt),
             occasions: this.occasionParser.parse(prompt),
-            season,
+            ...(season === undefined ? {} : { season }),
             typesOfNails,
         };
     }

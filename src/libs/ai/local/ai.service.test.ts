@@ -1,33 +1,30 @@
 import { describe, expect, it } from 'vitest';
-import { AIPasrseError } from '../index';
 import { prompts } from '../fixtures/prompts';
-import { AIService } from './ai.service';
-import { ColorsParser } from './color-parser.service';
-import { OccasionsParser } from './occasions-parser.service';
-import { SeasonParser } from './season-parser.service';
-import { TypesOfNailsParser } from './types-of-nails-parser.service';
-import { TypesParser } from './types-parser.service';
-
-const service = new AIService(
-	new ColorsParser(),
-	new TypesParser(),
-	new OccasionsParser(),
-	new SeasonParser(),
-	new TypesOfNailsParser(),
-);
+import service from '.';
 
 describe('AIService', () => {
 	it.each(prompts)('returns the full response for $name', async ({ prompt, expected }) => {
 		await expect(service.parsePrompt(prompt)).resolves.toEqual(expected);
 	});
 
-	it('throws when the prompt has no season', async () => {
+	it('omits season when none is specified', async () => {
 		await expect(service.parsePrompt('A red French manicure for a wedding.'))
-			.rejects.toBeInstanceOf(AIPasrseError);
+			.resolves.toEqual({
+				colors: ['red'],
+				types: ['french'],
+				occasions: ['wedding'],
+				typesOfNails: 'manicure',
+			});
 	});
 
-	it('throws when the prompt has no manicure or pedicure type', async () => {
+	it('defaults to manicure when no nail type is specified', async () => {
 		await expect(service.parsePrompt('A red French design for spring.'))
-			.rejects.toBeInstanceOf(AIPasrseError);
+			.resolves.toEqual({
+				colors: ['red'],
+				types: ['french'],
+				occasions: [],
+				season: 'spring',
+				typesOfNails: 'manicure',
+			});
 	});
 });

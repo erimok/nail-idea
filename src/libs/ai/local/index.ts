@@ -5,3 +5,4 @@ export * from './occasions-parser.service';
 export * from './season-parser.service';
 export * from './types-of-nails-parser.service';
 export * from './types-parser.service';
+export { default } from './di';
