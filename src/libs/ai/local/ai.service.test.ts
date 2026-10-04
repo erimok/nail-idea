@@ -31,4 +31,13 @@ describe('AIService', () => {
 				nailConcerns: [],
 			});
 	});
+
+	it('uses static search terms and aliases', async () => {
+		await expect(service.parsePrompt('A wine cat eye manicure for fall.'))
+			.resolves.toMatchObject({
+				colors: ['burgundy'],
+				types: ['cat-eye'],
+				season: 'autumn',
+			});
+	});
 });

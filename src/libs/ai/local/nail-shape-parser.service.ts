@@ -1,16 +1,8 @@
 import { DictionaryParser } from './dictionary-parser.service';
+import { aiSearchVocabulary } from '../vocabulary';
 
 export class NailShapeParser extends DictionaryParser {
     constructor() {
-        super({
-            almond: 'almond',
-            ballerina: 'coffin',
-            coffin: 'coffin',
-            oval: 'oval',
-            round: 'round',
-            squoval: 'squoval',
-            square: 'square',
-            stiletto: 'stiletto',
-        });
+        super(aiSearchVocabulary.shapes);
     }
 }

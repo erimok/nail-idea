@@ -10,13 +10,13 @@ import { TypesOfNailsParser } from './types-of-nails-parser.service';
 import { TypesParser } from './types-parser.service';
 
 export default new AIService(
-    new ColorsParser(),
-    new TypesParser(),
-    new OccasionsParser(),
-    new SeasonParser(),
-    new TypesOfNailsParser(),
-    new NailShapeParser(),
-    new NailLengthParser(),
-    new NailFinishParser(),
-    new NailConcernsParser(),
+	new ColorsParser(),
+	new TypesParser(),
+	new OccasionsParser(),
+	new SeasonParser(),
+	new TypesOfNailsParser(),
+	new NailShapeParser(),
+	new NailLengthParser(),
+	new NailFinishParser(),
+	new NailConcernsParser(),
 );

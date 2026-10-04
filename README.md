@@ -18,6 +18,8 @@ Open the site at `http://localhost:4321` and the Keystatic editor at `http://loc
 
 Keystatic is configured with local storage. Entries are saved under `src/content/ideas/`; configure GitHub storage before enabling the editor on a hosted deployment.
 
+The `Nails` collection stores curated nail ideas and image URLs. Colors, styles, and occasions use predefined options from `src/libs/ai/vocabulary.ts`; the AI search vocabulary is static code, not CMS content. Rebuild the static site after editing nail records.
+
 ## Checks
 
 ```sh

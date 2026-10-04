@@ -1,0 +1,17 @@
+title: Violet Aura Pedi
+image: https://images.unsplash.com/photo-1743617206507-447c78118622?auto=format&fit=crop&w=1000&q=85
+description: A rich violet pedicure with a soft aura-inspired shimmer.
+typesOfNails: pedicure
+colors:
+  - purple
+  - lavender
+types:
+  - aura
+occasions:
+  - beach vacation
+season: summer
+shape: round
+length: short
+finishes:
+  - shimmer
+nailConcerns: []

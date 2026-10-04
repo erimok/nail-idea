@@ -8,4 +8,8 @@ describe('TypesParser', () => {
 	it.each(prompts)('parses design types for $name', ({ prompt, expected }) => {
 		expect(parser.parse(prompt)).toEqual(expected.types);
 	});
+
+	it('matches accented style aliases', () => {
+		expect(parser.parse('Try an ombré nail design.')).toEqual(['ombre']);
+	});
 });

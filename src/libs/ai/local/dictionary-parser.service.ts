@@ -7,7 +7,7 @@ export class DictionaryParser implements IParser {
         const terms = Object.keys(dictionary)
             .sort((left, right) => right.length - left.length)
             .map((term) => term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'));
-        this.pattern = new RegExp(`\\b(${terms.join('|')})\\b`, 'gi');
+        this.pattern = new RegExp(`(?<![\\p{L}\\p{N}_])(${terms.join('|')})(?![\\p{L}\\p{N}_])`, 'giu');
     }
 
     parse(text: string): string[] {

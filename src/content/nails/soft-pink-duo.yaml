@@ -1,0 +1,16 @@
+title: Soft Pink Duo
+image: https://images.unsplash.com/photo-1727199433231-346fd8101839?auto=format&fit=crop&w=1000&q=85
+description: A soft two-tone pink manicure with a clean, glossy finish.
+typesOfNails: manicure
+colors:
+  - pink
+  - nude
+types: []
+occasions:
+  - birthday
+season: summer
+shape: square
+length: long
+finishes:
+  - glossy
+nailConcerns: []
