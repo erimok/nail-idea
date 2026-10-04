@@ -3,7 +3,7 @@ import { nailAreas, type NailArea } from '../../areas';
 import Breadcrumbs from '../../components/Breadcrumbs.astro';
 import FacetLinks from '../../components/FacetLinks.astro';
 import IdeaExplorer from '../../components/IdeaExplorer';
-import NailGrid from '../../components/NailGrid';
+import NailCollectionGrid from '../../components/NailCollectionGrid.astro';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import { loadNails } from '../../libs/nails';
 import { getFacetPages, getNailsForArea, getAreaPageCopy } from '../../libs/seo-pages';
@@ -38,7 +38,7 @@ const canonical = new URL(`/${area}/`, Astro.site).toString();
 				<span class="text-xs font-semibold text-[#7c8980]">{nails.length} designs</span>
 			</div>
 			{nails.length > 0
-				? <NailGrid items={nails.map((nail) => ({ nail }))} />
+				? <NailCollectionGrid items={nails.map((nail) => ({ nail }))} />
 				: <p class="mt-5 text-sm leading-6 text-[#617269]">New {area} ideas are coming soon.</p>}
 		</section>
 		<FacetLinks pages={facets} title={`Explore more ${area} ideas`} />

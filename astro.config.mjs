@@ -11,6 +11,9 @@ export default defineConfig({
 	site: process.env.SITE_URL ?? 'https://nail.ai',
 	output: 'static',
 	adapter: node({ mode: 'standalone' }),
+	image: {
+		remotePatterns: [{ protocol: 'https', hostname: 'images.unsplash.com' }],
+	},
 	integrations: [react(), markdoc(), keystatic()],
 	vite: {
 		plugins: [tailwindcss()],

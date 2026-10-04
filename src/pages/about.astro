@@ -1,0 +1,38 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Breadcrumbs from '../components/Breadcrumbs.astro';
+
+const title = 'About Nail.ai | Nail Design Inspiration';
+const description = 'Learn about Nail.ai, a searchable collection of manicure and pedicure ideas organized around the details you care about.';
+const canonical = new URL('/about/', Astro.site).toString();
+---
+
+<BaseLayout title={title} description={description} canonical={canonical}>
+	<main class="mx-auto w-full max-w-[1440px] px-5 pb-16 pt-10 sm:px-8 sm:pt-14 lg:px-14 lg:pb-20">
+		<article class="max-w-3xl">
+			<Breadcrumbs items={[{ label: 'Home', href: '/' }, { label: 'About' }]} />
+			<p class="mb-4 flex items-center gap-3 text-xs font-bold uppercase tracking-[0.12em] text-[#d6694c]">
+				<span aria-hidden="true" class="h-px w-8 bg-[#d6694c]"></span>
+				About Nail.ai
+			</p>
+			<h1 class="max-w-2xl font-display text-4xl leading-tight text-[#172b24] sm:text-5xl">Find a nail look that feels like you.</h1>
+			<p class="mt-6 text-lg leading-8 text-[#45594d]">Nail.ai brings manicure and pedicure inspiration into one searchable collection. Start with a color, a design, or the occasion, then explore the looks that match.</p>
+
+			<div class="mt-10 space-y-6 border-y border-[#d9dfd4] py-8">
+				<section>
+					<h2 class="font-display text-2xl text-[#172b24]">Inspiration with useful details</h2>
+					<p class="mt-3 text-base leading-7 text-[#617269]">Every idea in the collection includes details such as color, design style, season, shape, and finish. The search reads those details from your description and finds related designs, whether you know exactly what you want or are still exploring.</p>
+				</section>
+				<section>
+					<h2 class="font-display text-2xl text-[#172b24]">Made for hands and feet</h2>
+					<p class="mt-3 text-base leading-7 text-[#617269]">Browse manicure and pedicure ideas separately, then narrow the collection by colors, styles, occasions, or seasons. New looks can be added as the collection grows.</p>
+				</section>
+			</div>
+
+			<nav aria-label="Browse ideas" class="mt-8 flex flex-wrap gap-x-6 gap-y-3">
+				<a class="text-sm font-bold text-[#45594d] underline decoration-[#c7d0c5] underline-offset-4 transition-colors hover:text-[#d6694c]" href="/manicure/">Explore manicure ideas</a>
+				<a class="text-sm font-bold text-[#45594d] underline decoration-[#c7d0c5] underline-offset-4 transition-colors hover:text-[#d6694c]" href="/pedicure/">Explore pedicure ideas</a>
+			</nav>
+		</article>
+	</main>
+</BaseLayout>

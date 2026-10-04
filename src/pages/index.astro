@@ -1,7 +1,7 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
 import IdeaExplorer from '../components/IdeaExplorer';
-import NailGrid from '../components/NailGrid';
+import NailCollectionGrid from '../components/NailCollectionGrid.astro';
 import { loadNails } from '../libs/nails';
 
 import { nailAreas } from '../areas';
@@ -45,7 +45,7 @@ const structuredData = {
 				</div>
 				<span class="text-xs font-semibold text-[#7c8980]">{nails.length} designs</span>
 			</div>
-			<NailGrid items={nails.map((nail) => ({ nail }))} />
+			<NailCollectionGrid items={nails.map((nail) => ({ nail }))} />
 		</section>
 	</main>
 </BaseLayout>
