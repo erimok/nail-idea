@@ -25,3 +25,8 @@ Planned routes:
 {manicure|pedicure}/comparison/{type}-vs-{type}/
 {manicure|pedicure}/guide/{type}/
 ```
+
+## Product ideas
+
+- **Top nails by likes:** let visitors like designs and rank popular nails by like count. Explore top lists for manicure, pedicure, and filtered facets; define tie-breaking and duplicate-like prevention when this feature is scoped.
+- **Personal collection:** let visitors save and remove nail designs in a private collection, with a dedicated view for saved items. Decide whether the first version stores saves only in the browser or supports accounts and cross-device sync.
