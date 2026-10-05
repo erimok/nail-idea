@@ -47,7 +47,10 @@ export function searchNails(
 			const availableServices = nail.typesOfNails === 'both'
 				? ['manicure', 'pedicure', 'both']
 				: [nail.typesOfNails];
-			const scores = [listMatchScore(requestedServices, availableServices)];
+			const serviceScore = listMatchScore(requestedServices, availableServices);
+			if (serviceScore === 0) return undefined;
+
+			const scores: (number | undefined)[] = [];
 			scores.push(listMatchScore(response.colors, nail.colors));
 			scores.push(listMatchScore(response.types, nail.types));
 			scores.push(listMatchScore(response.occasions ?? [], nail.occasions));
@@ -58,9 +61,11 @@ export function searchNails(
 			scores.push(listMatchScore(response.nailConcerns ?? [], nail.nailConcerns));
 
 			const relevantScores = scores.filter((score): score is number => score !== undefined);
-			const score = relevantScores.reduce((total, value) => total + value, 0) / relevantScores.length;
+			const score = relevantScores.length === 0
+				? serviceScore ?? 0
+				: relevantScores.reduce((total, value) => total + value, 0) / relevantScores.length;
 			return { nail, score };
 		})
-		.filter(({ score }) => score > 0)
+		.filter((match): match is NailSearchMatch => match !== undefined && match.score > 0)
 		.sort((left, right) => right.score - left.score || left.nail.title.localeCompare(right.nail.title));
 }

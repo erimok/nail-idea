@@ -34,6 +34,24 @@ function makeNail(overrides: Partial<NailRecord> = {}): NailRecord {
 }
 
 describe('searchNails', () => {
+	it('does not treat the requested service as a positive match when a design type is specified', () => {
+		const frenchManicurePrompt: IAIResponse = {
+			colors: [],
+			types: ['french'],
+			occasions: [],
+			typesOfNails: 'manicure',
+			finishes: [],
+			nailConcerns: [],
+		};
+		const unrelatedNails = [
+			makeNail({ slug: 'burgundy', title: 'Burgundy Shimmer Almonds', types: ['minimalist'] }),
+			makeNail({ slug: 'coral', title: 'Glossy Coral Pink Short Rounds', types: ['minimalist'] }),
+		];
+
+		expect(searchNails(frenchManicurePrompt, [...unrelatedNails, makeNail()]).map(({ nail }) => nail.slug))
+			.toEqual(['red-french']);
+	});
+
 	it('ranks the closest CMS nail records first', () => {
 		const exactMatch = makeNail();
 		const partialMatch = makeNail({
