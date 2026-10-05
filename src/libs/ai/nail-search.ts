@@ -1,5 +1,7 @@
 import type { IAIResponse } from './types';
 
+export type SeasonValue = readonly string[] | string | undefined;
+
 export interface NailRecord {
 	slug: string;
 	title: string;
@@ -9,11 +11,17 @@ export interface NailRecord {
 	types: readonly string[];
 	occasions: readonly string[];
 	typesOfNails: string;
-	season?: string;
+	season?: SeasonValue;
 	shape?: string;
 	length?: string;
 	finishes: readonly string[];
 	nailConcerns: readonly string[];
+}
+
+function seasonValues(value: SeasonValue): readonly string[] {
+	if (value === undefined) return [];
+	if (typeof value === 'string') return [value];
+	return [...value];
 }
 
 export interface NailSearchMatch {
@@ -43,7 +51,7 @@ export function searchNails(
 			scores.push(listMatchScore(response.colors, nail.colors));
 			scores.push(listMatchScore(response.types, nail.types));
 			scores.push(listMatchScore(response.occasions ?? [], nail.occasions));
-			scores.push(listMatchScore(response.season ? [response.season] : [], nail.season ? [nail.season] : []));
+			scores.push(listMatchScore(response.season ? [response.season] : [], seasonValues(nail.season)));
 			scores.push(listMatchScore(response.shape ? [response.shape] : [], nail.shape ? [nail.shape] : []));
 			scores.push(listMatchScore(response.length ? [response.length] : [], nail.length ? [nail.length] : []));
 			scores.push(listMatchScore(response.finishes ?? [], nail.finishes));

@@ -8,7 +8,8 @@ types:
   - abstract
 occasions:
   - birthday
-season: spring
+season:
+  - spring
 shape: almond
 length: medium
 finishes:

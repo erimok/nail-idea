@@ -7,7 +7,8 @@ colors:
   - beige
 types: []
 occasions: []
-season: autumn
+season:
+  - autumn
 shape: round
 length: short
 finishes:

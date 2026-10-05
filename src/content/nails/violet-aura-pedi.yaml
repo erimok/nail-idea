@@ -9,7 +9,8 @@ types:
   - aura
 occasions:
   - beach vacation
-season: summer
+season:
+  - summer
 shape: round
 length: short
 finishes:

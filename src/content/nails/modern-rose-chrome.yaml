@@ -9,7 +9,8 @@ types:
   - aura
 occasions:
   - anniversary
-season: winter
+season:
+  - winter
 shape: coffin
 length: long
 finishes:

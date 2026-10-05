@@ -9,7 +9,8 @@ types:
   - abstract
 occasions:
   - prom
-season: winter
+season:
+  - winter
 shape: stiletto
 length: long
 finishes:

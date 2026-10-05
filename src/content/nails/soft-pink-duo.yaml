@@ -8,7 +8,8 @@ colors:
 types: []
 occasions:
   - birthday
-season: summer
+season:
+  - summer
 shape: square
 length: long
 finishes:

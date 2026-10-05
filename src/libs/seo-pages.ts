@@ -1,6 +1,12 @@
 import { isNailArea, nailAreas, type NailArea } from '../areas';
 import type { NailRecord } from './ai/nail-search';
 
+function seasonValues(value: NailRecord['season']): readonly string[] {
+	if (value === undefined) return [];
+	if (typeof value === 'string') return [value];
+	return [...value];
+}
+
 export const facetKinds = ['color', 'type', 'occasion', 'season'] as const;
 
 export type FacetKind = (typeof facetKinds)[number];
@@ -44,7 +50,7 @@ function valuesForFacet(nail: NailRecord, kind: FacetKind): readonly string[] {
 		case 'occasion':
 			return nail.occasions;
 		case 'season':
-			return nail.season ? [nail.season] : [];
+			return seasonValues(nail.season);
 	}
 }
 
@@ -102,7 +108,7 @@ function getAreaDetails(nails: readonly NailRecord[]): string {
 		countLabel(uniqueValues(nails.flatMap((nail) => nail.colors)).length, 'color'),
 		countLabel(uniqueValues(nails.flatMap((nail) => nail.types)).length, 'design style'),
 		countLabel(uniqueValues(nails.flatMap((nail) => nail.occasions)).length, 'occasion'),
-		countLabel(uniqueValues(nails.flatMap((nail) => nail.season ? [nail.season] : [])).length, 'season'),
+		countLabel(uniqueValues(nails.flatMap((nail) => seasonValues(nail.season))).length, 'season'),
 	].filter((detail) => !detail.startsWith('0 '));
 
 	return details.length > 0 ? `The collection spans ${details.join(', ')}.` : '';

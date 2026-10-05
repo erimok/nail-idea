@@ -10,7 +10,8 @@ types:
   - abstract
 occasions:
   - holiday
-season: autumn
+season:
+  - autumn
 shape: square
 length: medium
 finishes:

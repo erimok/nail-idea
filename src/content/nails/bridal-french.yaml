@@ -9,7 +9,8 @@ types:
   - french
 occasions:
   - wedding
-season: spring
+season:
+  - spring
 shape: almond
 length: short
 finishes:

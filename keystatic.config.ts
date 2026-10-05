@@ -15,7 +15,7 @@ export default config({
 			label: 'Nails',
 			slugField: 'title',
 			path: 'src/content/nails/*',
-			columns: ['typesOfNails', 'season', 'shape'],
+			columns: ['typesOfNails', 'shape'],
 			schema: {
 				title: fields.slug({ name: { label: 'Name' } }),
 				image: fields.url({ label: 'Image URL', validation: { isRequired: true } }),
@@ -28,7 +28,7 @@ export default config({
 				colors: fields.multiselect({ label: 'Colors', options: optionsFor(aiSearchOptions.colors), defaultValue: [] }),
 				types: fields.multiselect({ label: 'Design styles', options: optionsFor(aiSearchOptions.types), defaultValue: [] }),
 				occasions: fields.multiselect({ label: 'Occasions', options: optionsFor(aiSearchOptions.occasions), defaultValue: [] }),
-				season: fields.select({ label: 'Season', options: optionsFor(aiSearchOptions.seasons), defaultValue: 'spring' }),
+				season: fields.multiselect({ label: 'Season', options: optionsFor(aiSearchOptions.seasons), defaultValue: [] }),
 				shape: fields.select({ label: 'Nail shape', options: optionsFor(aiSearchOptions.shapes), defaultValue: 'almond' }),
 				length: fields.select({ label: 'Nail length', options: optionsFor(aiSearchOptions.lengths), defaultValue: 'medium' }),
 				finishes: fields.multiselect({ label: 'Finishes', options: optionsFor(aiSearchOptions.finishes), defaultValue: [] }),
