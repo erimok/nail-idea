@@ -22,6 +22,8 @@ Keystatic is configured with local storage. Entries are saved under `src/content
 
 The `Nails` collection stores curated nail ideas and image URLs. Colors, styles, and occasions use predefined options from `src/libs/ai/vocabulary.ts`; the AI search vocabulary is static code, not CMS content. Rebuild the static site after editing nail records.
 
+For ready-to-run local content import examples using `curl` and `.http`, see [Local content import](docs/local-content-import.md).
+
 ## Checks
 
 ```sh

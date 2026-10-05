@@ -1,0 +1,39 @@
+@baseUrl = http://localhost:4321
+
+### Import coral short rounds
+POST {{baseUrl}}/api/dev/nails
+Content-Type: application/json
+
+{
+  "title": "HTTP Example Coral Short Rounds",
+  "image": "https://images.unsplash.com/photo-1727199433231-346fd8101839?auto=format&fit=crop&w=1000&q=85",
+  "description": "Short rounded nails painted in a single solid glossy coral-pink shade.",
+  "typesOfNails": "manicure",
+  "colors": ["pink", "coral"],
+  "types": ["minimalist"],
+  "occasions": ["everyday"],
+  "season": ["summer"],
+  "shape": "round",
+  "length": "short",
+  "finishes": ["glossy"],
+  "nailConcerns": []
+}
+
+### Import French manicure
+POST {{baseUrl}}/api/dev/nails
+Content-Type: application/json
+
+{
+  "title": "HTTP Example French Manicure",
+  "image": "https://plus.unsplash.com/premium_photo-1670348051093-a3f94b408bcb?q=80&w=1744&auto=format&fit=crop",
+  "description": "Oval nails with a sheer nude base and glossy white tips in a traditional French manicure style.",
+  "typesOfNails": "manicure",
+  "colors": ["cream", "white"],
+  "types": ["french"],
+  "occasions": ["bridal shower", "wedding"],
+  "season": ["autumn", "spring", "summer", "winter"],
+  "shape": "oval",
+  "length": "medium",
+  "finishes": ["glossy"],
+  "nailConcerns": []
+}

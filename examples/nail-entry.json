@@ -1,0 +1,14 @@
+{
+  "title": "Local Example Coral Short Rounds",
+  "image": "https://images.unsplash.com/photo-1727199433231-346fd8101839?auto=format&fit=crop&w=1000&q=85",
+  "description": "Short rounded nails painted in a single solid glossy coral-pink shade.",
+  "typesOfNails": "manicure",
+  "colors": ["pink", "coral"],
+  "types": ["minimalist"],
+  "occasions": ["everyday"],
+  "season": ["summer"],
+  "shape": "round",
+  "length": "short",
+  "finishes": ["glossy"],
+  "nailConcerns": []
+}
