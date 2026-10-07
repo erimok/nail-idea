@@ -22,7 +22,7 @@ export async function getStaticPaths() {
 const { page, relatedPages } = Astro.props as { page: NailFacetPage; relatedPages: NailFacetPage[] };
 const copy = getFacetPageCopy(page);
 const areaLabel = page.area.charAt(0).toUpperCase() + page.area.slice(1);
-const facetLabel = page.value.charAt(0).toUpperCase() + page.value.slice(1);
+const facetLabel = page.facets.map((facet) => facet.value.charAt(0).toUpperCase() + facet.value.slice(1)).join(' ');
 const canonical = new URL(`/${page.area}/${page.slug}/`, Astro.site).toString();
 ---
 
