@@ -50,6 +50,10 @@ Implemented static pages:
 
 Each populated single facet gets a page; `occasion` and `season` are single-facet pages only. Pair and triple pages are generated from `color`, `type`, `shape`, `length`, and `finishing` only when at least one nail matches the full combination. Values are lowercased and normalized to kebab-case (for example, `rose gold` becomes `rose-gold`). URLs share one namespace per area, and a build error is raised if different facets or combinations normalize to the same slug. Records marked for both manicure and pedicure appear in both areas.
 
+The Astro sitemap integration writes `sitemap-index.xml` during the production build and discovers all prerendered routes automatically. New static routes, including future comparison and guide pages, are included without editing a route list. Set `SITE_URL` to the production origin when building for a different domain; it must match the canonical site URL.
+
+Run `npm test` to run unit tests and the sitemap build smoke test. The sitemap check verifies the index and representative top-level and facet URLs in the generated XML.
+
 Planned routes:
 
 ```txt
