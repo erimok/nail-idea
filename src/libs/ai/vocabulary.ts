@@ -62,6 +62,7 @@ export const aiSearchVocabulary = {
 		'french manicure': 'french',
 		'french tip': 'french',
 		'french tips': 'french',
+		'micro french': 'micro french',
 		'geometric': 'geometric',
 		'japanese': 'japanese manicure',
 		'japanese manicure': 'japanese manicure',

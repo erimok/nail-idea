@@ -18,7 +18,12 @@ export default config({
 			columns: ['typesOfNails', 'shape'],
 			schema: {
 				title: fields.slug({ name: { label: 'Name' } }),
-				image: fields.url({ label: 'Image URL', validation: { isRequired: true } }),
+				image: fields.image({
+					label: 'Image',
+					directory: 'public/images/nails',
+					publicPath: '/images/nails',
+					validation: { isRequired: true },
+				}),
 				description: fields.text({ label: 'Description', multiline: true }),
 				typesOfNails: fields.select({
 					label: 'Nail service',
@@ -33,25 +38,6 @@ export default config({
 				length: fields.select({ label: 'Nail length', options: optionsFor(aiSearchOptions.lengths), defaultValue: 'medium' }),
 				finishes: fields.multiselect({ label: 'Finishes', options: optionsFor(aiSearchOptions.finishes), defaultValue: [] }),
 				nailConcerns: fields.multiselect({ label: 'Nail concerns', options: optionsFor(aiSearchOptions.nailConcerns), defaultValue: [] }),
-			},
-		}),
-		ideas: collection({
-			label: 'Ideas',
-			slugField: 'title',
-			path: 'src/content/ideas/*',
-			format: { contentField: 'content' },
-			schema: {
-				title: fields.slug({ name: { label: 'Title' } }),
-				area: fields.select({
-					label: 'Area',
-					options: [
-						{ label: 'Manicure', value: 'manicure' },
-						{ label: 'Pedicure', value: 'pedicure' },
-					],
-					defaultValue: 'manicure',
-				}),
-				description: fields.text({ label: 'Description' }),
-				content: fields.markdoc({ label: 'Content' }),
 			},
 		}),
 	},
