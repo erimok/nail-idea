@@ -1,6 +1,7 @@
 ---
 import { Picture } from 'astro:assets';
 import type { NailRecord } from '../libs/ai/nail-search';
+import { getNailImageMetadata } from '../libs/nail-images';
 
 interface Props {
 	items: readonly { nail: NailRecord }[];
@@ -13,8 +14,8 @@ const { items } = Astro.props;
 	{items.map(({ nail }) => (
 		<article class="overflow-hidden rounded-lg border border-[#d9dfd4] bg-white">
 			<Picture
-				src={nail.image}
-				alt={nail.title}
+				src={getNailImageMetadata(nail.image)}
+				alt={nail.imageAlt ?? nail.description}
 				width={1000}
 				height={750}
 				widths={[320, 480, 640, 800]}

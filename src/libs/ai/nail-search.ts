@@ -6,6 +6,8 @@ export interface NailRecord {
 	slug: string;
 	title: string;
 	image: string;
+	imageSrc?: string;
+	imageAlt?: string;
 	description: string;
 	colors: readonly string[];
 	types: readonly string[];

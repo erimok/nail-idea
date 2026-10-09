@@ -8,6 +8,11 @@ function seasonValues(value: NailRecord['season']): readonly string[] {
 }
 
 export const facetKinds = ['color', 'type', 'occasion', 'season', 'shape', 'length', 'finishing'] as const;
+export const minimumDesignsForIndexing = 8;
+
+export function isIndexablePage(designCount: number): boolean {
+	return designCount >= minimumDesignsForIndexing;
+}
 
 export type FacetKind = (typeof facetKinds)[number];
 type SeoFacetKind = Extract<FacetKind, 'color' | 'type' | 'shape' | 'length' | 'finishing'>;

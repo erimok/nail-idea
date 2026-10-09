@@ -6,7 +6,7 @@ import IdeaExplorer from '../../components/IdeaExplorer';
 import NailCollectionGrid from '../../components/NailCollectionGrid.astro';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import { loadNails } from '../../libs/nails';
-import { getFacetPages, getNailsForArea, getAreaPageCopy } from '../../libs/seo-pages';
+import { getFacetPages, getNailsForArea, getAreaPageCopy, isIndexablePage } from '../../libs/seo-pages';
 
 export function getStaticPaths() {
 	return nailAreas.map((area) => ({ params: { area }, props: { area } }));
@@ -21,7 +21,7 @@ const areaLabel = area.charAt(0).toUpperCase() + area.slice(1);
 const canonical = new URL(`/${area}/`, Astro.site).toString();
 ---
 
-<BaseLayout title={copy.title} description={copy.description} canonical={canonical}>
+<BaseLayout title={copy.title} description={copy.description} canonical={canonical} noIndex={!isIndexablePage(nails.length)}>
 	<IdeaExplorer nails={nails} initialPrompt={copy.prompt} client:load />
 	<main class="mx-auto w-full max-w-[1440px] space-y-10 px-5 pb-14 sm:px-8 lg:px-14">
 		<section class="max-w-3xl space-y-4" aria-labelledby="collection-title">
@@ -35,7 +35,6 @@ const canonical = new URL(`/${area}/`, Astro.site).toString();
 					<p class="text-xs font-bold uppercase tracking-[0.14em] text-[#718b42]">From the Nails collection</p>
 					<h2 id="ideas-title" class="mt-1 font-display text-3xl">All {area} ideas</h2>
 				</div>
-				<span class="text-xs font-semibold text-[#7c8980]">{nails.length} designs</span>
 			</div>
 			{nails.length > 0
 				? <NailCollectionGrid items={nails.map((nail) => ({ nail }))} />

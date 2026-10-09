@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { readFile } from 'node:fs/promises';
+import { access, readFile } from 'node:fs/promises';
 import path from 'node:path';
 import test from 'node:test';
 import { fileURLToPath } from 'node:url';
@@ -26,4 +26,31 @@ test('production sitemap includes the homepage, area pages, and generated facet 
 	assert.ok(hasPath('/manicure/'), 'sitemap should include the manicure page');
 	assert.ok(hasPath('/pedicure/'), 'sitemap should include the pedicure page');
 	assert.ok(pagePaths.some((url) => url.origin === siteUrl.origin && /^\/(manicure|pedicure)\/[^/]+-nails\/$/.test(url.pathname)), 'sitemap should include generated facet pages');
+
+	const homepage = await readFile(path.join(distDirectory, 'index.html'), 'utf8');
+	assert.match(homepage, /<title>Manicure and Pedicure Ideas \| Nail\.ai<\/title>/);
+	assert.doesNotMatch(homepage, /\b\d+ designs\b/);
+	assert.match(homepage, /fonts\.googleapis\.com\/css2/);
+
+	const thinFacet = await readFile(path.join(distDirectory, 'manicure', 'burgundy-nails', 'index.html'), 'utf8');
+	assert.match(thinFacet, /<meta name="robots" content="noindex,follow"/);
+	assert.doesNotMatch(thinFacet, /\b\d+ designs\b/);
+
+	const picture = homepage.match(/<picture[\s\S]*?<\/picture>/)?.[0];
+	assert.ok(picture, 'homepage should render a nail image');
+	const alt = picture.match(/\balt="([^"]+)"/)?.[1];
+	const title = picture.match(/<h3[^>]*>([^<]+)<\/h3>/)?.[1];
+	assert.ok(alt, 'nail image should have descriptive alt text');
+	assert.notEqual(alt, title, 'image alt text should describe the image, not repeat its title');
+
+	const srcsets = [...picture.matchAll(/\bsrcset="([^"]+)"/g)].map(([, srcset]) => srcset);
+	assert.ok(srcsets.length >= 2, 'optimized image should have AVIF and WebP srcsets');
+	for (const srcset of srcsets) {
+		const imagePaths = srcset.split(',').map((candidate) => candidate.trim().split(/\s+/)[0]);
+		assert.equal(new Set(imagePaths).size, imagePaths.length, 'responsive widths should use distinct image URLs');
+		for (const imagePath of imagePaths) {
+			assert.match(imagePath, /\.(avif|webp)$/);
+			await access(path.join(distDirectory, imagePath.replace(/^\//, '')));
+		}
+	}
 });

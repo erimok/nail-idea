@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import type { NailRecord } from './ai/nail-search';
-import { getAllFacetPages, getAreaPageCopy, getFacetPageCopy, getFacetPages, getNailsForArea, slugifyFacet } from './seo-pages';
+import { getAllFacetPages, getAreaPageCopy, getFacetPageCopy, getFacetPages, getNailsForArea, isIndexablePage, slugifyFacet } from './seo-pages';
 
 const makeNail = (overrides: Partial<NailRecord> = {}): NailRecord => ({
 	slug: 'sample',
@@ -20,6 +20,11 @@ const makeNail = (overrides: Partial<NailRecord> = {}): NailRecord => ({
 });
 
 describe('pSEO facet pages', () => {
+	it('keeps thin pages out of the index until they have eight designs', () => {
+		expect(isIndexablePage(7)).toBe(false);
+		expect(isIndexablePage(8)).toBe(true);
+	});
+
 	it('creates only populated facets and includes records for both areas', () => {
 		const manicure = makeNail({ colors: ['rose gold'], types: ['french'], occasions: ['wedding'], season: 'spring' });
 		const both = makeNail({ slug: 'both', typesOfNails: 'both', colors: ['rose gold', 'red'] });

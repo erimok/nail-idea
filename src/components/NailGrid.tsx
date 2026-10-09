@@ -11,11 +11,11 @@ export default function NailGrid({ items }: { items: readonly NailGridItem[] }) 
 			{items.map(({ nail, score }) => (
 				<article className="overflow-hidden rounded-lg border border-[#d9dfd4] bg-white" key={nail.slug}>
 					<img
-						alt={nail.title}
+						alt={nail.imageAlt ?? nail.description}
 						className="aspect-[4/3] w-full object-cover"
 						decoding="async"
 						loading="lazy"
-						src={nail.image}
+						src={nail.imageSrc ?? nail.image}
 					/>
 					<div className="p-5">
 						<div className="flex items-start justify-between gap-3">

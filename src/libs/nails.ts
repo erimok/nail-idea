@@ -1,6 +1,7 @@
 import { createReader } from '@keystatic/core/reader';
 import keystaticConfig from '../../keystatic.config';
 import type { NailRecord } from './ai/nail-search';
+import { getNailImageMetadata } from './nail-images';
 
 export async function loadNails(): Promise<NailRecord[]> {
 	const reader = createReader(process.cwd(), keystaticConfig);
@@ -9,6 +10,8 @@ export async function loadNails(): Promise<NailRecord[]> {
 		slug,
 		title: entry.title,
 		image: entry.image ?? '',
+		imageSrc: entry.image ? getNailImageMetadata(entry.image).src : undefined,
+		imageAlt: entry.imageAlt ?? undefined,
 		description: entry.description,
 		typesOfNails: entry.typesOfNails,
 		colors: entry.colors,

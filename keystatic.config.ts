@@ -20,10 +20,11 @@ export default config({
 				title: fields.slug({ name: { label: 'Name' } }),
 				image: fields.image({
 					label: 'Image',
-					directory: 'public/images/nails',
+					directory: 'src/assets/images/nails',
 					publicPath: '/images/nails',
 					validation: { isRequired: true },
 				}),
+				imageAlt: fields.text({ label: 'Image alt text', validation: { isRequired: true } }),
 				description: fields.text({ label: 'Description', multiline: true }),
 				typesOfNails: fields.select({
 					label: 'Nail service',
