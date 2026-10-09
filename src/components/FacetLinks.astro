@@ -1,5 +1,5 @@
 ---
-import { facetKinds, formatFacetLabel, type NailFacetPage } from '../libs/seo-pages';
+import { facetKinds, formatFacetLabel, isIndexablePage, type NailFacetPage } from '../libs/seo-pages';
 
 interface Props {
 	pages: readonly NailFacetPage[];
@@ -9,7 +9,8 @@ interface Props {
 }
 
 const { pages, title, currentSlug, variant = 'default' } = Astro.props;
-const includeArea = new Set(pages.map((page) => page.area)).size > 1;
+const indexablePages = pages.filter((page) => isIndexablePage(page.nails.length));
+const includeArea = new Set(indexablePages.map((page) => page.area)).size > 1;
 const groupLabels = {
 	color: 'Colors',
 	type: 'Design styles',
@@ -21,7 +22,7 @@ const groupLabels = {
 };
 ---
 
-<nav aria-label={title} class:list={[
+<nav aria-label={title} hidden={indexablePages.length === 0} class:list={[
 	variant === 'footer' ? 'w-full' : 'border-y border-[#d9dfd4] py-7',
 ]}>
 	<h2 class:list={[
@@ -33,7 +34,7 @@ const groupLabels = {
 		variant === 'footer' ? 'grid-cols-2 sm:grid-cols-3 lg:grid-cols-7' : 'sm:grid-cols-2 lg:grid-cols-3',
 	]}>
 		{facetKinds.map((kind) => {
-			const groupPages = pages.filter((page) => page.kind === kind && page.slug !== currentSlug);
+			const groupPages = indexablePages.filter((page) => page.kind === kind && page.slug !== currentSlug);
 			return groupPages.length > 0 && (
 				<div>
 					<h3 class:list={[
