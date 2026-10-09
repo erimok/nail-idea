@@ -4,7 +4,8 @@ import { aiSearchOptions } from './vocabulary';
 describe('aiSearchOptions', () => {
 	it('covers canonical values for every AI response category', () => {
 		expect(aiSearchOptions.colors).toEqual(expect.arrayContaining(['fuchsia', 'turquoise', 'ivory']));
-		expect(aiSearchOptions.types).toEqual(expect.arrayContaining(['russian manicure', 'japanese manicure', 'builder gel']));
+		expect(aiSearchOptions.types).toEqual(expect.arrayContaining(['russian manicure', 'japanese manicure', 'builder gel', 'solid']));
+		expect(aiSearchOptions.colors).not.toContain('solid');
 		expect(aiSearchOptions.occasions).toEqual(expect.arrayContaining(['halloween', 'office', 'new year']));
 		expect(aiSearchOptions.typesOfNails).toEqual(['both', 'manicure', 'pedicure']);
 		expect(aiSearchOptions.seasons).toEqual(['autumn', 'spring', 'summer', 'winter']);

@@ -1,5 +1,9 @@
 ---
 import '../styles/global.css';
+import FacetLinks from '../components/FacetLinks.astro';
+import { nailAreas } from '../areas';
+import { loadNails } from '../libs/nails';
+import { getFacetPages } from '../libs/seo-pages';
 
 interface Props {
 	title: string;
@@ -19,6 +23,8 @@ const {
 const serializedStructuredData = structuredData
 	? JSON.stringify(structuredData).replace(/</g, '\\u003c')
 	: undefined;
+const nails = await loadNails();
+const footerFacetPages = nailAreas.flatMap((area) => getFacetPages(nails, area));
 ---
 
 <!doctype html>
@@ -58,11 +64,14 @@ const serializedStructuredData = structuredData
 			</div>
 		</header>
 		<slot />
-		<footer class="mt-auto border-t border-[#e1e5dc]">
-			<div class="mx-auto flex w-full max-w-[1440px] flex-wrap items-center justify-between gap-3 px-5 py-5 text-xs text-[#718078] sm:px-8 lg:px-14">
-				<p class="font-semibold text-[#45594d]">Nail.ai</p>
-				<p>Manicure and pedicure ideas, made personal.</p>
-				<a class="font-semibold text-[#45594d] underline decoration-[#c7d0c5] underline-offset-4 transition-colors hover:text-[#d6694c]" href="/about/">About</a>
+		<footer class="mt-auto border-t border-[#304a3c] bg-[#172b24]">
+			<div class="mx-auto w-full max-w-[1440px] px-5 py-8 sm:px-8 lg:px-14">
+				<FacetLinks pages={footerFacetPages} title="Browse by" variant="footer" />
+				<div class="mt-8 flex flex-wrap items-center justify-between gap-3 border-t border-[#304a3c] pt-5 text-xs text-[#a9b5aa]">
+					<p class="font-semibold text-white">Nail.ai</p>
+					<p>Manicure and pedicure ideas, made personal.</p>
+					<a class="font-semibold underline decoration-[#617269] underline-offset-4 transition-colors hover:text-white" href="/about/">About</a>
+				</div>
 			</div>
 		</footer>
 	</body>

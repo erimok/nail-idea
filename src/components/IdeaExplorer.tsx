@@ -63,7 +63,8 @@ export default function IdeaExplorer({ nails = [], initialPrompt = '' }: { nails
 						Your next set starts here
 					</p>
 					<h1 id="page-title" className="max-w-4xl font-display text-4xl leading-[1.04] sm:text-5xl lg:text-6xl">
-						Manicure and pedicure ideas, <span className="text-[#718b42]">made personal.</span>
+						Manicure and Pedicure Ideas
+						<span className="mt-2 block text-[#718b42]">Made personal.</span>
 					</h1>
 					<p className="mt-0 max-w-[42rem] self-end text-base leading-7 text-[#617269] sm:text-lg lg:col-start-2 lg:row-start-2 lg:pb-2">
 						Describe the manicure or pedicure on your mind. We’ll pick out the colors, shape, finish, and details.

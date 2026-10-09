@@ -1,11 +1,14 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
 import IdeaExplorer from '../components/IdeaExplorer';
+import FacetLinks from '../components/FacetLinks.astro';
 import NailCollectionGrid from '../components/NailCollectionGrid.astro';
 import { loadNails } from '../libs/nails';
+import { getFacetPages } from '../libs/seo-pages';
 
 import { nailAreas } from '../areas';
 const nails = await loadNails();
+const facetPages = nailAreas.flatMap((area) => getFacetPages(nails, area));
 const title = 'Nail.ai | Manicure and Pedicure Idea Finder';
 const description = 'Describe your manicure or pedicure idea and find matching nail designs by color, style, occasion, shape, and finish.';
 const canonical = new URL('/', Astro.site ?? new URL('https://nail.ai')).toString();
@@ -27,7 +30,7 @@ const structuredData = {
 	<IdeaExplorer nails={nails} client:load />
 	<main class="mx-auto w-full max-w-[1440px] space-y-10 px-5 pb-14 sm:px-8 lg:px-14">
 		<section class="max-w-3xl space-y-4" aria-labelledby="home-seo-title">
-			<h1 id="home-seo-title" class="font-display text-3xl text-[#172b24]">Find your next nail idea</h1>
+			<h2 id="home-seo-title" class="font-display text-3xl text-[#172b24]">Find your next nail idea</h2>
 			<p class="text-base leading-7 text-[#617269]">Browse manicure and pedicure designs from the Nail.ai collection, or describe the look you have in mind to find ideas by color, style, occasion, and season.</p>
 			<nav aria-label="Browse nail services" class="flex flex-wrap gap-x-6 gap-y-3">
 				{nailAreas.map((area) => (
@@ -37,6 +40,7 @@ const structuredData = {
 				))}
 			</nav>
 		</section>
+		<FacetLinks pages={facetPages} title="Browse nail ideas by" />
 		<section aria-labelledby="all-ideas-title">
 			<div class="flex items-end justify-between gap-4 border-b border-[#d9dfd4] pb-4">
 				<div>

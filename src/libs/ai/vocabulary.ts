@@ -78,6 +78,7 @@ export const aiSearchVocabulary = {
 		'press on': 'press-on',
 		'russian': 'russian manicure',
 		'russian manicure': 'russian manicure',
+		'solid': 'solid',
 		'skittle': 'skittle',
 		'swirl': 'swirl',
 		'tortoiseshell': 'tortoiseshell',
