@@ -1,0 +1,111 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import BrowseFeatureCard from './BrowseFeatureCard.astro';
+import CategoryCard from './CategoryCard.astro';
+import FaqSection from './FaqSection.astro';
+import HomeHero from './HomeHero.astro';
+import NailCollectionGrid from './NailCollectionGrid.astro';
+import Section from './ui/Section.astro';
+import SectionHeader from './ui/SectionHeader.astro';
+import Chip from './ui/Chip.astro';
+import type { NailRecord, NailSearchRecord } from '../libs/ai/nail-search';
+import type { homepageFaq } from '../libs/homepage';
+
+interface Category {
+	title: string;
+	description: string;
+	thumbnail: NailRecord;
+	links: readonly { label: string; href: string }[];
+}
+
+interface Props {
+	nails: readonly NailRecord[];
+	searchRecords: readonly NailSearchRecord[];
+	featured: readonly NailRecord[];
+	categories: readonly Category[];
+	faqItems: typeof homepageFaq;
+}
+
+const { nails, searchRecords, featured, categories, faqItems } = Astro.props;
+const title = 'Manicure Ideas by Color, Shape & Occasion | Nail.ai';
+const description = 'Browse manicure ideas by color, shape, and occasion, or describe your look and get matching nail designs.';
+const canonical = new URL('/', Astro.site ?? new URL('https://nail.ai')).toString();
+const socialImage = new URL('/og/home.jpg', Astro.site ?? new URL('https://nail.ai')).toString();
+const structuredData = {
+	'@context': 'https://schema.org',
+	'@graph': [
+		{
+			'@type': 'WebSite',
+			'@id': `${canonical}#website`,
+			url: canonical,
+			name: 'Nail.ai',
+			publisher: { '@id': `${canonical}#organization` },
+		},
+		{
+			'@type': 'Organization',
+			'@id': `${canonical}#organization`,
+			name: 'Nail.ai',
+			url: canonical,
+			logo: { '@type': 'ImageObject', url: new URL('/favicon.svg', canonical).toString() },
+		},
+		{
+			'@type': 'WebApplication',
+			'@id': `${canonical}#app`,
+			name: 'Nail.ai',
+			url: canonical,
+			description,
+			applicationCategory: 'LifestyleApplication',
+			operatingSystem: 'Any',
+			image: socialImage,
+			publisher: { '@id': `${canonical}#organization` },
+			isPartOf: { '@id': `${canonical}#website` },
+		},
+		{
+			'@type': 'FAQPage',
+			'@id': `${canonical}#faq`,
+			mainEntity: faqItems.map(({ question, answer }) => ({
+				'@type': 'Question',
+				name: question,
+				acceptedAnswer: { '@type': 'Answer', text: answer },
+			})),
+		},
+	],
+};
+const shapeCategory = categories.find(({ title: categoryTitle }) => categoryTitle === 'Nail shapes');
+const shapeNail = shapeCategory?.thumbnail ?? nails[0];
+---
+
+<BaseLayout title={title} description={description} canonical={canonical} socialImage={socialImage} socialImageAlt="AI-generated manicure design with a polished nude finish" structuredData={structuredData}>
+	<main>
+		<HomeHero nails={nails} searchRecords={searchRecords} />
+		<Section bg="surface">
+			<div class="grid gap-8 lg:grid-cols-2 lg:gap-14">
+				<div class="max-w-prose">
+					<p class="mb-2 text-xs font-bold uppercase tracking-[0.12em] text-coral">Find your next look</p>
+					<h2 class="font-display text-3xl text-ink">Manicure ideas for the way you live</h2>
+					<p class="mt-4 text-base leading-7 text-ink-soft">Not sure what to ask your nail tech for? Describe the look you have in mind and Nail.ai turns it into a clear plan.</p>
+					<p class="mt-4 text-base leading-7 text-ink-soft">Browse designs by color, shape, style, or occasion, then bring a reference you like to your appointment. Add details to your search to narrow down the closest looks.</p>
+				</div>
+				<div class="grid gap-5 sm:grid-cols-2">
+					<BrowseFeatureCard title="Manicure ideas" description="Browse the complete manicure collection." href="/manicure/" nail={nails[0]} />
+					<BrowseFeatureCard title={shapeCategory ? 'Browse by shape' : 'Explore the collection'} description={shapeCategory ? 'Compare shapes and find a look that suits your routine.' : 'Browse manicure ideas organized by color, shape, style, and occasion.'} href={shapeCategory?.links[0].href ?? '/manicure/'} nail={shapeNail} />
+				</div>
+			</div>
+		</Section>
+		{categories.length > 0 && <Section bg="canvas">
+			<SectionHeader title="Browse nail designs by category" eyebrow="Explore the collection" />
+			<div class="grid auto-rows-fr gap-6 sm:grid-cols-2 lg:grid-cols-3">
+				{categories.map((category) => <CategoryCard {...category} />)}
+			</div>
+		</Section>}
+		<Section bg="surface">
+			<SectionHeader title="Featured nail ideas" eyebrow="From the Nails collection">
+				<a slot="action" class="text-sm font-bold text-ink-soft underline decoration-line underline-offset-4 transition-colors hover:text-coral" href="/manicure/">View all manicure ideas</a>
+			</SectionHeader>
+			<p class="-mt-5 mb-6 max-w-prose text-sm leading-6 text-muted">Designs are organized by color, shape, length, finish, and occasion. Nail design photos are AI-generated visual references and may differ from results on natural nails.</p>
+			<NailCollectionGrid items={featured.map((nail, index) => ({ nail, eager: index < 3 }))} />
+			<div class="mt-8 flex justify-center"><Chip href="/manicure/">View all manicure ideas</Chip></div>
+		</Section>
+		<FaqSection items={faqItems} />
+	</main>
+</BaseLayout>

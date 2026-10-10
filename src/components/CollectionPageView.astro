@@ -1,0 +1,104 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Breadcrumbs from './Breadcrumbs.astro';
+import FacetLinks from './FacetLinks.astro';
+import IdeaExplorer from './IdeaExplorer';
+import NailCollectionGrid from './NailCollectionGrid.astro';
+import Section from './ui/Section.astro';
+import SectionHeader from './ui/SectionHeader.astro';
+import type { NailRecord, NailSearchRecord } from '../libs/ai/nail-search';
+import type { NailFacetPage } from '../libs/seo-pages';
+import type { HubFaqItem } from '../libs/hub-types';
+
+interface Props {
+	area: 'manicure' | 'pedicure';
+	title: string;
+	description: string;
+	canonical: string;
+	heading: string;
+	prompt: string;
+	paragraphs: readonly string[];
+	nails: readonly NailRecord[];
+	searchRecords: readonly NailSearchRecord[];
+	noIndex?: boolean;
+	crumbs: { label: string; href?: string }[];
+	relatedPages?: readonly NailFacetPage[];
+	relatedTitle?: string;
+	currentSlug?: string;
+	sectionTitle?: string;
+	hubFaq?: readonly HubFaqItem[];
+}
+
+const {
+	area, title, description, canonical, heading, prompt, paragraphs, nails, searchRecords,
+	noIndex = false, crumbs, relatedPages = [], relatedTitle = `Explore more ${area} ideas`, currentSlug,
+	sectionTitle = `${nails.length} ${area} designs`, hubFaq = [],
+} = Astro.props;
+const structuredData = {
+	'@context': 'https://schema.org',
+	'@graph': [
+		{
+			'@type': 'CollectionPage',
+			'@id': `${canonical}#collection`,
+			name: heading,
+			url: canonical,
+			description,
+			mainEntity: { '@id': `${canonical}#designs` },
+		},
+		{
+			'@type': 'ItemList',
+			'@id': `${canonical}#designs`,
+			itemListElement: nails.map((nail, index) => ({
+				'@type': 'ListItem',
+				position: index + 1,
+				name: nail.title,
+			})),
+		},
+		{
+			'@type': 'BreadcrumbList',
+			'@id': `${canonical}#breadcrumb`,
+			itemListElement: crumbs.map(({ label, href }, index) => ({
+				'@type': 'ListItem',
+				position: index + 1,
+				name: label,
+				...(href ? { item: new URL(href, Astro.site).toString() } : { item: canonical }),
+			})),
+		},
+		...(hubFaq.length > 0 ? [{
+			'@type': 'FAQPage',
+			'@id': `${canonical}#faq`,
+			mainEntity: hubFaq.map(({ question, answer }) => ({
+				'@type': 'Question',
+				name: question,
+				acceptedAnswer: { '@type': 'Answer', text: answer },
+			})),
+		}] : []),
+	],
+};
+---
+
+<BaseLayout title={title} description={description} canonical={canonical} noIndex={noIndex} structuredData={structuredData}>
+	<main>
+		<Section bg="canvas">
+			<div class="max-w-3xl">
+				<Breadcrumbs items={crumbs} />
+				<h1 class="mt-5 font-display text-3xl text-ink">{heading}</h1>
+				{paragraphs.map((paragraph) => <p class="mt-3 max-w-prose text-base leading-7 text-muted">{paragraph}</p>)}
+				<div class="mt-6 max-w-2xl"><IdeaExplorer nails={searchRecords} initialPrompt={prompt} compact client:idle /></div>
+			</div>
+		</Section>
+		<Section bg="surface">
+			<SectionHeader title={sectionTitle} />
+			{nails.length > 0
+				? <NailCollectionGrid items={nails.map((nail, index) => ({ nail, eager: index < 3 }))} />
+				: <p class="text-base leading-7 text-muted">New {area} ideas are coming soon.</p>}
+		</Section>
+		{hubFaq.length > 0 && <Section bg="tint">
+			<div class="grid gap-8 lg:grid-cols-[minmax(220px,0.7fr)_minmax(0,1.3fr)] lg:gap-14">
+				<div><h2 class="font-display text-3xl text-ink">Frequently asked questions</h2></div>
+				<div>{hubFaq.map(({ question, answer }) => <details class="border-b border-line py-5"><summary class="cursor-pointer font-display text-xl text-ink">{question}</summary><p class="mt-3 max-w-prose text-base leading-7 text-ink-soft">{answer}</p></details>)}</div>
+			</div>
+		</Section>}
+		{relatedPages.length > 0 && <Section bg="canvas"><FacetLinks pages={[...relatedPages]} title={relatedTitle} currentSlug={currentSlug} /></Section>}
+	</main>
+</BaseLayout>

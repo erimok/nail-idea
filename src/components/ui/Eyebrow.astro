@@ -1,0 +1,11 @@
+---
+interface Props {
+	color?: 'coral' | 'olive';
+}
+
+const { color = 'coral' } = Astro.props;
+---
+
+<p class:list={['text-xs font-bold uppercase tracking-[0.12em]', color === 'coral' ? 'text-coral' : 'text-olive']}>
+	<slot />
+</p>

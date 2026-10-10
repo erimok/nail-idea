@@ -1,0 +1,12 @@
+---
+interface Props {
+	light?: boolean;
+}
+
+const { light = false } = Astro.props;
+---
+
+<a class="flex items-center gap-3" href="/" aria-label="Nail.ai home">
+	<span class="grid size-9 place-items-center rounded-full bg-lime font-display text-xl font-bold text-ink">n</span>
+	<span class:list={['text-lg font-bold', light ? 'text-white' : 'text-ink']}>nail.ai</span>
+</a>

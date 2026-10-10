@@ -1,0 +1,34 @@
+---
+import { getImage } from 'astro:assets';
+import IdeaExplorer from './IdeaExplorer';
+import type { NailRecord, NailSearchRecord } from '../libs/ai/nail-search';
+import { getNailImageMetadata } from '../libs/nail-images';
+
+interface Props {
+	nails: readonly NailRecord[];
+	searchRecords: readonly NailSearchRecord[];
+}
+
+const { nails, searchRecords } = Astro.props;
+const collage = await Promise.all(nails.slice(9, 13).map(async (nail, index) => {
+	const source = getNailImageMetadata(nail.image);
+	const [avif, webp] = await Promise.all([
+		getImage({ src: source, widths: [240, 360, 480], format: 'avif', alt: nail.imageAlt ?? '' }),
+		getImage({ src: source, widths: [240, 360, 480], format: 'webp', alt: nail.imageAlt ?? '' }),
+	]);
+	return {
+		slug: nail.slug,
+		alt: nail.imageAlt ?? '',
+		avifSrcSet: avif.srcSet.attribute,
+		webpSrcSet: webp.srcSet.attribute,
+		fallback: webp.src,
+		priority: index === 0,
+	};
+}));
+---
+
+<section class="bg-canvas py-10 sm:py-12 lg:py-16" aria-label="Nail idea finder">
+	<div class="mx-auto w-full max-w-[1440px] px-5 sm:px-8 lg:px-14">
+		<IdeaExplorer nails={searchRecords} collage={collage} client:idle />
+	</div>
+</section>

@@ -1,0 +1,18 @@
+---
+interface Props {
+	bg?: 'canvas' | 'surface' | 'tint' | 'forest';
+}
+
+const { bg = 'canvas' } = Astro.props;
+---
+
+<section class:list={['w-full py-12 sm:py-16 lg:py-20', {
+	'bg-canvas': bg === 'canvas',
+	'bg-surface': bg === 'surface',
+	'bg-tint': bg === 'tint',
+	'bg-forest text-white': bg === 'forest',
+}]}>
+	<div class="mx-auto w-full max-w-[1440px] px-5 sm:px-8 lg:px-14">
+		<slot />
+	</div>
+</section>

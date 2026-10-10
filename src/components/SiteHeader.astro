@@ -1,0 +1,48 @@
+---
+import type { NailFacetPage } from '../libs/seo-pages';
+import { formatFacetLabel } from '../libs/seo-pages';
+import { isIndexable } from '../libs/hub-index';
+import Logo from './ui/Logo.astro';
+
+interface Props {
+	hubs: readonly NailFacetPage[];
+}
+
+const { hubs } = Astro.props;
+const groups: { label: string; kind: NailFacetPage['kind'] }[] = [
+	{ label: 'Shapes', kind: 'shape' },
+	{ label: 'Colors', kind: 'color' },
+	{ label: 'Occasions', kind: 'occasion' },
+	{ label: 'Seasons', kind: 'season' },
+];
+const indexable = hubs.filter(isIndexable);
+const browseGroups = groups.map(({ label, kind }) => ({
+	label,
+	pages: indexable.filter((page) => page.kind === kind).slice(0, 8),
+})).filter(({ pages }) => pages.length > 0);
+---
+
+<header class="w-full border-b border-line bg-surface">
+	<div class="mx-auto flex w-full max-w-[1440px] items-center justify-between gap-5 px-5 py-4 sm:px-8 lg:px-14">
+		<Logo />
+		<nav aria-label="Main navigation" class="flex items-center gap-3 sm:gap-5">
+			<a class="inline-flex min-h-11 items-center text-sm font-semibold text-ink-soft hover:text-ink" href="/manicure/">Manicure</a>
+			<details class="group relative">
+				<summary class="inline-flex min-h-11 cursor-pointer list-none items-center gap-2 text-sm font-semibold text-ink-soft hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-olive">
+					Browse <span aria-hidden="true">▾</span>
+				</summary>
+				<div class="absolute right-0 z-20 mt-2 grid min-w-64 gap-4 rounded-lg border border-line bg-surface p-5 shadow-lg sm:min-w-[28rem] sm:grid-cols-2">
+					{browseGroups.map(({ label, pages }) => (
+						<div>
+							<h2 class="mb-2 text-xs font-bold uppercase tracking-[0.1em] text-muted">{label}</h2>
+							<ul class="space-y-1">
+								{pages.map((page) => <li><a class="inline-flex min-h-9 items-center text-sm text-ink-soft hover:text-coral" href={`/${page.area}/${page.slug}/`}>{formatFacetLabel(page)}</a></li>)}
+							</ul>
+						</div>
+					))}
+				</div>
+			</details>
+			<a class="inline-flex min-h-11 items-center text-sm font-semibold text-ink-soft hover:text-ink" href="/about/">About</a>
+		</nav>
+	</div>
+</header>

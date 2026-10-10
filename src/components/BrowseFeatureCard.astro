@@ -1,0 +1,35 @@
+---
+import { Picture } from 'astro:assets';
+import type { NailRecord } from '../libs/ai/nail-search';
+import { getNailImageMetadata } from '../libs/nail-images';
+
+interface Props {
+	title: string;
+	description: string;
+	href: string;
+	nail: NailRecord;
+}
+
+const { title, description, href, nail } = Astro.props;
+---
+
+<a href={href} class="group flex h-full flex-col overflow-hidden rounded-lg border border-line bg-surface transition hover:border-olive hover:shadow-md focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-olive">
+	<Picture
+		src={getNailImageMetadata(nail.image)}
+		alt={nail.imageAlt ?? ''}
+		width={800}
+		height={600}
+		widths={[320, 480, 640]}
+		sizes="(min-width: 1024px) 32vw, (min-width: 640px) 50vw, 100vw"
+		formats={['avif']}
+		fallbackFormat="webp"
+		fit="cover"
+		loading="lazy"
+		class="aspect-[4/3] w-full object-cover transition duration-300 group-hover:scale-[1.02]"
+	/>
+	<span class="flex flex-1 flex-col p-5">
+		<strong class="font-display text-xl text-ink">{title}</strong>
+		<span class="mt-2 text-sm leading-6 text-muted">{description}</span>
+		<span class="mt-auto pt-4 text-sm font-bold text-olive">Explore designs <span aria-hidden="true">→</span></span>
+	</span>
+</a>

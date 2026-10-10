@@ -1,9 +1,11 @@
 ---
 import '../styles/global.css';
-import FacetLinks from '../components/FacetLinks.astro';
+import SiteFooter from '../components/SiteFooter.astro';
+import SiteHeader from '../components/SiteHeader.astro';
 import { nailAreas } from '../areas';
 import { loadNails } from '../libs/nails';
 import { getFacetPages } from '../libs/seo-pages';
+import { attachHubEditorial, loadHubEditorial } from '../libs/hubs';
 
 interface Props {
 	title: string;
@@ -12,6 +14,7 @@ interface Props {
 	socialImage?: string;
 	structuredData?: Record<string, unknown>;
 	noIndex?: boolean;
+	socialImageAlt?: string;
 }
 
 const {
@@ -21,12 +24,14 @@ const {
 	socialImage,
 	structuredData,
 	noIndex = false,
+	socialImageAlt = 'AI-generated manicure design from Nail.ai',
 } = Astro.props;
 const serializedStructuredData = structuredData
 	? JSON.stringify(structuredData).replace(/</g, '\\u003c')
 	: undefined;
 const nails = await loadNails();
-const footerFacetPages = nailAreas.flatMap((area) => getFacetPages(nails, area));
+const editorial = await loadHubEditorial();
+const footerFacetPages = attachHubEditorial(nailAreas.flatMap((area) => getFacetPages(nails, area)), editorial);
 ---
 
 <!doctype html>
@@ -48,36 +53,21 @@ const footerFacetPages = nailAreas.flatMap((area) => getFacetPages(nails, area))
 		<meta property="og:description" content={description} />
 		{canonical && <meta property="og:url" content={canonical} />}
 		{socialImage && <meta property="og:image" content={socialImage} />}
+		{socialImage && <meta property="og:image:width" content="1200" />}
+		{socialImage && <meta property="og:image:height" content="630" />}
+		{socialImage && <meta property="og:image:alt" content={socialImageAlt} />}
 		<meta name="twitter:card" content={socialImage ? 'summary_large_image' : 'summary'} />
 		<meta name="twitter:title" content={title} />
 		<meta name="twitter:description" content={description} />
 		{socialImage && <meta name="twitter:image" content={socialImage} />}
+		{socialImage && <meta name="twitter:image:alt" content={socialImageAlt} />}
 		{serializedStructuredData && <script type="application/ld+json" set:html={serializedStructuredData} />}
 		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 		<link rel="icon" href="/favicon.ico" />
 	</head>
 	<body class="flex min-h-screen flex-col">
-		<header class="w-full border-b border-[#e1e5dc]">
-			<div class="mx-auto flex w-full max-w-[1440px] items-center justify-between px-5 py-5 sm:px-8 lg:px-14">
-				<a class="flex items-center gap-3" href="/" aria-label="Nail.ai home">
-					<span class="grid size-9 place-items-center rounded-full bg-[#c9f36a] font-display text-xl font-bold text-[#172b24]">n</span>
-					<span class="text-lg font-bold tracking-normal text-[#172b24]">nail.ai</span>
-				</a>
-				<nav aria-label="Main navigation">
-					<a class="text-xs font-semibold uppercase tracking-[0.12em] text-[#617269] transition-colors hover:text-[#172b24]" href="/keystatic">Editor</a>
-				</nav>
-			</div>
-		</header>
+		<SiteHeader hubs={footerFacetPages} />
 		<slot />
-		<footer class="mt-auto border-t border-[#304a3c] bg-[#172b24]">
-			<div class="mx-auto w-full max-w-[1440px] px-5 py-8 sm:px-8 lg:px-14">
-				<FacetLinks pages={footerFacetPages} title="Browse by" variant="footer" />
-				<div class="mt-8 flex flex-wrap items-center justify-between gap-3 border-t border-[#304a3c] pt-5 text-xs text-[#a9b5aa]">
-					<p class="font-semibold text-white">Nail.ai</p>
-					<p>Manicure and pedicure ideas, made personal.</p>
-					<a class="font-semibold underline decoration-[#617269] underline-offset-4 transition-colors hover:text-white" href="/about/">About</a>
-				</div>
-			</div>
-		</footer>
+		<SiteFooter hubs={footerFacetPages} />
 	</body>
 </html>

@@ -20,9 +20,9 @@ const makeNail = (overrides: Partial<NailRecord> = {}): NailRecord => ({
 });
 
 describe('pSEO facet pages', () => {
-	it('keeps thin pages out of the index until they have eight designs', () => {
-		expect(isIndexablePage(7)).toBe(false);
-		expect(isIndexablePage(8)).toBe(true);
+	it('keeps thin pages out of the index until they have six designs', () => {
+		expect(isIndexablePage(5)).toBe(false);
+		expect(isIndexablePage(6)).toBe(true);
 	});
 
 	it('creates only populated facets and includes records for both areas', () => {
@@ -82,7 +82,7 @@ describe('pSEO facet pages', () => {
 			.toThrow(/multiple facet combinations normalize to the same slug/);
 	});
 
-	it('uses actual record counts and attributes in readable page copy', () => {
+	it('uses record counts and avoids stitching card copy into generated hub intros', () => {
 		const nail = makeNail({
 			description: 'A crisp red-and-white French manicure for a spring wedding.',
 			colors: ['red', 'white'],
@@ -95,7 +95,8 @@ describe('pSEO facet pages', () => {
 		const areaCopy = getAreaPageCopy('manicure', [nail]);
 
 		expect(facetCopy.paragraphs.join(' ')).toContain('1 red manicure design');
-		expect(facetCopy.paragraphs.join(' ')).toContain('A crisp red-and-white French manicure for a spring wedding.');
+		expect(facetCopy.paragraphs.join(' ')).not.toContain('A crisp red-and-white French manicure for a spring wedding.');
+		expect(facetCopy.description).toContain('1 red manicure design');
 		expect(areaCopy.paragraphs.join(' ')).toContain('1 manicure design');
 		expect(areaCopy.paragraphs.join(' ')).toContain('2 colors');
 	});

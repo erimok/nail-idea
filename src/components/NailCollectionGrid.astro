@@ -1,36 +1,14 @@
 ---
-import { Picture } from 'astro:assets';
 import type { NailRecord } from '../libs/ai/nail-search';
-import { getNailImageMetadata } from '../libs/nail-images';
+import NailCard from './NailCard.astro';
 
 interface Props {
-	items: readonly { nail: NailRecord }[];
+	items: readonly { nail: NailRecord; eager?: boolean }[];
 }
 
 const { items } = Astro.props;
 ---
 
-<div class="mt-5 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
-	{items.map(({ nail }) => (
-		<article class="overflow-hidden rounded-lg border border-[#d9dfd4] bg-white">
-			<Picture
-				src={getNailImageMetadata(nail.image)}
-				alt={nail.imageAlt ?? nail.description}
-				width={1000}
-				height={750}
-				widths={[320, 480, 640, 800]}
-				sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
-				formats={['avif']}
-				fallbackFormat="webp"
-				fit="cover"
-				loading="lazy"
-				class="h-full w-full object-cover"
-				pictureAttributes={{ class: 'block aspect-[4/3] w-full overflow-hidden' }}
-			/>
-			<div class="p-5">
-				<h3 class="font-display text-xl leading-tight">{nail.title}</h3>
-				<p class="mt-2 text-sm leading-5 text-[#617269]">{nail.description}</p>
-			</div>
-		</article>
-	))}
+<div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+	{items.map(({ nail, eager }) => <NailCard nail={nail} eager={eager} />)}
 </div>

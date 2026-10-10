@@ -41,5 +41,26 @@ export default config({
 				nailConcerns: fields.multiselect({ label: 'Nail concerns', options: optionsFor(aiSearchOptions.nailConcerns), defaultValue: [] }),
 			},
 		}),
+		hubs: collection({
+			label: 'SEO hubs',
+			slugField: 'title',
+			path: 'src/content/hubs/*',
+			columns: ['area', 'urlSlug', 'title'],
+			schema: {
+				title: fields.slug({ name: { label: 'Editorial record name' } }),
+				area: fields.select({
+					label: 'Nail service',
+					options: [{ label: 'Manicure', value: 'manicure' }, { label: 'Pedicure', value: 'pedicure' }],
+					defaultValue: 'manicure',
+				}),
+				urlSlug: fields.text({ label: 'Generated hub slug', validation: { isRequired: true } }),
+				intro: fields.text({ label: 'Unique introduction', multiline: true, validation: { isRequired: true } }),
+				metaDescription: fields.text({ label: 'Meta description', validation: { isRequired: true } }),
+				faq: fields.array(fields.object({
+					question: fields.text({ label: 'Question', validation: { isRequired: true } }),
+					answer: fields.text({ label: 'Answer', multiline: true, validation: { isRequired: true } }),
+				}), { label: 'Hub FAQs', itemLabel: (props) => props.fields.question.value || 'FAQ item' }),
+			},
+		}),
 	},
 });

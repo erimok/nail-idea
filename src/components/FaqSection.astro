@@ -1,0 +1,24 @@
+---
+import Section from './ui/Section.astro';
+import type { homepageFaq } from '../libs/homepage';
+
+interface Props {
+	items: typeof homepageFaq;
+}
+
+const { items } = Astro.props;
+---
+
+<Section bg="tint">
+	<div class="grid gap-8 lg:grid-cols-[minmax(220px,0.7fr)_minmax(0,1.3fr)] lg:gap-14">
+		<div><p class="mb-2 text-xs font-bold uppercase tracking-[0.12em] text-coral">Helpful answers</p><h2 class="font-display text-3xl text-ink">Nail idea FAQ</h2></div>
+		<div>
+			{items.map(({ question, answer }) => (
+				<details class="border-b border-line py-5">
+					<summary class="cursor-pointer font-display text-xl text-ink marker:text-olive focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-olive">{question}</summary>
+					<p class="mt-3 max-w-prose text-base leading-7 text-ink-soft">{answer}</p>
+				</details>
+			))}
+		</div>
+	</div>
+</Section>

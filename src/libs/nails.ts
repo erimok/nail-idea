@@ -1,27 +1,12 @@
-import { createReader } from '@keystatic/core/reader';
-import keystaticConfig from '../../keystatic.config';
 import type { NailRecord, NailSearchRecord } from './ai/nail-search';
 import { getNailImageMetadata } from './nail-images';
+import { loadNailEntries } from './nail-content';
 
 export async function loadNails(): Promise<NailRecord[]> {
-	const reader = createReader(process.cwd(), keystaticConfig);
-	const entries = await reader.collections.nails.all();
-	return entries.map(({ slug, entry }) => ({
-		slug,
-		title: entry.title,
-		image: entry.image ?? '',
-		imageSrc: entry.image ? getNailImageMetadata(entry.image).src : undefined,
-		imageAlt: entry.imageAlt ?? undefined,
-		description: entry.description,
-		typesOfNails: entry.typesOfNails,
-		colors: entry.colors,
-		types: entry.types,
-		occasions: entry.occasions,
-		season: entry.season,
-		shape: entry.shape,
-		length: entry.length,
-		finishes: entry.finishes,
-		nailConcerns: entry.nailConcerns,
+	const nails = await loadNailEntries();
+	return nails.map((nail) => ({
+		...nail,
+		imageSrc: nail.image ? getNailImageMetadata(nail.image).src : undefined,
 	}));
 }
 

@@ -52,6 +52,8 @@ Each populated single facet gets a page; `occasion` and `season` are single-face
 
 The Astro sitemap integration writes `sitemap-index.xml` during the production build and discovers all prerendered routes automatically. New static routes, including future comparison and guide pages, are included without editing a route list. Set `SITE_URL` to the production origin when building for a different domain; it must match the canonical site URL.
 
+Generated area/facet routes share the `/{area}/{slug}/` namespace. These slugs are reserved for hub pages; individual nail detail pages are not implemented. A hub is indexable only when it has at least six matching designs plus curated intro and meta description in the Keystatic `hubs` collection. The production sitemap and internal browse links exclude every noindex route. The empty pedicure area remains noindex until it has content.
+
 Run `npm test` to run unit tests and the sitemap build smoke test. The sitemap check verifies the index and representative top-level and facet URLs in the generated XML.
 
 Planned routes:

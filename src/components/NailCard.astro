@@ -1,0 +1,39 @@
+---
+import { Picture } from 'astro:assets';
+import type { NailRecord } from '../libs/ai/nail-search';
+import { getNailImageMetadata } from '../libs/nail-images';
+
+interface Props {
+	nail: NailRecord;
+	eager?: boolean;
+}
+
+const { nail, eager = false } = Astro.props;
+const image = getNailImageMetadata(nail.image);
+const meta = [nail.length, nail.shape, ...nail.finishes].filter(Boolean);
+---
+
+<article class="group flex h-full flex-col overflow-hidden rounded-lg border border-line bg-surface transition hover:border-olive hover:shadow-md">
+	<Picture
+		src={image}
+		alt={nail.imageAlt ?? nail.description}
+		width={1000}
+		height={750}
+		widths={[320, 480, 640, 800]}
+		sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
+		formats={['avif']}
+		fallbackFormat="webp"
+		fit="cover"
+		loading={eager ? 'eager' : 'lazy'}
+		fetchpriority={eager ? 'high' : 'auto'}
+		class="h-full w-full object-cover"
+		pictureAttributes={{ class: 'block aspect-[4/3] w-full overflow-hidden' }}
+	/>
+	<div class="flex flex-1 flex-col gap-3 p-5">
+		<h3 class="line-clamp-2 font-display text-xl leading-tight text-ink">{nail.title}</h3>
+		<p class="line-clamp-2 text-sm leading-6 text-muted">{nail.description}</p>
+		{meta.length > 0 && <ul class="mt-auto flex flex-wrap gap-2 pt-1" aria-label="Design details">
+			{meta.map((value) => <li class="rounded-full bg-tint px-3 py-1 text-xs font-semibold text-ink-soft">{value}</li>)}
+		</ul>}
+	</div>
+</article>

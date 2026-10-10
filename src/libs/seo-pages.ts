@@ -1,5 +1,7 @@
 import { isNailArea, nailAreas, type NailArea } from '../areas';
 import type { NailRecord } from './ai/nail-search';
+import { MIN_INDEXABLE } from './hub-index';
+import type { HubEditorial } from './hub-types';
 
 function seasonValues(value: NailRecord['season']): readonly string[] {
 	if (value === undefined) return [];
@@ -8,7 +10,7 @@ function seasonValues(value: NailRecord['season']): readonly string[] {
 }
 
 export const facetKinds = ['color', 'type', 'occasion', 'season', 'shape', 'length', 'finishing'] as const;
-export const minimumDesignsForIndexing = 8;
+export const minimumDesignsForIndexing = MIN_INDEXABLE;
 
 export function isIndexablePage(designCount: number): boolean {
 	return designCount >= minimumDesignsForIndexing;
@@ -29,6 +31,7 @@ export interface NailFacetPage {
 	facets: NailFacetSelection[];
 	slug: string;
 	nails: NailRecord[];
+	editorial?: HubEditorial;
 }
 
 export interface SeoPageCopy {
@@ -36,7 +39,7 @@ export interface SeoPageCopy {
 	description: string;
 	heading: string;
 	prompt: string;
-	paragraphs: [string, string];
+	paragraphs: readonly string[];
 }
 
 export function slugifyFacet(value: string): string {
@@ -105,6 +108,20 @@ export function getFacetPages(nails: readonly NailRecord[], area: NailArea): Nai
 export function getNailsForArea(nails: readonly NailRecord[], area: string): NailRecord[] {
 	if (!isNailArea(area)) return [];
 	return nails.filter((nail) => belongsToArea(nail, area));
+}
+
+export function getRelatedNails(nails: readonly NailRecord[], selectedNail: NailRecord, limit = 4): NailRecord[] {
+	return nails
+		.filter((nail) => nail.slug !== selectedNail.slug)
+		.map((nail) => ({
+			nail,
+			score: Number(nail.shape === selectedNail.shape && Boolean(nail.shape))
+				+ nail.colors.filter((color) => selectedNail.colors.includes(color)).length,
+		}))
+		.filter(({ score }) => score > 0)
+		.sort((left, right) => right.score - left.score || left.nail.title.localeCompare(right.nail.title))
+		.slice(0, limit)
+		.map(({ nail }) => nail);
 }
 
 export function getAllFacetPages(nails: readonly NailRecord[]): NailFacetPage[] {
@@ -231,7 +248,7 @@ export function getAreaPageCopy(area: NailArea, nails: readonly NailRecord[]): S
 	};
 }
 
-export function getFacetPageCopy(page: Pick<NailFacetPage, 'area' | 'kind' | 'value' | 'facets' | 'nails'>): SeoPageCopy {
+export function getFacetPageCopy(page: Pick<NailFacetPage, 'area' | 'kind' | 'value' | 'facets' | 'nails' | 'editorial'>): SeoPageCopy {
 	const area = page.area;
 	const service = area === 'manicure' ? 'manicure' : 'pedicure';
 	const value = page.value;
@@ -244,16 +261,14 @@ export function getFacetPageCopy(page: Pick<NailFacetPage, 'area' | 'kind' | 'va
 		`${value} ${service} designs`,
 	);
 	const heading = `${displayValue} ${capitalize(service)} Ideas`;
-	const examples = getRecordDescriptions(page.nails);
 	return {
 		title: `${heading} | Nail.ai`,
-		description: `Explore ${designs} in the Nail.ai collection.`,
+		description: page.editorial?.metaDescription || `Explore ${designs} organized around ${page.facets.map((facet) => facet.value).join(', ')}.`,
 		heading,
 		prompt: `${value} ${service} ideas`,
-		paragraphs: [
-			[`We found ${designs} in the Nail.ai collection.`, examples].filter(Boolean).join(' '),
-			`Compare the looks below, or add a shape, finish, or another detail to the search above to refine your ${service} idea.`,
-		],
+		paragraphs: page.editorial?.intro
+			? [page.editorial.intro]
+			: [`Browse ${designs} in the Nail.ai collection. Use the search above to add another detail and compare matching looks.`],
 	};
 }
 

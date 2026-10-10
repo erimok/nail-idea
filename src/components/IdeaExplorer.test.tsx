@@ -21,7 +21,7 @@ describe('IdeaExplorer', () => {
 		render(<IdeaExplorer />);
 
 		const prompt = screen.getByRole('textbox', { name: 'Describe your nail idea' });
-		const submit = screen.getByRole('button', { name: /analyze this idea/i });
+		const submit = screen.getByRole('button', { name: /find my designs/i });
 
 		expect((submit as HTMLButtonElement).disabled).toBe(true);
 		await user.type(prompt, '   ');
@@ -67,7 +67,7 @@ describe('IdeaExplorer', () => {
 			screen.getByRole('textbox', { name: 'Describe your nail idea' }),
 			'Short almond nails, glossy red French manicure for a spring wedding.',
 		);
-		await user.click(screen.getByRole('button', { name: /analyze this idea/i }));
+		await user.click(screen.getByRole('button', { name: /find my designs/i }));
 
 		const results = await screen.findByRole('region', { name: 'Matching nail ideas' });
 		expect(results.textContent).toContain('Showing 3 of 4 matches');
@@ -97,7 +97,7 @@ describe('IdeaExplorer', () => {
 			screen.getByRole('textbox', { name: 'Describe your nail idea' }),
 			'Short almond nails, glossy red French manicure for a spring wedding.',
 		);
-		await user.click(screen.getByRole('button', { name: /analyze this idea/i }));
+		await user.click(screen.getByRole('button', { name: /find my designs/i }));
 
 		const results = await screen.findByRole('region', { name: 'Matching nail ideas' });
 		expect(results.textContent).toContain('Bridal French');
@@ -119,7 +119,7 @@ describe('IdeaExplorer', () => {
 				screen.getByRole('textbox', { name: 'Describe your nail idea' }),
 				'Short almond nails in glossy red.',
 			);
-			await user.click(screen.getByRole('button', { name: /analyze this idea/i }));
+			await user.click(screen.getByRole('button', { name: /find my designs/i }));
 			await screen.findByRole('region', { name: 'Matching nail ideas' });
 
 			expect(scrollIntoView).toHaveBeenCalledWith({ behavior: 'smooth', block: 'start' });

@@ -3,13 +3,24 @@
 @theme {
 	--font-sans: 'DM Sans', sans-serif;
 	--font-display: 'Playfair Display', serif;
+	--color-canvas: #f5f6f0;
+	--color-surface: #ffffff;
+	--color-tint: #eef3e6;
+	--color-line: #d9dfd4;
+	--color-ink: #172b24;
+	--color-ink-soft: #45594d;
+	--color-muted: #617269;
+	--color-olive: #5a7234;
+	--color-coral: #b74935;
+	--color-lime: #c9f36a;
+	--color-forest: #304a3c;
 }
 
 :root {
 	color-scheme: light;
 	font-family: 'DM Sans', sans-serif;
-	background: #f5f6f0;
-	color: #172b24;
+	background: var(--color-canvas);
+	color: var(--color-ink);
 	font-synthesis: none;
 	text-rendering: optimizeLegibility;
 }
@@ -21,8 +32,8 @@ body {
 }
 
 ::selection {
-	background: #c9f36a;
-	color: #172b24;
+	background: var(--color-lime);
+	color: var(--color-ink);
 }
 
 @keyframes enter-view {

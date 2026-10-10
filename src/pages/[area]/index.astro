@@ -1,12 +1,9 @@
 ---
 import { nailAreas, type NailArea } from '../../areas';
-import Breadcrumbs from '../../components/Breadcrumbs.astro';
-import FacetLinks from '../../components/FacetLinks.astro';
-import IdeaExplorer from '../../components/IdeaExplorer';
-import NailCollectionGrid from '../../components/NailCollectionGrid.astro';
-import BaseLayout from '../../layouts/BaseLayout.astro';
+import CollectionPageView from '../../components/CollectionPageView.astro';
 import { loadNails, toNailSearchRecords } from '../../libs/nails';
 import { getFacetPages, getNailsForArea, getAreaPageCopy, isIndexablePage } from '../../libs/seo-pages';
+import { attachHubEditorial, loadHubEditorial } from '../../libs/hubs';
 
 export function getStaticPaths() {
 	return nailAreas.map((area) => ({ params: { area }, props: { area } }));
@@ -14,32 +11,27 @@ export function getStaticPaths() {
 
 const { area } = Astro.props as { area: NailArea };
 const allNails = await loadNails();
+const editorial = await loadHubEditorial();
 const nails = getNailsForArea(allNails, area);
-const facets = getFacetPages(allNails, area);
+const facets = attachHubEditorial(getFacetPages(allNails, area), editorial);
 const copy = getAreaPageCopy(area, nails);
 const areaLabel = area.charAt(0).toUpperCase() + area.slice(1);
 const canonical = new URL(`/${area}/`, Astro.site).toString();
 ---
 
-<BaseLayout title={copy.title} description={copy.description} canonical={canonical} noIndex={!isIndexablePage(nails.length)}>
-	<IdeaExplorer nails={toNailSearchRecords(nails)} initialPrompt={copy.prompt} client:idle />
-	<main class="mx-auto w-full max-w-[1440px] space-y-10 px-5 pb-14 sm:px-8 lg:px-14">
-		<section class="max-w-3xl space-y-4" aria-labelledby="collection-title">
-			<Breadcrumbs items={[{ label: 'Home', href: '/' }, { label: areaLabel }]} />
-			<h1 id="collection-title" class="font-display text-3xl text-[#172b24]">{copy.heading}</h1>
-			{copy.paragraphs.map((paragraph) => <p class="text-base leading-7 text-[#617269]">{paragraph}</p>)}
-		</section>
-		<section aria-labelledby="ideas-title">
-			<div class="flex items-end justify-between gap-4 border-b border-[#d9dfd4] pb-4">
-				<div>
-					<p class="text-xs font-bold uppercase tracking-[0.14em] text-[#718b42]">From the Nails collection</p>
-					<h2 id="ideas-title" class="mt-1 font-display text-3xl">All {area} ideas</h2>
-				</div>
-			</div>
-			{nails.length > 0
-				? <NailCollectionGrid items={nails.map((nail) => ({ nail }))} />
-				: <p class="mt-5 text-sm leading-6 text-[#617269]">New {area} ideas are coming soon.</p>}
-		</section>
-		<FacetLinks pages={facets} title={`Explore more ${area} ideas`} />
-	</main>
-</BaseLayout>
+<CollectionPageView
+	area={area}
+	title={copy.title}
+	description={copy.description}
+	canonical={canonical}
+	heading={copy.heading}
+	prompt={copy.prompt}
+	paragraphs={copy.paragraphs}
+	nails={nails}
+	searchRecords={toNailSearchRecords(nails)}
+	noIndex={!isIndexablePage(nails.length)}
+	crumbs={[{ label: 'Home', href: '/' }, { label: areaLabel }]}
+	relatedPages={facets}
+	relatedTitle={`Explore more ${area} ideas`}
+	sectionTitle={`All ${area} ideas`}
+/>

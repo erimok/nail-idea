@@ -1,0 +1,17 @@
+---
+interface Props {
+	title: string;
+	eyebrow?: string;
+	level?: 2 | 3;
+}
+
+const { title, eyebrow, level = 2 } = Astro.props;
+---
+
+<header class="mb-8 flex flex-wrap items-end justify-between gap-4">
+	<div>
+		{eyebrow && <p class="mb-2 text-xs font-bold uppercase tracking-[0.12em] text-olive">{eyebrow}</p>}
+	{level === 2 ? <h2 class="font-display text-3xl text-ink">{title}</h2> : <h3 class="font-display text-2xl text-ink">{title}</h3>}
+	</div>
+	<div class="flex items-center gap-3"><slot name="action" /></div>
+</header>

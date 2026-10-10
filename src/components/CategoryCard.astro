@@ -1,0 +1,36 @@
+---
+import { Picture } from 'astro:assets';
+import Chip from './ui/Chip.astro';
+import type { NailRecord } from '../libs/ai/nail-search';
+import { getNailImageMetadata } from '../libs/nail-images';
+
+interface Props {
+	title: string;
+	description: string;
+	thumbnail: NailRecord;
+	links: readonly { label: string; href: string }[];
+}
+
+const { title, description, thumbnail, links } = Astro.props;
+---
+
+<article class="flex h-full flex-col rounded-lg border border-line bg-surface p-5">
+	<Picture
+		src={getNailImageMetadata(thumbnail.image)}
+		alt=""
+		width={600}
+		height={240}
+		widths={[240, 360, 480]}
+		sizes="(min-width: 1024px) 28vw, (min-width: 640px) 45vw, 100vw"
+		formats={['avif']}
+		fallbackFormat="webp"
+		fit="cover"
+		loading="lazy"
+		class="mb-4 aspect-[5/2] w-full rounded-md object-cover"
+	/>
+	<h3 class="font-display text-xl text-ink">{title}</h3>
+	<p class="mt-2 text-sm leading-6 text-muted">{description}</p>
+	<div class="mt-auto flex flex-wrap gap-3 pt-5">
+		{links.map(({ label, href }) => <Chip href={href}>{label}</Chip>)}
+	</div>
+</article>
