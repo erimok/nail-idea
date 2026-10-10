@@ -47,6 +47,7 @@ export const aiSearchVocabulary = {
 		'wine': 'burgundy',
 		'wine red': 'burgundy',
 		'yellow': 'yellow',
+		'multi-color': 'multi-color',
 	},
 	types: {
 		'3d': '3d',

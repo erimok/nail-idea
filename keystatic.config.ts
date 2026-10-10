@@ -15,7 +15,7 @@ export default config({
 			label: 'Nails',
 			slugField: 'title',
 			path: 'src/content/nails/*',
-			columns: ['typesOfNails', 'shape'],
+			columns: ['typesOfNails', 'shape', 'title', 'length'],
 			schema: {
 				title: fields.slug({ name: { label: 'Name' } }),
 				image: fields.image({
