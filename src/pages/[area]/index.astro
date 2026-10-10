@@ -5,7 +5,7 @@ import FacetLinks from '../../components/FacetLinks.astro';
 import IdeaExplorer from '../../components/IdeaExplorer';
 import NailCollectionGrid from '../../components/NailCollectionGrid.astro';
 import BaseLayout from '../../layouts/BaseLayout.astro';
-import { loadNails } from '../../libs/nails';
+import { loadNails, toNailSearchRecords } from '../../libs/nails';
 import { getFacetPages, getNailsForArea, getAreaPageCopy, isIndexablePage } from '../../libs/seo-pages';
 
 export function getStaticPaths() {
@@ -22,7 +22,7 @@ const canonical = new URL(`/${area}/`, Astro.site).toString();
 ---
 
 <BaseLayout title={copy.title} description={copy.description} canonical={canonical} noIndex={!isIndexablePage(nails.length)}>
-	<IdeaExplorer nails={nails} initialPrompt={copy.prompt} client:load />
+	<IdeaExplorer nails={toNailSearchRecords(nails)} initialPrompt={copy.prompt} client:idle />
 	<main class="mx-auto w-full max-w-[1440px] space-y-10 px-5 pb-14 sm:px-8 lg:px-14">
 		<section class="max-w-3xl space-y-4" aria-labelledby="collection-title">
 			<Breadcrumbs items={[{ label: 'Home', href: '/' }, { label: areaLabel }]} />

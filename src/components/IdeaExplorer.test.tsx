@@ -4,7 +4,7 @@ import { cleanup, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import IdeaExplorer from './IdeaExplorer';
-import type { NailRecord } from '../libs/ai/nail-search';
+import type { NailSearchRecord } from '../libs/ai/nail-search';
 
 afterEach(cleanup);
 
@@ -34,18 +34,17 @@ describe('IdeaExplorer', () => {
 		const user = userEvent.setup();
 		render(<IdeaExplorer />);
 
-		await user.click(screen.getByRole('button', { name: 'Spring French' }));
+		await user.click(screen.getByRole('button', { name: 'Short burgundy' }));
 
 		expect((screen.getByRole('textbox', { name: 'Describe your nail idea' }) as HTMLTextAreaElement).value)
-			.toBe('Short almond nails, glossy red French manicure for a spring wedding.');
+			.toBe('Short burgundy almond nails with a micro French manicure.');
 	});
 
 	it('shows only three cards and reports the total match count', async () => {
 		const user = userEvent.setup();
-		const matchingNail: NailRecord = {
+		const matchingNail: NailSearchRecord = {
 			slug: 'bridal-french',
 			title: 'Bridal French',
-			image: 'https://images.example/bridal-french.jpg',
 			description: 'A crisp French manicure for a spring wedding.',
 			typesOfNails: 'manicure',
 			colors: ['red', 'white'],
@@ -78,10 +77,9 @@ describe('IdeaExplorer', () => {
 
 	it('shows matching nails from the CMS collection', async () => {
 		const user = userEvent.setup();
-		const nails: NailRecord[] = [{
+		const nails: NailSearchRecord[] = [{
 			slug: 'bridal-french',
 			title: 'Bridal French',
-			image: 'https://images.example/bridal-french.jpg',
 			description: 'A crisp French manicure for a spring wedding.',
 			typesOfNails: 'manicure',
 			colors: ['red', 'white'],

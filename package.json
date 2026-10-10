@@ -7,7 +7,7 @@
   },
   "scripts": {
     "dev": "astro dev",
-    "build": "astro build",
+    "build": "astro build && node scripts/embed-nail-image-metadata.mjs",
     "preview": "astro preview",
     "check": "astro check",
     "test": "vitest run && npm run test:sitemap",
@@ -36,6 +36,7 @@
     "@testing-library/react": "^16.3.3",
     "@testing-library/user-event": "^14.6.7",
     "@types/node": "^26.6.4",
+    "exiftool-vendored": "^39.0.1",
     "jsdom": "^29.1.1",
     "tailwindcss": "^4.3.3",
     "typescript": "^6.0.3",

@@ -28,9 +28,14 @@ test('production sitemap includes the homepage, area pages, and generated facet 
 	assert.ok(pagePaths.some((url) => url.origin === siteUrl.origin && /^\/(manicure|pedicure)\/[^/]+-nails\/$/.test(url.pathname)), 'sitemap should include generated facet pages');
 
 	const homepage = await readFile(path.join(distDirectory, 'index.html'), 'utf8');
-	assert.match(homepage, /<title>Manicure and Pedicure Ideas \| Nail\.ai<\/title>/);
+	assert.match(homepage, /<title>Manicure and Pedicure Ideas, Matched to You \| Nail\.ai<\/title>/);
+	assert.match(homepage, /<meta name="description" content="Browse manicure and pedicure ideas by color, shape, and occasion, or describe your look and get matching nail designs\."/);
 	assert.doesNotMatch(homepage, /\b\d+ designs\b/);
 	assert.match(homepage, /fonts\.googleapis\.com\/css2/);
+	const featuredSection = homepage.match(/<section aria-labelledby="all-ideas-title">([\s\S]*?)<\/section>/)?.[1] ?? '';
+	const featuredCount = [...featuredSection.matchAll(/<article\b/g)].length;
+	assert.ok(featuredCount >= 6 && featuredCount <= 9, 'homepage should render 6 to 9 featured designs');
+	assert.match(featuredSection, /href="\/manicure\/">View all manicure ideas<\/a>/);
 
 	const thinFacet = await readFile(path.join(distDirectory, 'manicure', 'burgundy-nails', 'index.html'), 'utf8');
 	assert.match(thinFacet, /<meta name="robots" content="noindex,follow"/);

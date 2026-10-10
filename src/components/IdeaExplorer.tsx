@@ -1,25 +1,25 @@
 import { useEffect, useRef, useState, type SubmitEvent } from 'react';
 import type { IAIResponse } from '../libs/ai/types';
-import { searchNails, type NailRecord } from '../libs/ai/nail-search';
+import { searchNails, type NailSearchRecord } from '../libs/ai/nail-search';
 import aiService from '../libs/ai/local';
 import NailGrid from './NailGrid';
 
 const examples = [
 	{
-		label: 'Spring French',
-		prompt: 'Short almond nails, glossy red French manicure for a spring wedding.',
+		label: 'Short burgundy',
+		prompt: 'Short burgundy almond nails with a micro French manicure.',
 	},
 	{
-		label: 'Chrome pedi',
-		prompt: 'Long square chrome pedicure in blue for summer.',
+		label: 'Nude micro French',
+		prompt: 'Short nude almond nails with a micro French manicure.',
 	},
 	{
-		label: 'Care for weak nails',
-		prompt: 'A short round glossy pink manicure for weak and peeling nails.',
+		label: 'Long almond',
+		prompt: 'Long almond manicure with a French tip.',
 	},
 ];
 
-export default function IdeaExplorer({ nails = [], initialPrompt = '' }: { nails?: readonly NailRecord[]; initialPrompt?: string }) {
+export default function IdeaExplorer({ nails = [], initialPrompt = '' }: { nails?: readonly NailSearchRecord[]; initialPrompt?: string }) {
 	const [prompt, setPrompt] = useState(initialPrompt);
 	const [result, setResult] = useState<IAIResponse | null>(null);
 	const [error, setError] = useState('');
@@ -62,13 +62,28 @@ export default function IdeaExplorer({ nails = [], initialPrompt = '' }: { nails
 						<span className="h-px w-8 bg-[#d6694c]" aria-hidden="true" />
 						Your next set starts here
 					</p>
-					<h1 id="page-title" className="max-w-4xl font-display text-4xl leading-[1.04] sm:text-5xl lg:text-6xl">
+					<h1 id="page-title" className="max-w-4xl font-display text-4xl leading-[1.04] sm:text-5xl lg:col-start-1 lg:row-start-2 lg:text-6xl">
 						Manicure and Pedicure Ideas
 						<span className="mt-2 block text-[#718b42]">Made personal.</span>
 					</h1>
-					<p className="mt-0 max-w-[42rem] self-end text-base leading-7 text-[#617269] sm:text-lg lg:col-start-2 lg:row-start-2 lg:pb-2">
+					<p className="mt-0 max-w-[42rem] self-end text-base leading-7 text-[#617269] sm:text-lg lg:col-start-1 lg:row-start-3 lg:pb-2">
 						Describe the manicure or pedicure on your mind. We’ll pick out the colors, shape, finish, and details.
 					</p>
+					{nails.length > 0 && nails.slice(0, 4).every((nail) => nail.imageSrc) && (
+						<div className="grid grid-cols-2 gap-2 sm:gap-3 lg:col-start-2 lg:row-start-2 lg:row-span-2" role="group" aria-label="Featured nail designs">
+							{nails.slice(0, 4).map((nail, index) => (
+								<img
+									key={nail.slug}
+									alt={nail.imageAlt ?? nail.title}
+									className="aspect-[4/3] w-full rounded-lg object-cover"
+									decoding="async"
+									fetchPriority={index === 0 ? 'high' : 'auto'}
+									loading="eager"
+									src={nail.imageSrc}
+								/>
+							))}
+						</div>
+					)}
 
 					<form className="mt-0 w-full lg:col-span-2" onSubmit={handleSubmit}>
 						<label htmlFor="idea-prompt" className="mb-3 block text-sm font-bold text-[#172b24]">
@@ -79,7 +94,7 @@ export default function IdeaExplorer({ nails = [], initialPrompt = '' }: { nails
 								id="idea-prompt"
 								aria-describedby="prompt-hint prompt-count"
 								aria-label="Describe your nail idea"
-								className="min-h-24 w-full resize-y border-0 bg-transparent text-base leading-7 text-[#172b24] outline-none placeholder:text-[#9aa69d] focus:ring-0 sm:min-h-28"
+								className="min-h-24 w-full resize-y border-0 bg-transparent text-base leading-7 text-[#172b24] outline-none placeholder:text-[#617269] focus:ring-0 sm:min-h-28"
 								maxLength={400}
 								placeholder="Try: short almond nails, glossy red French tips for a spring wedding…"
 								value={prompt}
@@ -91,8 +106,8 @@ export default function IdeaExplorer({ nails = [], initialPrompt = '' }: { nails
 							/>
 							<div className="mt-2 flex flex-wrap items-center justify-between gap-3 border-t border-[#edf0e9] pt-3">
 								<div className="flex min-w-0 flex-1 items-center justify-between gap-4">
-									<span id="prompt-hint" className="text-xs leading-5 text-[#7c8980]">Color, shape, mood, occasion — any detail helps.</span>
-									<span id="prompt-count" className="shrink-0 text-xs tabular-nums text-[#89968d]">{prompt.length}/400</span>
+									<span id="prompt-hint" className="text-xs leading-5 text-[#617269]">Color, shape, mood, occasion — any detail helps.</span>
+									<span id="prompt-count" className="shrink-0 text-xs tabular-nums text-[#5c6a61]">{prompt.length}/400</span>
 								</div>
 								<button
 									className="flex min-h-11 w-full cursor-pointer items-center justify-center gap-3 rounded-lg bg-[#172b24] px-5 text-sm font-bold text-white transition hover:bg-[#304a3c] focus-visible:outline-2 focus-visible:outline-offset-3 focus-visible:outline-[#718b42] disabled:cursor-not-allowed disabled:bg-[#dce3d8] disabled:text-[#617269] sm:w-auto"
@@ -108,7 +123,7 @@ export default function IdeaExplorer({ nails = [], initialPrompt = '' }: { nails
 					</form>
 
 					<div className="mt-0 flex flex-wrap items-center gap-x-4 gap-y-3 lg:col-span-2">
-						<p className="mb-1 w-full text-xs font-bold uppercase text-[#7c8980] sm:mb-0 sm:w-auto">Need a first thought?</p>
+						<p className="mb-1 w-full text-xs font-bold uppercase text-[#617269] sm:mb-0 sm:w-auto">Need a first thought?</p>
 						<div className="flex flex-wrap gap-2">
 							{examples.map((example) => (
 								<button
@@ -136,7 +151,7 @@ export default function IdeaExplorer({ nails = [], initialPrompt = '' }: { nails
 								<p className="text-xs font-bold uppercase tracking-[0.14em] text-[#718b42]">From the Nails collection</p>
 								<h2 className="mt-1 font-display text-3xl">Closest matches</h2>
 							</div>
-							<span className="text-xs font-semibold text-[#7c8980]">{matchCountLabel}</span>
+							<span className="text-xs font-semibold text-[#617269]">{matchCountLabel}</span>
 						</div>
 						{matches.length === 0 ? (
 							<p className="mt-4 text-sm leading-6 text-[#617269]">No close matches yet. Try another color, style, or nail shape.</p>

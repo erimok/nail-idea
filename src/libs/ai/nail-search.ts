@@ -20,6 +20,8 @@ export interface NailRecord {
 	nailConcerns: readonly string[];
 }
 
+export type NailSearchRecord = Omit<NailRecord, 'image'>;
+
 function seasonValues(value: SeasonValue): readonly string[] {
 	if (value === undefined) return [];
 	if (typeof value === 'string') return [value];
@@ -27,7 +29,7 @@ function seasonValues(value: SeasonValue): readonly string[] {
 }
 
 export interface NailSearchMatch {
-	nail: NailRecord;
+	nail: NailSearchRecord;
 	score: number;
 }
 
@@ -39,7 +41,7 @@ function listMatchScore(requested: readonly string[], available: readonly string
 
 export function searchNails(
 	response: IAIResponse,
-	nails: readonly NailRecord[],
+	nails: readonly NailSearchRecord[],
 ): NailSearchMatch[] {
 	return nails
 		.map((nail) => {

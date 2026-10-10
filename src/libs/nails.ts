@@ -1,6 +1,6 @@
 import { createReader } from '@keystatic/core/reader';
 import keystaticConfig from '../../keystatic.config';
-import type { NailRecord } from './ai/nail-search';
+import type { NailRecord, NailSearchRecord } from './ai/nail-search';
 import { getNailImageMetadata } from './nail-images';
 
 export async function loadNails(): Promise<NailRecord[]> {
@@ -23,4 +23,8 @@ export async function loadNails(): Promise<NailRecord[]> {
 		finishes: entry.finishes,
 		nailConcerns: entry.nailConcerns,
 	}));
+}
+
+export function toNailSearchRecords(nails: readonly NailRecord[]): NailSearchRecord[] {
+	return nails.map(({ image: _image, ...nail }) => nail);
 }

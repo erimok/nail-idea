@@ -26,8 +26,8 @@ const groupLabels = {
 	variant === 'footer' ? 'w-full' : 'border-y border-[#d9dfd4] py-7',
 ]}>
 	<h2 class:list={[
-		'font-display text-2xl text-[#172b24]',
-		variant === 'footer' && 'text-white',
+		'font-display text-2xl',
+		variant === 'footer' ? 'text-white' : 'text-[#172b24]',
 	]}>{title}</h2>
 	<div class:list={[
 		'mt-5 grid gap-6',
@@ -39,7 +39,7 @@ const groupLabels = {
 				<div>
 					<h3 class:list={[
 						'text-xs font-bold uppercase tracking-[0.12em]',
-						variant === 'footer' ? 'text-[#a9b5aa]' : 'text-[#7c8980]',
+						variant === 'footer' ? 'text-[#a9b5aa]' : 'text-[#617269]',
 					]}>{groupLabels[kind]}</h3>
 					<ul class:list={['mt-3 flex flex-wrap', variant === 'footer' ? 'gap-x-3 gap-y-2' : 'gap-2']}>
 						{groupPages.map((page) => (
