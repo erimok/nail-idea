@@ -1,7 +1,6 @@
 ---
 import type { NailFacetPage } from '../libs/seo-pages';
 import { formatFacetLabel } from '../libs/seo-pages';
-import { isIndexable } from '../libs/hub-index';
 import Logo from './ui/Logo.astro';
 
 interface Props {
@@ -15,10 +14,9 @@ const groups: { label: string; kind: NailFacetPage['kind'] }[] = [
 	{ label: 'Occasions', kind: 'occasion' },
 	{ label: 'Seasons', kind: 'season' },
 ];
-const indexable = hubs.filter(isIndexable);
 const browseGroups = groups.map(({ label, kind }) => ({
 	label,
-	pages: indexable.filter((page) => page.kind === kind).slice(0, 8),
+	pages: hubs.filter((page) => page.kind === kind).slice(0, 6),
 })).filter(({ pages }) => pages.length > 0);
 ---
 
@@ -27,22 +25,63 @@ const browseGroups = groups.map(({ label, kind }) => ({
 		<Logo />
 		<nav aria-label="Main navigation" class="flex items-center gap-3 sm:gap-5">
 			<a class="inline-flex min-h-11 items-center text-sm font-semibold text-ink-soft hover:text-ink" href="/manicure/">Manicure</a>
-			<details class="group relative">
+			<details class="browse-menu group relative">
 				<summary class="inline-flex min-h-11 cursor-pointer list-none items-center gap-2 text-sm font-semibold text-ink-soft hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-olive">
-					Browse <span aria-hidden="true">▾</span>
+					Browse <span class="browse-chevron" aria-hidden="true">⌄</span>
 				</summary>
-				<div class="absolute right-0 z-20 mt-2 grid min-w-64 gap-4 rounded-lg border border-line bg-surface p-5 shadow-lg sm:min-w-[28rem] sm:grid-cols-2">
-					{browseGroups.map(({ label, pages }) => (
+				<div class="browse-panel absolute right-0 z-20 mt-3 w-[min(92vw,46rem)] overflow-hidden rounded-xl border border-line bg-surface shadow-2xl">
+					<div class="browse-panel-heading flex items-end justify-between gap-5 px-6 py-5 sm:px-7">
 						<div>
-							<h2 class="mb-2 text-xs font-bold uppercase tracking-[0.1em] text-muted">{label}</h2>
-							<ul class="space-y-1">
-								{pages.map((page) => <li><a class="inline-flex min-h-9 items-center text-sm text-ink-soft hover:text-coral" href={`/${page.area}/${page.slug}/`}>{formatFacetLabel(page)}</a></li>)}
-							</ul>
+							<p class="mb-1 text-[0.65rem] font-bold uppercase tracking-[0.16em] text-coral">Find your next set</p>
+							<h2 class="font-display text-2xl font-semibold text-ink">Browse nail ideas</h2>
 						</div>
-					))}
+						<span class="hidden font-display text-5xl leading-none text-coral/30 sm:block" aria-hidden="true">✳</span>
+					</div>
+					<div class="grid gap-6 px-6 py-6 sm:grid-cols-2 sm:px-7">
+						{browseGroups.map(({ label, pages }, index) => (
+							<section>
+								<h3 class="mb-2 flex items-center gap-2 text-xs font-bold uppercase tracking-[0.12em] text-muted">
+									<span class={`browse-mark browse-mark-${index + 1}`} aria-hidden="true"></span>{label}
+								</h3>
+								<ul class="browse-link-list">
+									{pages.map((page) => <li><a href={`/${page.area}/${page.slug}/`}>{formatFacetLabel(page)}<span aria-hidden="true">↗</span></a></li>)}
+								</ul>
+							</section>
+						))}
+					</div>
+					<div class="browse-panel-footer flex flex-wrap items-center justify-between gap-3 px-6 py-4 sm:px-7">
+						<span class="text-xs font-medium text-muted">Explore the full collections</span>
+						<div class="flex gap-2">
+							<a class="browse-area-link" href="/manicure/">Manicure <span aria-hidden="true">→</span></a>
+							<a class="browse-area-link" href="/pedicure/">Pedicure <span aria-hidden="true">→</span></a>
+						</div>
+					</div>
 				</div>
 			</details>
 			<a class="inline-flex min-h-11 items-center text-sm font-semibold text-ink-soft hover:text-ink" href="/about/">About</a>
 		</nav>
 	</div>
 </header>
+
+<style>
+	.browse-menu > summary::-webkit-details-marker { display: none; }
+	.browse-chevron { color: var(--color-coral); font-size: 1.1rem; transition: transform 180ms ease; }
+	.browse-menu[open] .browse-chevron { transform: rotate(180deg); }
+	.browse-panel { animation: browse-arrive 160ms ease-out both; transform-origin: top right; }
+	.browse-panel-heading { background: linear-gradient(110deg, #f7eee5 0%, #fbf8f2 58%, #f1e8dc 100%); }
+	.browse-panel-footer { border-top: 1px solid var(--color-line); background: #f8f5ef; }
+	.browse-mark { width: 7px; height: 7px; border-radius: 50%; background: var(--color-coral); }
+	.browse-mark-2 { background: #a9a65f; }
+	.browse-mark-3 { background: #cc8d78; }
+	.browse-mark-4 { background: #777f64; }
+	.browse-link-list { display: grid; gap: 2px; }
+	.browse-link-list a { display: flex; min-height: 36px; align-items: center; justify-content: space-between; gap: 12px; border-radius: 5px; padding: 5px 9px; color: var(--color-ink-soft); font-size: 0.875rem; transition: background 140ms ease, color 140ms ease; }
+	.browse-link-list a span { color: var(--color-coral); opacity: 0; transform: translate(-3px, 3px); transition: opacity 140ms ease, transform 140ms ease; }
+	.browse-link-list a:hover, .browse-link-list a:focus-visible { background: #f7eee5; color: var(--color-ink); outline: none; }
+	.browse-link-list a:hover span, .browse-link-list a:focus-visible span { opacity: 1; transform: translate(0, 0); }
+	.browse-area-link { display: inline-flex; min-height: 34px; align-items: center; gap: 8px; border: 1px solid var(--color-line); border-radius: 5px; padding: 0 10px; color: var(--color-ink); font-size: 0.75rem; font-weight: 700; transition: border-color 140ms ease, background 140ms ease; }
+	.browse-area-link:hover { border-color: var(--color-coral); background: white; }
+	@keyframes browse-arrive { from { opacity: 0; transform: translateY(-5px) scale(0.99); } to { opacity: 1; transform: translateY(0) scale(1); } }
+	@media (prefers-reduced-motion: reduce) { .browse-panel, .browse-chevron, .browse-link-list a, .browse-link-list a span, .browse-area-link { animation: none; transition: none; } }
+	@media (max-width: 767px) { .browse-panel { position: fixed; top: 4.5rem; right: 1rem; left: 1rem; width: auto; max-height: calc(100dvh - 6rem); overflow-y: auto; } }
+</style>
