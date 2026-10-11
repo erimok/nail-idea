@@ -1,0 +1,18 @@
+title: Alpha manicure
+image: /images/nails/short-square-nails-with-solid-color/short-square-nails-with-solid-color.jpg
+imageAlt: Alpha manicure alt text.
+description: Alpha manicure description.
+typesOfNails: manicure
+colors:
+  - red
+types:
+  - solid
+occasions:
+  - party
+season:
+  - summer
+shape: square
+length: short
+finishes:
+  - glossy
+nailConcerns: []

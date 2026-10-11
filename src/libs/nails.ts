@@ -1,13 +1,11 @@
-import type { NailRecord, NailSearchRecord } from './ai/nail-search';
-import { getNailImageMetadata } from './nail-images';
-import { loadNailEntries } from './nail-content';
+import type { NailRecord, NailSearchRecord } from '../domain/nail';
+import { KeystaticNailRepository } from '../adapters/keystatic/KeystaticNailRepository';
+
+const repository = new KeystaticNailRepository();
 
 export async function loadNails(): Promise<NailRecord[]> {
-	const nails = await loadNailEntries();
-	return nails.map((nail) => ({
-		...nail,
-		imageSrc: nail.image ? getNailImageMetadata(nail.image).src : undefined,
-	}));
+	// TODO: remove wrapper in composition phase.
+	return [...await repository.findAllNails()];
 }
 
 export function toNailSearchRecords(nails: readonly NailRecord[]): NailSearchRecord[] {

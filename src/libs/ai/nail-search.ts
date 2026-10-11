@@ -1,26 +1,7 @@
 import type { IAIResponse } from './types';
+import type { NailRecord, NailSearchRecord, SeasonValue } from '../../domain/nail';
 
-export type SeasonValue = readonly string[] | string | undefined;
-
-export interface NailRecord {
-	slug: string;
-	title: string;
-	image: string;
-	imageSrc?: string;
-	imageAlt?: string;
-	description: string;
-	colors: readonly string[];
-	types: readonly string[];
-	occasions: readonly string[];
-	typesOfNails: string;
-	season?: SeasonValue;
-	shape?: string;
-	length?: string;
-	finishes: readonly string[];
-	nailConcerns: readonly string[];
-}
-
-export type NailSearchRecord = Omit<NailRecord, 'image'>;
+export type { NailRecord, NailSearchRecord, SeasonValue };
 
 function seasonValues(value: SeasonValue): readonly string[] {
 	if (value === undefined) return [];

@@ -1,6 +1,6 @@
 import type { ImageMetadata } from 'astro';
 
-const nailImages = import.meta.glob<ImageMetadata>(
+const nailImages = import.meta.glob<string | ImageMetadata>(
 	'../assets/images/nails/**/*.{avif,gif,jpeg,jpg,png,webp}',
 	{ eager: true, import: 'default' },
 );
@@ -17,5 +17,7 @@ export function getNailImageMetadata(imagePath: string): ImageMetadata {
 		throw new Error(`Nail image asset not found for ${imagePath}`);
 	}
 
-	return image;
+	return typeof image === 'string'
+		? ({ src: image } as ImageMetadata)
+		: image;
 }

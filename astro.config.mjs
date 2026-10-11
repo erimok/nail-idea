@@ -11,12 +11,14 @@ import { nailAreas } from './src/domain/areas.ts';
 import { getAllFacetPages, getNailsForArea } from './src/domain/facet-combinations.ts';
 import { isIndexable, isIndexablePage } from './src/domain/indexability.ts';
 import { buildAreaRoute, buildFacetRoute } from './src/domain/routes.ts';
+import { EnvSiteConfig } from './src/adapters/config/EnvSiteConfig.ts';
 import { loadNailEntries } from './src/libs/nail-content.ts';
 import { loadHubEditorial, attachHubEditorial } from './src/libs/hubs.ts';
 
 // https://astro.build/config
 const nails = await loadNailEntries();
 const editorial = await loadHubEditorial();
+const siteConfig = new EnvSiteConfig(process.env);
 const sitemapPaths = new Set([
 	'/',
 	'/about/',
@@ -30,7 +32,7 @@ const sitemapPaths = new Set([
 ]);
 
 export default defineConfig({
-	site: process.env.SITE_URL ?? 'https://nail.ai',
+	site: siteConfig.siteUrl,
 	output: 'static',
 	adapter: node({ mode: 'standalone' }),
 	image: {

@@ -1,5 +1,5 @@
-import type { NailRecord } from '../libs/ai/nail-search';
 import type { HubEditorial } from '../domain/hub-types';
+import type { NailRecord } from '../domain/nail';
 
 let nailSequence = 0;
 let hubSequence = 0;

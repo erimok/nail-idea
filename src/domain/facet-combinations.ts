@@ -1,4 +1,4 @@
-import type { NailRecord } from '../libs/ai/nail-search';
+import type { NailRecord } from './nail';
 import { isNailArea, nailAreas, type NailArea } from './areas';
 import { combinableFacetKinds, facetKinds, getFacetValues, type CombinableFacetKind, type FacetKind } from './facets/registry';
 import type { HubEditorial } from './hub-types';

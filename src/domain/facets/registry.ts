@@ -1,4 +1,4 @@
-import type { NailRecord } from '../../libs/ai/nail-search';
+import type { NailRecord } from '../nail';
 
 function seasonValues(value: NailRecord['season']): readonly string[] {
 	if (value === undefined) return [];
