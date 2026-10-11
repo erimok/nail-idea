@@ -94,7 +94,7 @@ test('production sitemap includes only indexable routes', async () => {
 	const thinFacet = await readFile(path.join(distDirectory, 'manicure', 'burgundy-nails', 'index.html'), 'utf8');
 	assert.match(thinFacet, /<meta name="robots" content="noindex,follow"/);
 	assert.doesNotMatch(thinFacet, /\b\d+ designs\b/);
-	assert.ok(!(await access(path.join(distDirectory, 'manicure', 'almond-nails-with-micro-french', 'index.html')).then(() => true).catch(() => false)), 'individual nail detail pages are intentionally not generated');
+	assert.ok(!(await access(path.join(distDirectory, 'manicure', 'almond-short-nude-micro-french', 'index.html')).then(() => true).catch(() => false)), 'individual nail detail pages are intentionally not generated');
 
 	const picture = homepage.match(/<picture[\s\S]*?<\/picture>/)?.[0];
 	assert.ok(picture, 'homepage should render a nail image');
