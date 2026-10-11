@@ -67,10 +67,17 @@ describe('buildHomepage', () => {
 				acceptedAnswer: { '@type': 'Answer', text: 'CMS answer.' },
 			}],
 		}));
-		expect(result.layout.siteChrome.header.browseGroups).toEqual([{
-			label: 'CMS links',
-			links: [{ label: 'Red designs', href: '/manicure/red-nails/' }],
-		}]);
+		expect(result.layout.siteChrome.header.browseGroups.map(({ label }) => label)).toEqual([
+			'Type',
+			'Color',
+			'Shape',
+			'Finishes',
+			'Length',
+		]);
+		expect(result.layout.siteChrome.header.browseGroups.flatMap(({ links }) => links)).toContainEqual({
+			label: 'French',
+			href: '/manicure/french-nails/',
+		});
 		expect(result.layout.siteChrome.footer.groups).toEqual([{
 			label: 'CMS links',
 			links: [{ label: 'Red designs', href: '/manicure/red-nails/' }],

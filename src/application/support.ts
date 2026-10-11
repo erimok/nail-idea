@@ -47,6 +47,14 @@ const browseGroupDefinitions: readonly { kind: FacetKind; label: string }[] = [
 	{ kind: 'finishing', label: 'Finishes' },
 ];
 
+const headerBrowseGroupDefinitions: readonly { kind: FacetKind; label: string }[] = [
+	{ kind: 'type', label: 'Type' },
+	{ kind: 'color', label: 'Color' },
+	{ kind: 'shape', label: 'Shape' },
+	{ kind: 'finishing', label: 'Finishes' },
+	{ kind: 'length', label: 'Length' },
+];
+
 const homepageCategoryDefinitions: readonly {
 	title: string;
 	description: string;
@@ -132,7 +140,7 @@ export function buildSiteChromeViewModel(
 
 	return {
 		header: {
-			browseGroups: buildNavigationGroups(navigationGroups, 'header', indexableHrefs),
+			browseGroups: buildHeaderBrowseGroups(hubPages),
 			availableAreas: nailAreas
 				.filter((area) => isIndexablePage(getNailsForArea(allNails, area).length))
 				.map((area) => ({ label: formatAreaLabel(area), href: buildAreaRoute(area) })),
@@ -141,6 +149,30 @@ export function buildSiteChromeViewModel(
 			groups: buildNavigationGroups(navigationGroups, 'footer', indexableHrefs),
 		},
 	};
+}
+
+function buildHeaderBrowseGroups(pages: readonly NailFacetPage[]): BrowseLinkGroupViewModel[] {
+	const indexablePages = pages.filter(isIndexable);
+
+	return headerBrowseGroupDefinitions.flatMap(({ kind, label }) => {
+		const matchingPages = indexablePages.filter((page) => page.kind === kind);
+		const areasByValue = new Map<string, Set<NailFacetPage['area']>>();
+
+		for (const page of matchingPages) {
+			const areas = areasByValue.get(page.value) ?? new Set<NailFacetPage['area']>();
+			areas.add(page.area);
+			areasByValue.set(page.value, areas);
+		}
+
+		const links = matchingPages.map((page) => ({
+			label: areasByValue.get(page.value)?.size === 1
+				? formatFacetLinkLabel(page)
+				: `${formatFacetLinkLabel(page)} ${page.area}`,
+			href: buildFacetRoute(page.area, page.slug),
+		}));
+
+		return links.length > 0 ? [{ label, links }] : [];
+	});
 }
 
 export function buildFacetBrowseLinksViewModel(

@@ -11,24 +11,26 @@ const { browseGroups, availableAreas } = Astro.props;
 const primaryArea = availableAreas[0];
 ---
 
-<header class="w-full border-b border-line bg-surface">
+<header class="relative w-full border-b border-line bg-surface">
 	<div class="mx-auto flex w-full max-w-[1440px] items-center justify-between gap-5 px-5 py-4 sm:px-8 lg:px-14">
 		<Logo />
 		<nav aria-label="Main navigation" class="flex items-center gap-3 sm:gap-5">
 			{primaryArea && <a class="inline-flex min-h-11 items-center text-sm font-semibold text-ink-soft hover:text-ink" href={primaryArea.href}>{primaryArea.label}</a>}
-			<details class="browse-menu group relative">
+			<details class="browse-menu group">
 				<summary class="inline-flex min-h-11 cursor-pointer list-none items-center gap-2 text-sm font-semibold text-ink-soft hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-olive">
 					Browse <span class="browse-chevron" aria-hidden="true">⌄</span>
 				</summary>
-				<div class="browse-panel absolute right-0 z-20 mt-3 w-[min(92vw,46rem)] overflow-hidden rounded-xl border border-line bg-surface shadow-2xl">
-					<div class="browse-panel-heading flex items-end justify-between gap-5 px-6 py-5 sm:px-7">
-						<div>
-							<p class="mb-1 text-[0.65rem] font-bold uppercase tracking-[0.16em] text-coral">Find your next set</p>
-							<h2 class="font-display text-2xl font-semibold text-ink">Browse nail ideas</h2>
+				<div class="browse-panel absolute left-0 top-full z-20 mt-3 w-full overflow-hidden border-y border-line bg-surface shadow-2xl">
+					<div class="browse-panel-heading">
+						<div class="browse-panel-inner flex items-end justify-between gap-5 px-6 py-5 sm:px-7">
+							<div>
+								<p class="mb-1 text-[0.65rem] font-bold uppercase tracking-[0.16em] text-coral">Find your next set</p>
+								<h2 class="font-display text-2xl font-semibold text-ink">Browse nail ideas</h2>
+							</div>
+							<span class="hidden font-display text-5xl leading-none text-coral/30 sm:block" aria-hidden="true">✳</span>
 						</div>
-						<span class="hidden font-display text-5xl leading-none text-coral/30 sm:block" aria-hidden="true">✳</span>
 					</div>
-					<div class="grid gap-6 px-6 py-6 sm:grid-cols-2 sm:px-7">
+					<div class="browse-panel-inner grid gap-6 px-6 py-6 sm:grid-cols-2 sm:px-7 lg:grid-cols-3 xl:grid-cols-5">
 						{browseGroups.map(({ label, links }, index) => (
 							<section>
 								<h3 class="mb-2 flex items-center gap-2 text-xs font-bold uppercase tracking-[0.12em] text-muted">
@@ -40,14 +42,16 @@ const primaryArea = availableAreas[0];
 							</section>
 						))}
 					</div>
-					<div class="browse-panel-footer flex flex-wrap items-center justify-between gap-3 px-6 py-4 sm:px-7">
-						<span class="text-xs font-medium text-muted">Explore the full collections</span>
-						<div class="flex gap-2">
-							{availableAreas.map(({ href, label }) => (
-								<a class="browse-area-link" href={href}>
-									{label} <span aria-hidden="true">→</span>
-								</a>
-							))}
+					<div class="browse-panel-footer">
+						<div class="browse-panel-inner flex flex-wrap items-center justify-between gap-3 px-6 py-4 sm:px-7">
+							<span class="text-xs font-medium text-muted">Explore the full collections</span>
+							<div class="flex gap-2">
+								{availableAreas.map(({ href, label }) => (
+									<a class="browse-area-link" href={href}>
+										{label} <span aria-hidden="true">→</span>
+									</a>
+								))}
+							</div>
 						</div>
 					</div>
 				</div>
@@ -61,7 +65,8 @@ const primaryArea = availableAreas[0];
 	.browse-menu > summary::-webkit-details-marker { display: none; }
 	.browse-chevron { color: var(--color-coral); font-size: 1.1rem; transition: transform 180ms ease; }
 	.browse-menu[open] .browse-chevron { transform: rotate(180deg); }
-	.browse-panel { animation: browse-arrive 160ms ease-out both; transform-origin: top right; }
+	.browse-panel { animation: browse-arrive 160ms ease-out both; transform-origin: top center; }
+	.browse-panel-inner { margin-inline: auto; max-width: 1440px; }
 	.browse-panel-heading { background: linear-gradient(110deg, #f7eee5 0%, #fbf8f2 58%, #f1e8dc 100%); }
 	.browse-panel-footer { border-top: 1px solid var(--color-line); background: #f8f5ef; }
 	.browse-mark { width: 7px; height: 7px; border-radius: 50%; background: var(--color-coral); }
@@ -77,5 +82,5 @@ const primaryArea = availableAreas[0];
 	.browse-area-link:hover { border-color: var(--color-coral); background: white; }
 	@keyframes browse-arrive { from { opacity: 0; transform: translateY(-5px) scale(0.99); } to { opacity: 1; transform: translateY(0) scale(1); } }
 	@media (prefers-reduced-motion: reduce) { .browse-panel, .browse-chevron, .browse-link-list a, .browse-link-list a span, .browse-area-link { animation: none; transition: none; } }
-	@media (max-width: 767px) { .browse-panel { position: fixed; top: 4.5rem; right: 1rem; left: 1rem; width: auto; max-height: calc(100dvh - 6rem); overflow-y: auto; } }
+	@media (max-width: 767px) { .browse-panel { max-height: calc(100dvh - 6rem); overflow-y: auto; } }
 </style>

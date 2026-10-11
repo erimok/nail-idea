@@ -70,6 +70,22 @@ describe('rankRelatedHubs', () => {
 		expect(result.length).toBeLessThanOrEqual(MAX_INTRO_LINKS);
 		expect(result.map((hub) => hub.slug)).not.toContain('burgundy-nails');
 	});
+
+	it('excludes candidates that share facet values but no designs', () => {
+		// Arrange
+		const { page, pages } = pageFor(burgundyNails(), 'burgundy-nails');
+		const unrelated = {
+			...pages.find((candidate) => candidate.slug === 'matte-nails')!,
+			slug: 'unrelated-matte-nails',
+			nails: [aNail({ slug: 'unrelated-design', colors: ['burgundy'], finishes: ['matte'] })],
+		};
+
+		// Act
+		const result = rankRelatedHubs(page, topSubfacets(page), [...pages, unrelated]);
+
+		// Assert
+		expect(result.map((hub) => hub.slug)).not.toContain('unrelated-matte-nails');
+	});
 });
 
 describe('generateHubCopy', () => {

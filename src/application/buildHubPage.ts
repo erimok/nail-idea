@@ -1,4 +1,4 @@
-import { getAllFacetPages, getFacetPages, type NailFacetPage } from '../domain/facet-combinations';
+import { getAllFacetPages, getFacetPages } from '../domain/facet-combinations';
 import type { NailArea } from '../domain/areas';
 import { generateHubCopy } from '../domain/hub-copy';
 import { isIndexable } from '../domain/indexability';
@@ -39,6 +39,7 @@ export async function buildHubPage(
 
 	const relatedPages = attachHubEditorial(getFacetPages(allNails, area), editorial);
 	const copy = generateHubCopy(page, relatedPages.filter(isIndexable));
+	const pageNailSlugs = new Set(page.nails.map((nail) => nail.slug));
 	const canonical = buildCanonicalUrl(siteConfig.siteUrl, buildFacetRoute(area, slug));
 	const facetLabel = formatFacetBreadcrumbLabel(page);
 	const breadcrumbs = [
@@ -71,7 +72,11 @@ export async function buildHubPage(
 		searchRecords: toSearchRecords(page.nails),
 		breadcrumbs,
 		relatedLinks: relatedPages.length > 0
-			? resolveBrowseLinks({ pages: relatedPages as readonly NailFacetPage[], title: `Explore more ${area} ideas`, currentSlug: slug })
+			? resolveBrowseLinks({
+				pages: relatedPages.filter((candidate) => candidate.nails.some((nail) => pageNailSlugs.has(nail.slug))),
+				title: `Explore more ${area} ideas`,
+				currentSlug: slug,
+			})
 			: undefined,
 		sectionTitle: `${page.nails.length} ${facetLabel.toLowerCase()} designs`,
 		faq: page.editorial?.faq ?? [],

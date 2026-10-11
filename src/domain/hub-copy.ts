@@ -60,15 +60,18 @@ export function topSubfacets(page: Pick<HubCopyPage, 'facets' | 'nails'>, limit 
 }
 
 export function rankRelatedHubs<T extends RelatedCandidate>(
-	page: Pick<HubCopyPage, 'area' | 'slug' | 'facets'>,
+	page: Pick<HubCopyPage, 'area' | 'slug' | 'facets' | 'nails'>,
 	subfacets: readonly string[],
 	candidates: readonly T[],
 	limit = MAX_INTRO_LINKS,
 ): T[] {
 	const relevant = new Set([...page.facets.map((facet) => facet.value), ...subfacets]);
+	const pageNailSlugs = new Set(page.nails.map((nail) => nail.slug));
 
 	return candidates
-		.filter((candidate) => candidate.area === page.area && candidate.slug !== page.slug)
+		.filter((candidate) => candidate.area === page.area
+			&& candidate.slug !== page.slug
+			&& candidate.nails.some((nail) => pageNailSlugs.has(nail.slug)))
 		.map((candidate) => ({ candidate, score: candidate.facets.filter((facet) => relevant.has(facet.value)).length }))
 		.filter(({ score }) => score > 0)
 		.sort((left, right) => right.score - left.score
