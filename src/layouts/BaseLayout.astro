@@ -2,9 +2,10 @@
 import '../styles/global.css';
 import SiteFooter from '../components/SiteFooter.astro';
 import SiteHeader from '../components/SiteHeader.astro';
-import { nailAreas } from '../areas';
+import { nailAreas } from '../domain/areas';
+import { getFacetPages, getNailsForArea } from '../domain/facet-combinations';
+import { isIndexablePage } from '../domain/indexability';
 import { loadNails } from '../libs/nails';
-import { getFacetPages } from '../libs/seo-pages';
 import { attachHubEditorial, loadHubEditorial } from '../libs/hubs';
 
 interface Props {
@@ -32,6 +33,7 @@ const serializedStructuredData = structuredData
 const nails = await loadNails();
 const editorial = await loadHubEditorial();
 const footerFacetPages = attachHubEditorial(nailAreas.flatMap((area) => getFacetPages(nails, area)), editorial);
+const availableAreas = nailAreas.filter((area) => isIndexablePage(getNailsForArea(nails, area).length));
 ---
 
 <!doctype html>
@@ -66,7 +68,7 @@ const footerFacetPages = attachHubEditorial(nailAreas.flatMap((area) => getFacet
 		<link rel="icon" href="/favicon.ico" />
 	</head>
 	<body class="flex min-h-screen flex-col">
-		<SiteHeader hubs={footerFacetPages} />
+		<SiteHeader hubs={footerFacetPages} availableAreas={availableAreas} />
 		<slot />
 		<SiteFooter hubs={footerFacetPages} />
 	</body>

@@ -1,8 +1,8 @@
 ---
 import HomepageView from '../components/HomepageView.astro';
-import { nailAreas } from '../areas';
+import { nailAreas } from '../domain/areas';
+import { getFacetPages } from '../domain/facet-combinations';
 import { loadNails, toNailSearchRecords } from '../libs/nails';
-import { getFacetPages } from '../libs/seo-pages';
 import { getHomepageCategories, getHomepageFeatured, homepageFaq } from '../libs/homepage';
 import { attachHubEditorial, loadHubEditorial } from '../libs/hubs';
 

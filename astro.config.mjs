@@ -7,11 +7,12 @@ import keystatic from '@keystatic/astro';
 import sitemap from '@astrojs/sitemap';
 import tailwindcss from '@tailwindcss/vite';
 import { devNailContentEndpoint } from './src/libs/dev-nail-content-endpoint.ts';
-import { nailAreas } from './src/areas.ts';
+import { nailAreas } from './src/domain/areas.ts';
+import { getAllFacetPages, getNailsForArea } from './src/domain/facet-combinations.ts';
+import { isIndexable, isIndexablePage } from './src/domain/indexability.ts';
+import { buildAreaRoute, buildFacetRoute } from './src/domain/routes.ts';
 import { loadNailEntries } from './src/libs/nail-content.ts';
-import { getAllFacetPages, getNailsForArea, isIndexablePage } from './src/libs/seo-pages.ts';
 import { loadHubEditorial, attachHubEditorial } from './src/libs/hubs.ts';
-import { isIndexable } from './src/libs/hub-index.ts';
 
 // https://astro.build/config
 const nails = await loadNailEntries();
@@ -21,11 +22,11 @@ const sitemapPaths = new Set([
 	'/about/',
 	...nailAreas.flatMap((area) => {
 		const areaNails = getNailsForArea(nails, area);
-		return isIndexablePage(areaNails.length) ? [`/${area}/`] : [];
+		return isIndexablePage(areaNails.length) ? [buildAreaRoute(area)] : [];
 	}),
 	...attachHubEditorial(getAllFacetPages(nails), editorial)
 		.filter(isIndexable)
-		.map((page) => `/${page.area}/${page.slug}/`),
+		.map((page) => buildFacetRoute(page.area, page.slug)),
 ]);
 
 export default defineConfig({

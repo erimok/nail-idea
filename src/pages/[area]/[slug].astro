@@ -1,9 +1,11 @@
 ---
 import CollectionPageView from '../../components/CollectionPageView.astro';
+import { getAllFacetPages, getFacetPages, type NailFacetPage } from '../../domain/facet-combinations';
+import { isIndexable } from '../../domain/indexability';
+import { buildAreaRoute, buildFacetRoute } from '../../domain/routes';
 import { loadNails, toNailSearchRecords } from '../../libs/nails';
-import { getAllFacetPages, getFacetPageCopy, getFacetPages, type NailFacetPage } from '../../libs/seo-pages';
+import { getFacetPageCopy } from '../../libs/seo-pages';
 import { attachHubEditorial, loadHubEditorial } from '../../libs/hubs';
-import { isIndexable } from '../../libs/hub-index';
 
 export async function getStaticPaths() {
 	const nails = await loadNails();
@@ -19,7 +21,7 @@ const { page, relatedPages } = Astro.props as { page: NailFacetPage; relatedPage
 const copy = getFacetPageCopy(page);
 const areaLabel = page.area.charAt(0).toUpperCase() + page.area.slice(1);
 const facetLabel = page.facets.map((facet) => facet.value.charAt(0).toUpperCase() + facet.value.slice(1)).join(' ');
-const canonical = new URL(`/${page.area}/${page.slug}/`, Astro.site).toString();
+const canonical = new URL(buildFacetRoute(page.area, page.slug), Astro.site).toString();
 ---
 
 <CollectionPageView
@@ -33,7 +35,7 @@ const canonical = new URL(`/${page.area}/${page.slug}/`, Astro.site).toString();
 	nails={page.nails}
 	searchRecords={toNailSearchRecords(page.nails)}
 	noIndex={!isIndexable(page)}
-	crumbs={[{ label: 'Home', href: '/' }, { label: areaLabel, href: `/${page.area}/` }, { label: facetLabel }]}
+	crumbs={[{ label: 'Home', href: '/' }, { label: areaLabel, href: buildAreaRoute(page.area) }, { label: facetLabel }]}
 	relatedPages={relatedPages}
 	currentSlug={page.slug}
 	sectionTitle={`${page.nails.length} ${facetLabel.toLowerCase()} designs`}

@@ -1,7 +1,8 @@
 ---
-import type { NailFacetPage } from '../libs/seo-pages';
+import type { NailFacetPage } from '../domain/facet-combinations';
+import { isIndexable } from '../domain/indexability';
+import { buildFacetRoute } from '../domain/routes';
 import { formatFacetLabel } from '../libs/seo-pages';
-import { isIndexable } from '../libs/hub-index';
 import Logo from './ui/Logo.astro';
 
 interface Props {
@@ -31,7 +32,7 @@ const groups: { label: string; kind: NailFacetPage['kind'] }[] = [
 					<div>
 						<h2 class="text-xs font-bold uppercase tracking-[0.12em] text-lime">{label}</h2>
 						<ul class="mt-4 space-y-2">
-							{pages.map((page) => <li><a class="inline-flex min-h-8 items-center text-sm text-white underline decoration-muted underline-offset-4 hover:text-white" href={`/${page.area}/${page.slug}/`}>{formatFacetLabel(page)}</a></li>)}
+							{pages.map((page) => <li><a class="inline-flex min-h-8 items-center text-sm text-white underline decoration-muted underline-offset-4 hover:text-white" href={buildFacetRoute(page.area, page.slug)}>{formatFacetLabel(page)}</a></li>)}
 						</ul>
 					</div>
 				);

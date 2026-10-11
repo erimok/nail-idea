@@ -1,8 +1,11 @@
 ---
-import { nailAreas, type NailArea } from '../../areas';
+import { nailAreas, type NailArea } from '../../domain/areas';
+import { getFacetPages, getNailsForArea } from '../../domain/facet-combinations';
+import { isIndexablePage } from '../../domain/indexability';
+import { buildAreaRoute } from '../../domain/routes';
 import CollectionPageView from '../../components/CollectionPageView.astro';
 import { loadNails, toNailSearchRecords } from '../../libs/nails';
-import { getFacetPages, getNailsForArea, getAreaPageCopy, isIndexablePage } from '../../libs/seo-pages';
+import { getAreaPageCopy } from '../../libs/seo-pages';
 import { attachHubEditorial, loadHubEditorial } from '../../libs/hubs';
 
 export function getStaticPaths() {
@@ -16,7 +19,7 @@ const nails = getNailsForArea(allNails, area);
 const facets = attachHubEditorial(getFacetPages(allNails, area), editorial);
 const copy = getAreaPageCopy(area, nails);
 const areaLabel = area.charAt(0).toUpperCase() + area.slice(1);
-const canonical = new URL(`/${area}/`, Astro.site).toString();
+const canonical = new URL(buildAreaRoute(area), Astro.site).toString();
 ---
 
 <CollectionPageView

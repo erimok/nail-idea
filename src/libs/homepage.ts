@@ -1,6 +1,8 @@
 import type { NailRecord } from './ai/nail-search';
-import { formatFacetLabel, type NailFacetPage } from './seo-pages';
-import { isIndexable } from './hub-index';
+import type { NailFacetPage } from '../domain/facet-combinations';
+import { buildFacetRoute } from '../domain/routes';
+import { isIndexable } from '../domain/indexability';
+import { formatFacetLabel } from './seo-pages';
 
 export const homepageFaq = [
 	{
@@ -47,7 +49,7 @@ export function getHomepageCategories(pages: readonly NailFacetPage[]) {
 		thumbnail: category.pages[0].nails[0],
 		links: category.pages.map((page) => ({
 			label: formatFacetLabel(page),
-			href: `/${page.area}/${page.slug}/`,
+			href: buildFacetRoute(page.area, page.slug),
 		})),
 	}));
 }

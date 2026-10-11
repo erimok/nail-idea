@@ -6,12 +6,13 @@ import IdeaExplorer from './IdeaExplorer';
 import NailCollectionGrid from './NailCollectionGrid.astro';
 import Section from './ui/Section.astro';
 import SectionHeader from './ui/SectionHeader.astro';
+import type { NailArea } from '../domain/areas';
+import type { NailFacetPage } from '../domain/facet-combinations';
+import type { HubFaqItem } from '../domain/hub-types';
 import type { NailRecord, NailSearchRecord } from '../libs/ai/nail-search';
-import type { NailFacetPage } from '../libs/seo-pages';
-import type { HubFaqItem } from '../libs/hub-types';
 
 interface Props {
-	area: 'manicure' | 'pedicure';
+	area: NailArea;
 	title: string;
 	description: string;
 	canonical: string;

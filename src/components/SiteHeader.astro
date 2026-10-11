@@ -1,13 +1,16 @@
 ---
-import type { NailFacetPage } from '../libs/seo-pages';
+import type { NailArea } from '../domain/areas';
+import type { NailFacetPage } from '../domain/facet-combinations';
+import { buildAreaRoute, buildFacetRoute } from '../domain/routes';
 import { formatFacetLabel } from '../libs/seo-pages';
 import Logo from './ui/Logo.astro';
 
 interface Props {
 	hubs: readonly NailFacetPage[];
+	availableAreas: readonly NailArea[];
 }
 
-const { hubs } = Astro.props;
+const { hubs, availableAreas } = Astro.props;
 const groups: { label: string; kind: NailFacetPage['kind'] }[] = [
 	{ label: 'Shapes', kind: 'shape' },
 	{ label: 'Colors', kind: 'color' },
@@ -24,7 +27,7 @@ const browseGroups = groups.map(({ label, kind }) => ({
 	<div class="mx-auto flex w-full max-w-[1440px] items-center justify-between gap-5 px-5 py-4 sm:px-8 lg:px-14">
 		<Logo />
 		<nav aria-label="Main navigation" class="flex items-center gap-3 sm:gap-5">
-			<a class="inline-flex min-h-11 items-center text-sm font-semibold text-ink-soft hover:text-ink" href="/manicure/">Manicure</a>
+			<a class="inline-flex min-h-11 items-center text-sm font-semibold text-ink-soft hover:text-ink" href={buildAreaRoute('manicure')}>Manicure</a>
 			<details class="browse-menu group relative">
 				<summary class="inline-flex min-h-11 cursor-pointer list-none items-center gap-2 text-sm font-semibold text-ink-soft hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-olive">
 					Browse <span class="browse-chevron" aria-hidden="true">⌄</span>
@@ -44,7 +47,7 @@ const browseGroups = groups.map(({ label, kind }) => ({
 									<span class={`browse-mark browse-mark-${index + 1}`} aria-hidden="true"></span>{label}
 								</h3>
 								<ul class="browse-link-list">
-									{pages.map((page) => <li><a href={`/${page.area}/${page.slug}/`}>{formatFacetLabel(page)}<span aria-hidden="true">↗</span></a></li>)}
+									{pages.map((page) => <li><a href={buildFacetRoute(page.area, page.slug)}>{formatFacetLabel(page)}<span aria-hidden="true">↗</span></a></li>)}
 								</ul>
 							</section>
 						))}
@@ -52,8 +55,11 @@ const browseGroups = groups.map(({ label, kind }) => ({
 					<div class="browse-panel-footer flex flex-wrap items-center justify-between gap-3 px-6 py-4 sm:px-7">
 						<span class="text-xs font-medium text-muted">Explore the full collections</span>
 						<div class="flex gap-2">
-							<a class="browse-area-link" href="/manicure/">Manicure <span aria-hidden="true">→</span></a>
-							<a class="browse-area-link" href="/pedicure/">Pedicure <span aria-hidden="true">→</span></a>
+							{availableAreas.map((area) => (
+								<a class="browse-area-link" href={buildAreaRoute(area)}>
+									{area.charAt(0).toUpperCase() + area.slice(1)} <span aria-hidden="true">→</span>
+								</a>
+							))}
 						</div>
 					</div>
 				</div>

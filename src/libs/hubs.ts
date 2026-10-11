@@ -1,7 +1,7 @@
 import { createReader } from '@keystatic/core/reader';
 import keystaticConfig from '../../keystatic.config';
-import type { NailFacetPage } from './seo-pages';
-import type { HubEditorial } from './hub-types';
+import type { NailFacetPage } from '../domain/facet-combinations';
+import type { HubEditorial } from '../domain/hub-types';
 
 export async function loadHubEditorial(): Promise<HubEditorial[]> {
 	const reader = createReader(process.cwd(), keystaticConfig);
