@@ -8,7 +8,6 @@ import {
 	buildHomepageCategories,
 	buildHomepageStructuredData,
 	buildSiteChromeViewModel,
-	homepageFaq,
 	toSearchRecords,
 } from './support';
 import type { HomepageViewModel } from './view-models';
@@ -16,11 +15,14 @@ import type { HomepageViewModel } from './view-models';
 export async function buildHomepage({
 	nailRepository,
 	hubRepository,
+	siteContentRepository,
 	siteConfig,
 }: SitePorts): Promise<HomepageViewModel> {
-	const [nails, editorial] = await Promise.all([
+	const [nails, editorial, faqItems, navigationGroups] = await Promise.all([
 		nailRepository.findAllNails(),
 		hubRepository.listHubs(),
+		siteContentRepository.listFaqs(),
+		siteContentRepository.listNavigationGroups(),
 	]);
 	const facetPages = attachHubEditorial(
 		nailAreas.flatMap((area) => getFacetPages(nails, area)),
@@ -38,14 +40,14 @@ export async function buildHomepage({
 			canonical,
 			socialImage,
 			socialImageAlt: 'AI-generated manicure design with a polished nude finish',
-			structuredData: buildHomepageStructuredData(canonical, description, socialImage, homepageFaq),
-			siteChrome: buildSiteChromeViewModel(nails, editorial),
+			structuredData: buildHomepageStructuredData(canonical, description, socialImage, faqItems),
+			siteChrome: buildSiteChromeViewModel(nails, editorial, navigationGroups),
 		},
 		nails,
 		searchRecords: toSearchRecords(nails),
 		featured: nails.slice(0, 9),
 		categories,
-		faqItems: homepageFaq,
+		faqItems,
 		browseFeatures: buildHomepageBrowseFeatures(nails, categories),
 	};
 }

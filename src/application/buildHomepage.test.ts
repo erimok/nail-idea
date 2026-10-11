@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { InMemoryHubRepository } from '../adapters/in-memory/InMemoryHubRepository';
 import { InMemoryNailRepository } from '../adapters/in-memory/InMemoryNailRepository';
+import { InMemorySiteContentRepository } from '../adapters/in-memory/InMemorySiteContentRepository';
 import { InMemorySiteConfig } from '../adapters/in-memory/InMemorySiteConfig';
 import { aHub, aNail } from '../test/builders';
 import { buildHomepage } from './buildHomepage';
@@ -29,6 +30,17 @@ describe('buildHomepage', () => {
 		const ports = {
 			nailRepository: new InMemoryNailRepository(nails),
 			hubRepository: new InMemoryHubRepository(hubs),
+			siteContentRepository: new InMemorySiteContentRepository({
+				faqs: [{ question: 'CMS question?', answer: 'CMS answer.' }],
+				navigationGroups: [{
+					label: 'CMS links',
+					placement: 'both',
+					links: [
+						{ label: 'Red designs', href: '/manicure/red-nails/' },
+						{ label: 'Glossy designs', href: '/manicure/glossy-nails/' },
+					],
+				}],
+			}),
 			siteConfig: new InMemorySiteConfig(),
 		};
 
@@ -46,5 +58,22 @@ describe('buildHomepage', () => {
 			'Short nails',
 		]);
 		expect(result.browseFeatures.map(({ title }) => title)).toEqual(['Manicure ideas', 'Browse by shape']);
+		expect(result.faqItems).toEqual([{ question: 'CMS question?', answer: 'CMS answer.' }]);
+		expect(result.layout.structuredData?.['@graph']).toContainEqual(expect.objectContaining({
+			'@type': 'FAQPage',
+			mainEntity: [{
+				'@type': 'Question',
+				name: 'CMS question?',
+				acceptedAnswer: { '@type': 'Answer', text: 'CMS answer.' },
+			}],
+		}));
+		expect(result.layout.siteChrome.header.browseGroups).toEqual([{
+			label: 'CMS links',
+			links: [{ label: 'Red designs', href: '/manicure/red-nails/' }],
+		}]);
+		expect(result.layout.siteChrome.footer.groups).toEqual([{
+			label: 'CMS links',
+			links: [{ label: 'Red designs', href: '/manicure/red-nails/' }],
+		}]);
 	});
 });

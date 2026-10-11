@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { InMemoryHubRepository } from '../adapters/in-memory/InMemoryHubRepository';
 import { InMemoryNailRepository } from '../adapters/in-memory/InMemoryNailRepository';
+import { InMemorySiteContentRepository } from '../adapters/in-memory/InMemorySiteContentRepository';
 import { InMemorySiteConfig } from '../adapters/in-memory/InMemorySiteConfig';
 import { MIN_DESIGNS_FOR_INDEX } from '../domain/indexability';
 import { aHub, aNail } from '../test/builders';
@@ -28,6 +29,7 @@ function createPorts(nailCount: number) {
 	return {
 		nailRepository: new InMemoryNailRepository(nails),
 		hubRepository: new InMemoryHubRepository(hubs),
+		siteContentRepository: new InMemorySiteContentRepository(),
 		siteConfig: new InMemorySiteConfig(),
 	};
 }

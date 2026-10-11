@@ -11,6 +11,40 @@ export default config({
 		kind: 'local',
 	},
 	collections: {
+		faqs: collection({
+			label: 'Homepage FAQs',
+			slugField: 'question',
+			path: 'src/content/faqs/*',
+			columns: ['order', 'question'],
+			schema: {
+				question: fields.slug({ name: { label: 'Question' } }),
+				order: fields.integer({ label: 'Display order', defaultValue: 1 }),
+				answer: fields.text({ label: 'Answer', multiline: true, validation: { isRequired: true } }),
+			},
+		}),
+		navigation: collection({
+			label: 'Navigation menus',
+			slugField: 'title',
+			path: 'src/content/navigation/*',
+			columns: ['order', 'title', 'placement'],
+			schema: {
+				title: fields.slug({ name: { label: 'Menu group name' } }),
+				order: fields.integer({ label: 'Display order', defaultValue: 1 }),
+				placement: fields.select({
+					label: 'Show in',
+					options: [
+						{ label: 'Header browse menu', value: 'header' },
+						{ label: 'Footer', value: 'footer' },
+						{ label: 'Header and footer', value: 'both' },
+					],
+					defaultValue: 'both',
+				}),
+				links: fields.array(fields.object({
+					label: fields.text({ label: 'Link label', validation: { isRequired: true } }),
+					href: fields.text({ label: 'Hub URL', validation: { isRequired: true } }),
+				}), { label: 'Links', itemLabel: (props) => props.fields.label.value || 'Menu link' }),
+			},
+		}),
 		nails: collection({
 			label: 'Nails',
 			slugField: 'title',

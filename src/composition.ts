@@ -4,6 +4,7 @@ import type { HubEditorial } from './domain/hub-types';
 import { EnvSiteConfig } from './adapters/config/EnvSiteConfig';
 import { KeystaticHubRepository } from './adapters/keystatic/KeystaticHubRepository';
 import { KeystaticNailRepository } from './adapters/keystatic/KeystaticNailRepository';
+import { KeystaticSiteContentRepository } from './adapters/keystatic/KeystaticSiteContentRepository';
 import { buildAboutPage } from './application/buildAboutPage';
 import { buildAreaPage } from './application/buildAreaPage';
 import { buildHomepage } from './application/buildHomepage';
@@ -13,6 +14,7 @@ import { resolveBrowseLinks } from './application/resolveBrowseLinks';
 import { resolveSitemapRoutes } from './application/resolveSitemapRoutes';
 import type { HubRepository } from './ports/HubRepository';
 import type { NailRepository } from './ports/NailRepository';
+import type { SiteContentRepository } from './ports/SiteContentRepository';
 
 function belongsToArea(nail: NailRecord, area: NailArea): boolean {
 	return nail.typesOfNails === area || nail.typesOfNails === 'both';
@@ -56,8 +58,9 @@ function createCachedHubRepository(repository: HubRepository): HubRepository {
 
 const nailRepository = createCachedNailRepository(new KeystaticNailRepository());
 const hubRepository = createCachedHubRepository(new KeystaticHubRepository());
+const siteContentRepository: SiteContentRepository = new KeystaticSiteContentRepository();
 const siteConfig = new EnvSiteConfig(process.env);
-const ports = { nailRepository, hubRepository, siteConfig };
+const ports = { nailRepository, hubRepository, siteContentRepository, siteConfig };
 export const siteUrl = siteConfig.siteUrl;
 
 export const siteServices = {

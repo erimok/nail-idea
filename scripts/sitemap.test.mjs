@@ -75,6 +75,7 @@ test('production sitemap includes only indexable routes', async () => {
 	assert.match(homepage, /og\/home\.jpg/);
 	assert.match(homepage, /og:image:width" content="1200"/);
 	assert.match(homepage, /twitter:image:alt/);
+	assert.match(homepage, /Disclaimer: Images are AI-generated visual references\./);
 	assert.equal([...homepage.matchAll(/type="application\/ld\+json"/g)].length, 1, 'homepage should render one JSON-LD graph');
 	const document = new JSDOM(homepage).window.document;
 	const graph = JSON.parse(document.querySelector('script[type="application/ld+json"]')?.textContent ?? '{}');

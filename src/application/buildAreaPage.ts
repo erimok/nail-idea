@@ -20,12 +20,13 @@ interface BuildAreaPageParams {
 }
 
 export async function buildAreaPage(
-	{ nailRepository, hubRepository, siteConfig }: SitePorts,
+	{ nailRepository, hubRepository, siteContentRepository, siteConfig }: SitePorts,
 	{ area }: BuildAreaPageParams,
 ): Promise<CollectionPageViewModel> {
-	const [allNails, editorial] = await Promise.all([
+	const [allNails, editorial, navigationGroups] = await Promise.all([
 		nailRepository.findAllNails(),
 		hubRepository.listHubs(),
+		siteContentRepository.listNavigationGroups(),
 	]);
 	const designs = getNailsForArea(allNails, area);
 	const relatedPages = attachHubEditorial(
@@ -50,7 +51,7 @@ export async function buildAreaPage(
 				breadcrumbs,
 				faq: [],
 			}),
-			siteChrome: buildSiteChromeViewModel(allNails, editorial),
+			siteChrome: buildSiteChromeViewModel(allNails, editorial, navigationGroups),
 		},
 		heading: copy.heading,
 		prompt: copy.prompt,

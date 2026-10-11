@@ -64,6 +64,8 @@ The Astro sitemap integration writes `sitemap-index.xml` during the production b
 
 Generated area/facet routes share the `/{area}/{slug}/` namespace. These slugs are reserved for hub pages; individual nail detail pages are not implemented. A hub is indexable only when it has at least six matching designs plus curated intro and meta description in the Keystatic `hubs` collection. The production sitemap and internal browse links exclude every noindex route. The empty pedicure area remains noindex until it has content.
 
+Homepage FAQ entries are managed in the Keystatic `faqs` collection, and header/footer browse groups are managed in `navigation`. FAQ and menu display order is set by each entry's `order` field. Navigation links are restricted to generated, indexable hub routes; the About link remains fixed in the presentation.
+
 Run `npm test` to run unit tests and the sitemap build smoke test. The sitemap check verifies the index and representative top-level and facet URLs in the generated XML.
 
 Planned routes:

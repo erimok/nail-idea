@@ -22,12 +22,13 @@ interface BuildHubPageParams {
 }
 
 export async function buildHubPage(
-	{ nailRepository, hubRepository, siteConfig }: SitePorts,
+	{ nailRepository, hubRepository, siteContentRepository, siteConfig }: SitePorts,
 	{ area, slug }: BuildHubPageParams,
 ): Promise<CollectionPageViewModel> {
-	const [allNails, editorial] = await Promise.all([
+	const [allNails, editorial, navigationGroups] = await Promise.all([
 		nailRepository.findAllNails(),
 		hubRepository.listHubs(),
+		siteContentRepository.listNavigationGroups(),
 	]);
 	const pages = attachHubEditorial(getAllFacetPages(allNails), editorial);
 	const page = pages.find((candidate) => candidate.area === area && candidate.slug === slug);
@@ -60,7 +61,7 @@ export async function buildHubPage(
 				breadcrumbs,
 				faq: page.editorial?.faq ?? [],
 			}),
-			siteChrome: buildSiteChromeViewModel(allNails, editorial),
+			siteChrome: buildSiteChromeViewModel(allNails, editorial, navigationGroups),
 		},
 		heading: copy.heading,
 		prompt: copy.prompt,

@@ -8,6 +8,7 @@ import { facetKinds, type FacetKind } from '../domain/facets/registry';
 import type { HubEditorial } from '../domain/hub-types';
 import { isIndexable, isIndexablePage } from '../domain/indexability';
 import type { NailRecord, NailSearchRecord } from '../domain/nail';
+import type { NavigationGroup, NavigationPlacement } from '../domain/site-content';
 import { buildAreaRoute, buildFacetRoute } from '../domain/routes';
 import type {
 	BreadcrumbViewModel,
@@ -46,13 +47,6 @@ const browseGroupDefinitions: readonly { kind: FacetKind; label: string }[] = [
 	{ kind: 'finishing', label: 'Finishes' },
 ];
 
-const siteChromeGroupDefinitions: readonly { kind: NailFacetPage['kind']; label: string }[] = [
-	{ kind: 'shape', label: 'Shapes' },
-	{ kind: 'color', label: 'Colors' },
-	{ kind: 'occasion', label: 'Occasions' },
-	{ kind: 'season', label: 'Seasons' },
-];
-
 const homepageCategoryDefinitions: readonly {
 	title: string;
 	description: string;
@@ -65,33 +59,6 @@ const homepageCategoryDefinitions: readonly {
 	{ title: 'French and micro French', description: 'Classic white tips, thin micro French lines, and colored variations that stay polished and wearable.', matches: (page) => page.kind === 'type' && /french/i.test(page.value) },
 	{ title: 'Short nails', description: 'Neat, low-maintenance ideas for short nails that still look intentional.', matches: (page) => page.kind === 'length' && page.value.toLowerCase() === 'short' },
 ];
-
-export const homepageFaq: readonly FaqItemViewModel[] = [
-	{
-		question: 'How do I choose the right nail shape?',
-		answer: 'Start with your preferred nail length and daily routine. Square and squoval are common choices for short nails; round and oval follow a softer curve, while almond tapers toward the tip. The best fit depends on your natural nails and preference, so ask your nail tech to recommend a shape before filing.',
-	},
-	{
-		question: 'What is a micro French manicure?',
-		answer: 'A micro French is a French manicure with a much thinner tip line than the classic version. It looks subtle and modern, and works well on short nails with nude, milky, or deeper shades like burgundy.',
-	},
-	{
-		question: 'Which nail colors work for the office or an interview?',
-		answer: 'Soft nudes, milky pinks, sheer neutrals, and classic French tips are understated options for many offices and interviews. A glossy finish can keep the look polished; dress codes and personal preference vary.',
-	},
-	{
-		question: 'How long does a manicure or pedicure last?',
-		answer: 'Wear depends on the polish, application, nail growth, and daily activity. Regular polish may chip within about a week; gel manicures often last around two to three weeks. Pedicure polish can last longer because toenails grow more slowly and usually get less daily wear. Follow your nail tech’s care and removal advice.',
-	},
-	{
-		question: 'What’s the difference between manicure and pedicure ideas?',
-		answer: 'Manicures are for your hands and pedicures are for your feet. Pedicures can be a place to try brighter shades, while manicure ideas often focus on everyday or work settings. Designs such as French tips and solid colors can work for either.',
-	},
-	{
-		question: 'How does the Nail.ai idea finder work?',
-		answer: 'Type a short description of the nails you imagine. The idea finder parses details it recognizes, such as color, shape, length, finish, and occasion, then ranks designs in the collection and shows up to three close matches. Add details or try a different description to refine the results.',
-	},
-] as const;
 
 function seasonValues(value: NailRecord['season']): readonly string[] {
 	if (value === undefined) return [];
@@ -179,21 +146,23 @@ export function buildHubPageCopy(
 export function buildSiteChromeViewModel(
 	allNails: readonly NailRecord[],
 	editorial: readonly HubEditorial[],
+	navigationGroups: readonly NavigationGroup[],
 ): SiteChromeViewModel {
 	const hubPages = attachHubEditorial(
 		nailAreas.flatMap((area) => getFacetPages(allNails, area)),
 		editorial,
 	);
+	const indexableHrefs = new Set(hubPages.filter(isIndexable).map((page) => buildFacetRoute(page.area, page.slug)));
 
 	return {
 		header: {
-			browseGroups: buildSiteChromeLinks(hubPages, { filterIndexable: false, limit: 6 }),
+			browseGroups: buildNavigationGroups(navigationGroups, 'header', indexableHrefs),
 			availableAreas: nailAreas
 				.filter((area) => isIndexablePage(getNailsForArea(allNails, area).length))
 				.map((area) => ({ label: formatAreaLabel(area), href: buildAreaRoute(area) })),
 		},
 		footer: {
-			groups: buildSiteChromeLinks(hubPages, { filterIndexable: true, limit: 8 }),
+			groups: buildNavigationGroups(navigationGroups, 'footer', indexableHrefs),
 		},
 	};
 }
@@ -386,22 +355,16 @@ export function buildHomepageStructuredData(
 	};
 }
 
-function buildSiteChromeLinks(
-	pages: readonly NailFacetPage[],
-	options: { filterIndexable: boolean; limit: number },
+function buildNavigationGroups(
+	groups: readonly NavigationGroup[],
+	placement: Exclude<NavigationPlacement, 'both'>,
+	indexableHrefs: ReadonlySet<string>,
 ): BrowseLinkGroupViewModel[] {
-	const sourcePages = options.filterIndexable ? pages.filter(isIndexable) : pages;
+	return groups.flatMap((group) => {
+		if (group.placement !== placement && group.placement !== 'both') return [];
 
-	return siteChromeGroupDefinitions.flatMap(({ kind, label }) => {
-		const links = sourcePages
-			.filter((page) => page.kind === kind)
-			.slice(0, options.limit)
-			.map((page) => ({
-				label: formatFacetLinkLabel(page),
-				href: buildFacetRoute(page.area, page.slug),
-			}));
-
-		return links.length > 0 ? [{ label, links }] : [];
+		const links = group.links.filter(({ href }) => indexableHrefs.has(href));
+		return links.length > 0 ? [{ label: group.label, links }] : [];
 	});
 }
 
