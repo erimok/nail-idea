@@ -1,4 +1,4 @@
-import { getFacetPages, getNailsForArea } from '../domain/facet-combinations';
+import { getAllFacetPages, getNailsForArea } from '../domain/facet-combinations';
 import type { NailArea } from '../domain/areas';
 import { isIndexablePage } from '../domain/indexability';
 import { buildAreaRoute } from '../domain/routes';
@@ -28,7 +28,10 @@ export async function buildAreaPage(
 		hubRepository.listHubs(),
 	]);
 	const designs = getNailsForArea(allNails, area);
-	const relatedPages = attachHubEditorial(getFacetPages(allNails, area), editorial);
+	const relatedPages = attachHubEditorial(
+		getAllFacetPages(allNails).filter((page) => page.area === area),
+		editorial,
+	);
 	const copy = buildAreaPageCopy(area, designs);
 	const canonical = buildCanonicalUrl(siteConfig.siteUrl, buildAreaRoute(area));
 	const breadcrumbs = [{ label: 'Home', href: '/' }, { label: formatAreaLabel(area) }] as const;
@@ -55,9 +58,7 @@ export async function buildAreaPage(
 		designs,
 		searchRecords: toSearchRecords(designs),
 		breadcrumbs,
-		relatedLinks: relatedPages.length > 0
-			? resolveBrowseLinks({ pages: relatedPages, title: `Explore more ${area} ideas` })
-			: undefined,
+		relatedLinks: resolveBrowseLinks({ pages: relatedPages, title: 'You may like' }),
 		sectionTitle: `All ${area} ideas`,
 		faq: [],
 		emptyStateMessage: `New ${area} ideas are coming soon.`,

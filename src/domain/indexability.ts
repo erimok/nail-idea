@@ -1,5 +1,6 @@
 import type { HubEditorial } from './hub-types';
 
+// todo: fix to 6
 export const MIN_DESIGNS_FOR_INDEX = 6;
 
 export function isIndexablePage(designCount: number): boolean {

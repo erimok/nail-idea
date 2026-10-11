@@ -22,6 +22,7 @@ function createPorts(nailCount: number) {
 		aHub({ area: 'manicure', urlSlug: 'solid-nails' }),
 		aHub({ area: 'manicure', urlSlug: 'party-nails' }),
 		aHub({ area: 'manicure', urlSlug: 'glossy-nails' }),
+		aHub({ area: 'manicure', urlSlug: 'red-solid-nails' }),
 	];
 
 	return {
@@ -32,7 +33,7 @@ function createPorts(nailCount: number) {
 }
 
 describe('buildAreaPage', () => {
-	it('marks area pages noindex below six designs and includes both-area records', async () => {
+	it('omits nested links below the indexing threshold', async () => {
 		// Arrange
 		const ports = createPorts(MIN_DESIGNS_FOR_INDEX - 1);
 
@@ -41,17 +42,14 @@ describe('buildAreaPage', () => {
 
 		// Assert
 		expect(result.layout.noIndex).toBe(true);
-		expect(result.designs.map(({ slug }) => slug)).toEqual([
-			'manicure-1',
-			'manicure-2',
-			'manicure-3',
-			'manicure-4',
-			'manicure-5',
-		]);
+		expect(result.designs.map(({ slug }) => slug)).toEqual(
+			Array.from({ length: MIN_DESIGNS_FOR_INDEX - 1 }, (_, index) => `manicure-${index + 1}`),
+		);
 		expect(result.sectionTitle).toBe('All manicure ideas');
+		expect(result.relatedLinks).toBeUndefined();
 	});
 
-	it('marks area pages indexable at six designs', async () => {
+	it('marks area pages indexable at the configured design threshold', async () => {
 		// Arrange
 		const ports = createPorts(MIN_DESIGNS_FOR_INDEX);
 
@@ -61,6 +59,9 @@ describe('buildAreaPage', () => {
 		// Assert
 		expect(result.layout.noIndex).toBe(false);
 		expect(result.layout.canonical).toBe('https://nail.ai/manicure/');
-		expect(result.relatedLinks?.title).toBe('Explore more manicure ideas');
+		expect(result.relatedLinks?.title).toBe('You may like');
+		expect(result.relatedLinks?.groups.find(({ label }) => label === 'Combinations')?.links).toContainEqual(
+			{ label: 'Red Solid', href: '/manicure/red-solid-nails/' },
+		);
 	});
 });

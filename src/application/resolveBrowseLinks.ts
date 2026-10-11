@@ -12,6 +12,6 @@ export function resolveBrowseLinks({
 	pages,
 	title,
 	currentSlug,
-}: ResolveBrowseLinksParams): FacetBrowseLinksViewModel {
+}: ResolveBrowseLinksParams): FacetBrowseLinksViewModel | undefined {
 	return buildFacetBrowseLinksViewModel(pages, title, currentSlug);
 }

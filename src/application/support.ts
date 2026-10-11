@@ -202,7 +202,7 @@ export function buildFacetBrowseLinksViewModel(
 	pages: readonly NailFacetPage[],
 	title: string,
 	currentSlug?: string,
-): FacetBrowseLinksViewModel {
+): FacetBrowseLinksViewModel | undefined {
 	const indexablePages = pages.filter(isIndexable);
 	const includeArea = new Set(indexablePages.map((page) => page.area)).size > 1;
 	const groups = facetKinds.flatMap((kind) => {
@@ -219,7 +219,17 @@ export function buildFacetBrowseLinksViewModel(
 		return links.length > 0 ? [{ label: definition.label, links }] : [];
 	});
 
-	return { title, groups };
+	const combinationLinks = indexablePages
+		.filter((page) => page.kind === 'combination' && page.slug !== currentSlug)
+		.map((page) => ({
+			label: formatFacetBreadcrumbLabel(page),
+			href: buildFacetRoute(page.area, page.slug),
+		}));
+	if (combinationLinks.length > 0) {
+		groups.push({ label: 'Combinations', links: combinationLinks });
+	}
+
+	return groups.length > 0 ? { title, groups } : undefined;
 }
 
 export function buildHomepageCategories(
