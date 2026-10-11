@@ -1,5 +1,4 @@
 import { describe, expect, it } from 'vitest';
-import { aHub } from '../test/builders';
 import { isIndexable, isIndexablePage, MIN_DESIGNS_FOR_INDEX } from './indexability';
 
 describe('domain indexability', () => {
@@ -15,18 +14,14 @@ describe('domain indexability', () => {
 		expect(result).toEqual([false, true]);
 	});
 
-	it('requires editorial metadata for hubs', () => {
+	it('makes hubs indexable from design count alone', () => {
 		// Arrange
-		const editorial = aHub({ intro: 'Curated intro.', metaDescription: 'Curated description.' });
+		const hubs = [{ nails: Array(MIN_DESIGNS_FOR_INDEX) }, { nails: Array(MIN_DESIGNS_FOR_INDEX - 1) }];
 
 		// Act
-		const result = [
-			isIndexable({ nails: Array(MIN_DESIGNS_FOR_INDEX), editorial }),
-			isIndexable({ nails: Array(MIN_DESIGNS_FOR_INDEX) }),
-			isIndexable({ nails: Array(MIN_DESIGNS_FOR_INDEX - 1), editorial }),
-		];
+		const result = hubs.map(isIndexable);
 
 		// Assert
-		expect(result).toEqual([true, false, false]);
+		expect(result).toEqual([true, false]);
 	});
 });

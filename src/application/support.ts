@@ -119,30 +119,6 @@ export function buildAreaPageCopy(
 	};
 }
 
-export function buildHubPageCopy(
-	page: Pick<NailFacetPage, 'area' | 'kind' | 'value' | 'facets' | 'nails' | 'editorial'>,
-): SeoPageCopy {
-	const displayValue = page.kind === 'combination'
-		? page.facets.map((facet) => capitalize(facet.value)).join(' ')
-		: capitalize(page.value);
-	const designs = countLabel(
-		page.nails.length,
-		`${page.value} ${page.area} design`,
-		`${page.value} ${page.area} designs`,
-	);
-	const heading = `${displayValue} ${formatAreaLabel(page.area)} Ideas`;
-
-	return {
-		title: `${heading} | Nail.ai`,
-		description: page.editorial?.metaDescription || `Explore ${designs} organized around ${page.facets.map((facet) => facet.value).join(', ')}.`,
-		heading,
-		prompt: `${page.value} ${page.area} ideas`,
-		paragraphs: page.editorial?.intro
-			? [page.editorial.intro]
-			: [`Browse ${designs} in the Nail.ai collection. Use the search above to add another detail and compare matching looks.`],
-	};
-}
-
 export function buildSiteChromeViewModel(
 	allNails: readonly NailRecord[],
 	editorial: readonly HubEditorial[],

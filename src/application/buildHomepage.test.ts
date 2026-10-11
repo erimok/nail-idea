@@ -37,7 +37,7 @@ describe('buildHomepage', () => {
 					placement: 'both',
 					links: [
 						{ label: 'Red designs', href: '/manicure/red-nails/' },
-						{ label: 'Glossy designs', href: '/manicure/glossy-nails/' },
+						{ label: 'Missing designs', href: '/manicure/missing-nails/' },
 					],
 				}],
 			}),

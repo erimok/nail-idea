@@ -1,3 +1,4 @@
+import type { IntroSegment } from '../domain/hub-copy';
 import type { NailArea } from '../domain/areas';
 import type { HubFaqItem } from '../domain/hub-types';
 import type { NailRecord, NailSearchRecord } from '../domain/nail';
@@ -53,6 +54,7 @@ export interface CollectionPageViewModel {
 	heading: string;
 	prompt: string;
 	paragraphs: readonly string[];
+	intro?: readonly IntroSegment[];
 	designs: readonly NailRecord[];
 	searchRecords: readonly NailSearchRecord[];
 	breadcrumbs: readonly BreadcrumbViewModel[];

@@ -13,7 +13,7 @@ The app follows a hexagonal layout: `src/domain` holds pure rules and types, `sr
 
 `src/composition.ts` is the composition root. It is the only place that wires concrete repositories and config into application services for Astro pages.
 
-Route generation lives in the domain route builder (`src/domain/routes.ts`) and combination logic (`src/domain/facet-combinations.ts`). Indexability rules, including the minimum-design threshold and editorial requirements, live in `src/domain/indexability.ts`. Astro pages should only call services from `src/composition.ts` and render the returned view models.
+Route generation lives in the domain route builder (`src/domain/routes.ts`) and combination logic (`src/domain/facet-combinations.ts`). Indexability rules, including the minimum-design threshold, live in `src/domain/indexability.ts`. Astro pages should only call services from `src/composition.ts` and render the returned view models.
 
 ## URL structure
 
@@ -62,7 +62,7 @@ Nail content records use the same ordered naming convention: `shape-length-color
 
 The Astro sitemap integration writes `sitemap-index.xml` during the production build and discovers all prerendered routes automatically. New static routes, including future comparison and guide pages, are included without editing a route list. Set `SITE_URL` to the production origin when building for a different domain; it must match the canonical site URL.
 
-Generated area/facet routes share the `/{area}/{slug}/` namespace. These slugs are reserved for hub pages; individual nail detail pages are not implemented. A hub is indexable only when it has at least six matching designs plus curated intro and meta description in the Keystatic `hubs` collection. The production sitemap and internal browse links exclude every noindex route. The empty pedicure area remains noindex until it has content.
+Generated area/facet routes share the `/{area}/{slug}/` namespace. These slugs are reserved for hub pages; individual nail detail pages are not implemented. A hub is indexable when it has at least six matching designs. Hub copy is generated from facet data (`src/domain/hub-copy.ts`): a title of at most 60 characters (keyword, top three sub-facets, `| Nail.ai`), a short H1 worded differently, a 40-70 word intro (hand-written mood sentence from `src/domain/hub-moods.ts`, the top sub-facets by design count, and up to three links to related indexable hubs), and a generated meta description. The Keystatic `hubs` collection is now an optional override: a non-empty `intro` or `metaDescription` replaces the generated one, and `faq` is still read from it. The production sitemap and internal browse links exclude every noindex route. The empty pedicure area remains noindex until it has content.
 
 Homepage FAQ entries are managed in the Keystatic `faqs` collection, and header/footer browse groups are managed in `navigation`. FAQ and menu display order is set by each entry's `order` field. Navigation links are restricted to generated, indexable hub routes; the About link remains fixed in the presentation.
 

@@ -1,5 +1,6 @@
 import { getAllFacetPages, getFacetPages, type NailFacetPage } from '../domain/facet-combinations';
 import type { NailArea } from '../domain/areas';
+import { generateHubCopy } from '../domain/hub-copy';
 import { isIndexable } from '../domain/indexability';
 import { buildAreaRoute, buildFacetRoute } from '../domain/routes';
 import type { SitePorts } from './ports';
@@ -7,7 +8,6 @@ import {
 	attachHubEditorial,
 	buildCanonicalUrl,
 	buildCollectionStructuredData,
-	buildHubPageCopy,
 	buildSiteChromeViewModel,
 	formatAreaLabel,
 	formatFacetBreadcrumbLabel,
@@ -37,10 +37,10 @@ export async function buildHubPage(
 		throw new Error(`Hub page not found for /${area}/${slug}/.`);
 	}
 
-	const copy = buildHubPageCopy(page);
+	const relatedPages = attachHubEditorial(getFacetPages(allNails, area), editorial);
+	const copy = generateHubCopy(page, relatedPages.filter(isIndexable));
 	const canonical = buildCanonicalUrl(siteConfig.siteUrl, buildFacetRoute(area, slug));
 	const facetLabel = formatFacetBreadcrumbLabel(page);
-	const relatedPages = attachHubEditorial(getFacetPages(allNails, area), editorial);
 	const breadcrumbs = [
 		{ label: 'Home', href: '/' },
 		{ label: formatAreaLabel(area), href: buildAreaRoute(area) },
@@ -64,8 +64,9 @@ export async function buildHubPage(
 			siteChrome: buildSiteChromeViewModel(allNails, editorial, navigationGroups),
 		},
 		heading: copy.heading,
-		prompt: copy.prompt,
-		paragraphs: copy.paragraphs,
+		prompt: `${page.value} ${area} ideas`,
+		paragraphs: [],
+		intro: copy.intro,
 		designs: page.nails,
 		searchRecords: toSearchRecords(page.nails),
 		breadcrumbs,

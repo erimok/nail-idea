@@ -22,31 +22,33 @@ function createPorts(
 }
 
 describe('buildHubPage', () => {
-	it('falls back to generated copy and noindex when editorial is missing', async () => {
+	it('generates copy and stays noindex below the design threshold', async () => {
 		// Arrange
-		const ports = createPorts([
-			aNail({
-				slug: 'red-1',
-				colors: ['red'],
-				types: ['solid'],
-				finishes: ['glossy'],
-				occasions: ['party'],
-				description: 'A glossy red manicure.',
-			}),
-		]);
+		const ports = createPorts([aNail({ slug: 'red-1', colors: ['red'], types: ['solid'], finishes: ['glossy'] })]);
 
 		// Act
 		const result = await buildHubPage(ports, { area: 'manicure', slug: 'red-nails' });
 
 		// Assert
 		expect(result.layout.noIndex).toBe(true);
-		expect(result.layout.description).toBe('Explore 1 red manicure design organized around red.');
-		expect(result.paragraphs).toEqual([
-			'Browse 1 red manicure design in the Nail.ai collection. Use the search above to add another detail and compare matching looks.',
-		]);
+		expect(result.heading).toBe('Red manicure ideas');
+		expect(result.layout.title).toMatch(/^Red Nail Designs/);
+		expect(result.intro?.length).toBeGreaterThan(0);
 	});
 
-	it('keeps curated hubs indexable at six designs', async () => {
+	it('makes hubs indexable at six designs using generated copy only', async () => {
+		// Arrange
+		const nails = Array.from({ length: MIN_DESIGNS_FOR_INDEX }, () => aNail({ colors: ['red'], types: ['solid'], finishes: ['glossy'] }));
+		const ports = createPorts(nails);
+
+		// Act
+		const result = await buildHubPage(ports, { area: 'manicure', slug: 'red-nails' });
+
+		// Assert
+		expect(result.layout.noIndex).toBe(false);
+	});
+
+	it('lets curated hubs override generated copy', async () => {
 		// Arrange
 		const nails = Array.from({ length: MIN_DESIGNS_FOR_INDEX }, (_, index) => aNail({
 			slug: `red-${index + 1}`,
@@ -68,7 +70,7 @@ describe('buildHubPage', () => {
 		const result = await buildHubPage(ports, { area: 'manicure', slug: 'red-nails' });
 
 		// Assert
-		expect(result.layout.noIndex).toBe(false);
+		expect(result.intro).toEqual([{ text: 'Curated red intro.' }]);
 		expect(result.layout.description).toBe('Curated red description.');
 		expect(result.faq).toEqual([{ question: 'Is red timeless?', answer: 'Red is a classic.' }]);
 	});

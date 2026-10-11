@@ -35,7 +35,6 @@ test('production sitemap includes only indexable routes', async () => {
 	assert.ok(hasPath('/'), 'sitemap should include the homepage');
 	assert.ok(hasPath('/manicure/'), 'sitemap should include the manicure page');
 	assert.ok(!hasPath('/pedicure/'), 'empty pedicure page should not be in the sitemap');
-	assert.ok(!pagePaths.some((url) => /\/(manicure|pedicure)\/[^/]+-nails\/$/.test(url.pathname)), 'hubs without editorial copy should not be in the sitemap');
 
 	for (const htmlFile of await getHtmlFiles(distDirectory)) {
 		const html = await readFile(htmlFile, 'utf8');
