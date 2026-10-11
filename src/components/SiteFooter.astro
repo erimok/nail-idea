@@ -1,22 +1,12 @@
 ---
-import type { NailFacetPage } from '../domain/facet-combinations';
-import { isIndexable } from '../domain/indexability';
-import { buildFacetRoute } from '../domain/routes';
-import { formatFacetLabel } from '../libs/seo-pages';
+import type { BrowseLinkGroupViewModel } from '../application/view-models';
 import Logo from './ui/Logo.astro';
 
 interface Props {
-	hubs: readonly NailFacetPage[];
+	groups: readonly BrowseLinkGroupViewModel[];
 }
 
-const { hubs } = Astro.props;
-const indexable = hubs.filter(isIndexable);
-const groups: { label: string; kind: NailFacetPage['kind'] }[] = [
-	{ label: 'Shapes', kind: 'shape' },
-	{ label: 'Colors', kind: 'color' },
-	{ label: 'Occasions', kind: 'occasion' },
-	{ label: 'Seasons', kind: 'season' },
-];
+const { groups } = Astro.props;
 ---
 
 <footer class="mt-auto bg-forest text-white">
@@ -26,17 +16,14 @@ const groups: { label: string; kind: NailFacetPage['kind'] }[] = [
 				<Logo light />
 				<p class="mt-4 max-w-xs text-sm leading-6 text-white">Manicure inspiration, organized around the details that matter to you.</p>
 			</div>
-			{groups.map(({ label, kind }) => {
-				const pages = indexable.filter((page) => page.kind === kind).slice(0, 8);
-				return pages.length > 0 && (
-					<div>
-						<h2 class="text-xs font-bold uppercase tracking-[0.12em] text-lime">{label}</h2>
-						<ul class="mt-4 space-y-2">
-							{pages.map((page) => <li><a class="inline-flex min-h-8 items-center text-sm text-white underline decoration-muted underline-offset-4 hover:text-white" href={buildFacetRoute(page.area, page.slug)}>{formatFacetLabel(page)}</a></li>)}
-						</ul>
-					</div>
-				);
-			})}
+			{groups.map(({ label, links }) => (
+				<div>
+					<h2 class="text-xs font-bold uppercase tracking-[0.12em] text-lime">{label}</h2>
+					<ul class="mt-4 space-y-2">
+						{links.map(({ href, label: linkLabel }) => <li><a class="inline-flex min-h-8 items-center text-sm text-white underline decoration-muted underline-offset-4 hover:text-white" href={href}>{linkLabel}</a></li>)}
+					</ul>
+				</div>
+			))}
 		</div>
 		<div class="mt-10 flex flex-wrap items-center justify-between gap-3 border-t border-ink-soft pt-5 text-xs text-white">
 			<p>© {new Date().getFullYear()} Nail.ai</p>

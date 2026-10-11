@@ -1,14 +1,15 @@
 ---
+import type { StaticPageViewModel } from '../application/view-models';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import Breadcrumbs from './Breadcrumbs.astro';
 import Section from './ui/Section.astro';
 
-const title = 'About Nail.ai | Nail Design Inspiration';
-const description = 'Learn about Nail.ai, a searchable collection of manicure and pedicure ideas organized around the details you care about.';
-const canonical = new URL('/about/', Astro.site).toString();
+interface Props extends StaticPageViewModel {}
+
+const { layout } = Astro.props;
 ---
 
-<BaseLayout title={title} description={description} canonical={canonical}>
+<BaseLayout {...layout}>
 	<main>
 		<Section bg="canvas">
 			<article class="max-w-3xl">

@@ -1,5 +1,8 @@
 ---
 import AboutPageView from '../components/AboutPageView.astro';
+import { siteServices } from '../composition';
+
+const viewModel = await siteServices.buildAboutPage();
 ---
 
-<AboutPageView />
+<AboutPageView {...viewModel} />

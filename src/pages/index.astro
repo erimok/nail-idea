@@ -1,14 +1,8 @@
 ---
 import HomepageView from '../components/HomepageView.astro';
-import { nailAreas } from '../domain/areas';
-import { getFacetPages } from '../domain/facet-combinations';
-import { loadNails, toNailSearchRecords } from '../libs/nails';
-import { getHomepageCategories, getHomepageFeatured, homepageFaq } from '../libs/homepage';
-import { attachHubEditorial, loadHubEditorial } from '../libs/hubs';
+import { siteServices } from '../composition';
 
-const nails = await loadNails();
-const editorial = await loadHubEditorial();
-const facetPages = attachHubEditorial(nailAreas.flatMap((area) => getFacetPages(nails, area)), editorial);
+const viewModel = await siteServices.buildHomepage();
 ---
 
-<HomepageView nails={nails} searchRecords={toNailSearchRecords(nails)} featured={getHomepageFeatured(nails)} categories={getHomepageCategories(facetPages)} faqItems={homepageFaq} />
+<HomepageView {...viewModel} />

@@ -1,0 +1,423 @@
+import { nailAreas, type NailArea } from '../domain/areas';
+import {
+	getFacetPages,
+	getNailsForArea,
+	type NailFacetPage,
+} from '../domain/facet-combinations';
+import { facetKinds, type FacetKind } from '../domain/facets/registry';
+import type { HubEditorial } from '../domain/hub-types';
+import { isIndexable, isIndexablePage } from '../domain/indexability';
+import type { NailRecord, NailSearchRecord } from '../domain/nail';
+import { buildAreaRoute, buildFacetRoute } from '../domain/routes';
+import type {
+	BreadcrumbViewModel,
+	BrowseLinkGroupViewModel,
+	FacetBrowseLinksViewModel,
+	FaqItemViewModel,
+	HomepageCategoryViewModel,
+	HomepageBrowseFeatureViewModel,
+	SiteChromeViewModel,
+} from './view-models';
+
+interface SeoPageCopy {
+	title: string;
+	description: string;
+	heading: string;
+	prompt: string;
+	paragraphs: readonly string[];
+}
+
+interface CollectionStructuredDataInput {
+	canonical: string;
+	heading: string;
+	description: string;
+	nails: readonly NailRecord[];
+	breadcrumbs: readonly BreadcrumbViewModel[];
+	faq: readonly FaqItemViewModel[];
+}
+
+const browseGroupDefinitions: readonly { kind: FacetKind; label: string }[] = [
+	{ kind: 'color', label: 'Colors' },
+	{ kind: 'type', label: 'Design styles' },
+	{ kind: 'occasion', label: 'Occasions' },
+	{ kind: 'season', label: 'Seasons' },
+	{ kind: 'shape', label: 'Shapes' },
+	{ kind: 'length', label: 'Lengths' },
+	{ kind: 'finishing', label: 'Finishes' },
+];
+
+const siteChromeGroupDefinitions: readonly { kind: NailFacetPage['kind']; label: string }[] = [
+	{ kind: 'shape', label: 'Shapes' },
+	{ kind: 'color', label: 'Colors' },
+	{ kind: 'occasion', label: 'Occasions' },
+	{ kind: 'season', label: 'Seasons' },
+];
+
+const homepageCategoryDefinitions: readonly {
+	title: string;
+	description: string;
+	matches: (page: NailFacetPage) => boolean;
+}[] = [
+	{ title: 'Nail shapes', description: 'Almond, square, round, oval, coffin, and more. Pick a shape that suits your nail length and daily routine.', matches: (page) => page.kind === 'shape' },
+	{ title: 'Nail colors', description: 'From soft nudes and milky pinks to burgundy, red, and chrome. Find shades to suit your wardrobe and personal style.', matches: (page) => page.kind === 'color' },
+	{ title: 'Designs by occasion', description: 'Wedding, office, date night, vacation, birthday, and holiday nails, chosen to fit the moment.', matches: (page) => page.kind === 'occasion' },
+	{ title: 'Seasonal nails', description: 'Fresh spring pastels, summer brights, deep autumn tones, and winter classics.', matches: (page) => page.kind === 'season' },
+	{ title: 'French and micro French', description: 'Classic white tips, thin micro French lines, and colored variations that stay polished and wearable.', matches: (page) => page.kind === 'type' && /french/i.test(page.value) },
+	{ title: 'Short nails', description: 'Neat, low-maintenance ideas for short nails that still look intentional.', matches: (page) => page.kind === 'length' && page.value.toLowerCase() === 'short' },
+];
+
+export const homepageFaq: readonly FaqItemViewModel[] = [
+	{
+		question: 'How do I choose the right nail shape?',
+		answer: 'Start with your preferred nail length and daily routine. Square and squoval are common choices for short nails; round and oval follow a softer curve, while almond tapers toward the tip. The best fit depends on your natural nails and preference, so ask your nail tech to recommend a shape before filing.',
+	},
+	{
+		question: 'What is a micro French manicure?',
+		answer: 'A micro French is a French manicure with a much thinner tip line than the classic version. It looks subtle and modern, and works well on short nails with nude, milky, or deeper shades like burgundy.',
+	},
+	{
+		question: 'Which nail colors work for the office or an interview?',
+		answer: 'Soft nudes, milky pinks, sheer neutrals, and classic French tips are understated options for many offices and interviews. A glossy finish can keep the look polished; dress codes and personal preference vary.',
+	},
+	{
+		question: 'How long does a manicure or pedicure last?',
+		answer: 'Wear depends on the polish, application, nail growth, and daily activity. Regular polish may chip within about a week; gel manicures often last around two to three weeks. Pedicure polish can last longer because toenails grow more slowly and usually get less daily wear. Follow your nail tech’s care and removal advice.',
+	},
+	{
+		question: 'What’s the difference between manicure and pedicure ideas?',
+		answer: 'Manicures are for your hands and pedicures are for your feet. Pedicures can be a place to try brighter shades, while manicure ideas often focus on everyday or work settings. Designs such as French tips and solid colors can work for either.',
+	},
+	{
+		question: 'How does the Nail.ai idea finder work?',
+		answer: 'Type a short description of the nails you imagine. The idea finder parses details it recognizes, such as color, shape, length, finish, and occasion, then ranks designs in the collection and shows up to three close matches. Add details or try a different description to refine the results.',
+	},
+] as const;
+
+function seasonValues(value: NailRecord['season']): readonly string[] {
+	if (value === undefined) return [];
+	if (typeof value === 'string') return [value];
+	return [...value];
+}
+
+export function attachHubEditorial(
+	pages: readonly NailFacetPage[],
+	entries: readonly HubEditorial[],
+): NailFacetPage[] {
+	return pages.map((page) => ({
+		...page,
+		editorial: entries.find((entry) => entry.area === page.area && entry.urlSlug === page.slug),
+	}));
+}
+
+export function toSearchRecords(nails: readonly NailRecord[]): NailSearchRecord[] {
+	return nails.map(({ image: _image, ...nail }) => nail);
+}
+
+export function buildCanonicalUrl(siteUrl: string, path: string): string {
+	return new URL(path, siteUrl).toString();
+}
+
+export function formatAreaLabel(area: NailArea): string {
+	return capitalize(area);
+}
+
+export function formatFacetLinkLabel(page: Pick<NailFacetPage, 'value'>): string {
+	return capitalize(page.value);
+}
+
+export function formatFacetBreadcrumbLabel(
+	page: Pick<NailFacetPage, 'facets'>,
+): string {
+	return page.facets.map((facet) => capitalize(facet.value)).join(' ');
+}
+
+export function buildAreaPageCopy(
+	area: NailArea,
+	nails: readonly NailRecord[],
+): SeoPageCopy {
+	const title = `${formatAreaLabel(area)} ideas | Nail.ai`;
+	const designs = countLabel(nails.length, `${area} design`, `${area} designs`);
+	const details = getAreaDetails(nails);
+	const examples = getRecordDescriptions(nails);
+
+	return {
+		title,
+		description: `Browse ${designs} in the Nail.ai ${area} collection, with ideas organized by color, style, occasion, and season.`,
+		heading: `${formatAreaLabel(area)} ideas`,
+		prompt: `Show me ${area} nail ideas`,
+		paragraphs: [
+			[`We found ${designs} in the Nail.ai ${area} collection.`, examples].filter(Boolean).join(' '),
+			[details, `Browse the designs below, or describe a color, shape, finish, or occasion in the search above to narrow down your next ${area}.`].filter(Boolean).join(' '),
+		],
+	};
+}
+
+export function buildHubPageCopy(
+	page: Pick<NailFacetPage, 'area' | 'kind' | 'value' | 'facets' | 'nails' | 'editorial'>,
+): SeoPageCopy {
+	const displayValue = page.kind === 'combination'
+		? page.facets.map((facet) => capitalize(facet.value)).join(' ')
+		: capitalize(page.value);
+	const designs = countLabel(
+		page.nails.length,
+		`${page.value} ${page.area} design`,
+		`${page.value} ${page.area} designs`,
+	);
+	const heading = `${displayValue} ${formatAreaLabel(page.area)} Ideas`;
+
+	return {
+		title: `${heading} | Nail.ai`,
+		description: page.editorial?.metaDescription || `Explore ${designs} organized around ${page.facets.map((facet) => facet.value).join(', ')}.`,
+		heading,
+		prompt: `${page.value} ${page.area} ideas`,
+		paragraphs: page.editorial?.intro
+			? [page.editorial.intro]
+			: [`Browse ${designs} in the Nail.ai collection. Use the search above to add another detail and compare matching looks.`],
+	};
+}
+
+export function buildSiteChromeViewModel(
+	allNails: readonly NailRecord[],
+	editorial: readonly HubEditorial[],
+): SiteChromeViewModel {
+	const hubPages = attachHubEditorial(
+		nailAreas.flatMap((area) => getFacetPages(allNails, area)),
+		editorial,
+	);
+
+	return {
+		header: {
+		browseGroups: buildSiteChromeLinks(hubPages, { filterIndexable: false, limit: 6 }),
+			availableAreas: nailAreas
+				.filter((area) => isIndexablePage(getNailsForArea(allNails, area).length))
+				.map((area) => ({ label: formatAreaLabel(area), href: buildAreaRoute(area) })),
+		},
+		footer: {
+		groups: buildSiteChromeLinks(hubPages, { filterIndexable: true, limit: 8 }),
+		},
+	};
+}
+
+export function buildFacetBrowseLinksViewModel(
+	pages: readonly NailFacetPage[],
+	title: string,
+	currentSlug?: string,
+): FacetBrowseLinksViewModel {
+	const indexablePages = pages.filter(isIndexable);
+	const includeArea = new Set(indexablePages.map((page) => page.area)).size > 1;
+	const groups = facetKinds.flatMap((kind) => {
+		const definition = browseGroupDefinitions.find((group) => group.kind === kind);
+		if (!definition) return [];
+
+		const links = indexablePages
+			.filter((page) => page.kind === kind && page.slug !== currentSlug)
+			.map((page) => ({
+				label: includeArea ? `${formatFacetLinkLabel(page)} ${page.area}` : formatFacetLinkLabel(page),
+				href: buildFacetRoute(page.area, page.slug),
+			}));
+
+		return links.length > 0 ? [{ label: definition.label, links }] : [];
+	});
+
+	return { title, groups };
+}
+
+export function buildHomepageCategories(
+	pages: readonly NailFacetPage[],
+): HomepageCategoryViewModel[] {
+	return homepageCategoryDefinitions
+		.map((category) => ({
+			...category,
+			pages: pages.filter((page) => isIndexable(page) && category.matches(page)).slice(0, 4),
+		}))
+		.filter((category) => category.pages.length > 0)
+		.map((category) => ({
+			title: category.title,
+			description: category.description,
+			thumbnail: category.pages[0].nails[0],
+			links: category.pages.map((page) => ({
+				label: formatFacetLinkLabel(page),
+				href: buildFacetRoute(page.area, page.slug),
+			})),
+		}));
+}
+
+export function buildHomepageBrowseFeatures(
+	nails: readonly NailRecord[],
+	categories: readonly HomepageCategoryViewModel[],
+): readonly HomepageBrowseFeatureViewModel[] {
+	const primaryNail = nails[0];
+	if (!primaryNail) {
+		throw new Error('Homepage requires at least one nail record.');
+	}
+
+	const shapeCategory = categories.find(({ title }) => title === 'Nail shapes');
+	const shapeNail = shapeCategory?.thumbnail ?? primaryNail;
+
+	return [
+		{
+			title: 'Manicure ideas',
+			description: 'Browse the complete manicure collection.',
+			href: '/manicure/',
+			nail: primaryNail,
+		},
+		{
+			title: shapeCategory ? 'Browse by shape' : 'Explore the collection',
+			description: shapeCategory
+				? 'Compare shapes and find a look that suits your routine.'
+				: 'Browse manicure ideas organized by color, shape, style, and occasion.',
+			href: shapeCategory?.links[0]?.href ?? '/manicure/',
+			nail: shapeNail,
+		},
+	] as const;
+}
+
+export function buildCollectionStructuredData({
+	canonical,
+	heading,
+	description,
+	nails,
+	breadcrumbs,
+	faq,
+}: CollectionStructuredDataInput): Record<string, unknown> {
+	return {
+		'@context': 'https://schema.org',
+		'@graph': [
+			{
+				'@type': 'CollectionPage',
+				'@id': `${canonical}#collection`,
+				name: heading,
+				url: canonical,
+				description,
+				mainEntity: { '@id': `${canonical}#designs` },
+			},
+			{
+				'@type': 'ItemList',
+				'@id': `${canonical}#designs`,
+				itemListElement: nails.map((nail, index) => ({
+					'@type': 'ListItem',
+					position: index + 1,
+					name: nail.title,
+				})),
+			},
+			{
+				'@type': 'BreadcrumbList',
+				'@id': `${canonical}#breadcrumb`,
+				itemListElement: breadcrumbs.map(({ label, href }, index) => ({
+					'@type': 'ListItem',
+					position: index + 1,
+					name: label,
+					item: href ? buildCanonicalUrl(canonical, href) : canonical,
+				})),
+			},
+			...(faq.length > 0
+				? [{
+					'@type': 'FAQPage',
+					'@id': `${canonical}#faq`,
+					mainEntity: faq.map(({ question, answer }) => ({
+						'@type': 'Question',
+						name: question,
+						acceptedAnswer: { '@type': 'Answer', text: answer },
+					})),
+				}]
+				: []),
+		],
+	};
+}
+
+export function buildHomepageStructuredData(
+	canonical: string,
+	description: string,
+	socialImage: string,
+	faq: readonly FaqItemViewModel[],
+): Record<string, unknown> {
+	return {
+		'@context': 'https://schema.org',
+		'@graph': [
+			{
+				'@type': 'WebSite',
+				'@id': `${canonical}#website`,
+				url: canonical,
+				name: 'Nail.ai',
+				publisher: { '@id': `${canonical}#organization` },
+			},
+			{
+				'@type': 'Organization',
+				'@id': `${canonical}#organization`,
+				name: 'Nail.ai',
+				url: canonical,
+				logo: { '@type': 'ImageObject', url: buildCanonicalUrl(canonical, '/favicon.svg') },
+			},
+			{
+				'@type': 'WebApplication',
+				'@id': `${canonical}#app`,
+				name: 'Nail.ai',
+				url: canonical,
+				description,
+				applicationCategory: 'LifestyleApplication',
+				operatingSystem: 'Any',
+				image: socialImage,
+				publisher: { '@id': `${canonical}#organization` },
+				isPartOf: { '@id': `${canonical}#website` },
+			},
+			{
+				'@type': 'FAQPage',
+				'@id': `${canonical}#faq`,
+				mainEntity: faq.map(({ question, answer }) => ({
+					'@type': 'Question',
+					name: question,
+					acceptedAnswer: { '@type': 'Answer', text: answer },
+				})),
+			},
+		],
+	};
+}
+
+function buildSiteChromeLinks(
+	pages: readonly NailFacetPage[],
+	options: { filterIndexable: boolean; limit: number },
+): BrowseLinkGroupViewModel[] {
+	const sourcePages = options.filterIndexable ? pages.filter(isIndexable) : pages;
+
+	return siteChromeGroupDefinitions.flatMap(({ kind, label }) => {
+		const links = sourcePages
+			.filter((page) => page.kind === kind)
+			.slice(0, options.limit)
+			.map((page) => ({
+				label: formatFacetLinkLabel(page),
+				href: buildFacetRoute(page.area, page.slug),
+			}));
+
+		return links.length > 0 ? [{ label, links }] : [];
+	});
+}
+
+function capitalize(value: string): string {
+	return value.charAt(0).toUpperCase() + value.slice(1);
+}
+
+function countLabel(count: number, singular: string, plural = `${singular}s`): string {
+	return `${count} ${count === 1 ? singular : plural}`;
+}
+
+function uniqueValues(values: readonly string[]): string[] {
+	return [...new Set(values)].sort();
+}
+
+function getAreaDetails(nails: readonly NailRecord[]): string {
+	const details = [
+		countLabel(uniqueValues(nails.flatMap((nail) => nail.colors)).length, 'color'),
+		countLabel(uniqueValues(nails.flatMap((nail) => nail.types)).length, 'design style'),
+		countLabel(uniqueValues(nails.flatMap((nail) => nail.occasions)).length, 'occasion'),
+		countLabel(uniqueValues(nails.flatMap((nail) => seasonValues(nail.season))).length, 'season'),
+	].filter((detail) => !detail.startsWith('0 '));
+
+	return details.length > 0 ? `The collection spans ${details.join(', ')}.` : '';
+}
+
+function getRecordDescriptions(nails: readonly NailRecord[]): string {
+	return [...new Set(nails.map((nail) => nail.description.trim()).filter(Boolean))]
+		.slice(0, 2)
+		.map((description) => /[.!?]$/.test(description) ? description : `${description}.`)
+		.join(' ');
+}

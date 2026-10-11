@@ -1,9 +1,9 @@
 ---
+import type { FaqItemViewModel } from '../application/view-models';
 import Section from './ui/Section.astro';
-import type { homepageFaq } from '../libs/homepage';
 
 interface Props {
-	items: typeof homepageFaq;
+	items: readonly FaqItemViewModel[];
 }
 
 const { items } = Astro.props;

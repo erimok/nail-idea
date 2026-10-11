@@ -1,1 +1,0 @@
-export { isIndexable, isIndexablePage, MIN_DESIGNS_FOR_INDEX as MIN_INDEXABLE } from '../domain/indexability';

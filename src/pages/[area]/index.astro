@@ -1,40 +1,13 @@
 ---
-import { nailAreas, type NailArea } from '../../domain/areas';
-import { getFacetPages, getNailsForArea } from '../../domain/facet-combinations';
-import { isIndexablePage } from '../../domain/indexability';
-import { buildAreaRoute } from '../../domain/routes';
 import CollectionPageView from '../../components/CollectionPageView.astro';
-import { loadNails, toNailSearchRecords } from '../../libs/nails';
-import { getAreaPageCopy } from '../../libs/seo-pages';
-import { attachHubEditorial, loadHubEditorial } from '../../libs/hubs';
+import { siteServices } from '../../composition';
 
-export function getStaticPaths() {
-	return nailAreas.map((area) => ({ params: { area }, props: { area } }));
+export async function getStaticPaths() {
+	return (await siteServices.listHubRoutes()).areaRoutes.map(({ area }) => ({ params: { area } }));
 }
 
-const { area } = Astro.props as { area: NailArea };
-const allNails = await loadNails();
-const editorial = await loadHubEditorial();
-const nails = getNailsForArea(allNails, area);
-const facets = attachHubEditorial(getFacetPages(allNails, area), editorial);
-const copy = getAreaPageCopy(area, nails);
-const areaLabel = area.charAt(0).toUpperCase() + area.slice(1);
-const canonical = new URL(buildAreaRoute(area), Astro.site).toString();
+const { area } = Astro.params as { area: 'manicure' | 'pedicure' };
+const viewModel = await siteServices.buildAreaPage({ area });
 ---
 
-<CollectionPageView
-	area={area}
-	title={copy.title}
-	description={copy.description}
-	canonical={canonical}
-	heading={copy.heading}
-	prompt={copy.prompt}
-	paragraphs={copy.paragraphs}
-	nails={nails}
-	searchRecords={toNailSearchRecords(nails)}
-	noIndex={!isIndexablePage(nails.length)}
-	crumbs={[{ label: 'Home', href: '/' }, { label: areaLabel }]}
-	relatedPages={facets}
-	relatedTitle={`Explore more ${area} ideas`}
-	sectionTitle={`All ${area} ideas`}
-/>
+<CollectionPageView {...viewModel} />

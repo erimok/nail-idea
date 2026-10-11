@@ -1,39 +1,24 @@
 ---
+import type { LayoutViewModel } from '../application/view-models';
 import '../styles/global.css';
 import SiteFooter from '../components/SiteFooter.astro';
 import SiteHeader from '../components/SiteHeader.astro';
-import { nailAreas } from '../domain/areas';
-import { getFacetPages, getNailsForArea } from '../domain/facet-combinations';
-import { isIndexablePage } from '../domain/indexability';
-import { loadNails } from '../libs/nails';
-import { attachHubEditorial, loadHubEditorial } from '../libs/hubs';
 
-interface Props {
-	title: string;
-	description: string;
-	canonical?: string;
-	socialImage?: string;
-	structuredData?: Record<string, unknown>;
-	noIndex?: boolean;
-	socialImageAlt?: string;
-}
+interface Props extends LayoutViewModel {}
 
 const {
 	title,
 	description,
-	canonical = Astro.site ? new URL(Astro.url.pathname, Astro.site).toString() : undefined,
+	canonical,
 	socialImage,
 	structuredData,
 	noIndex = false,
 	socialImageAlt = 'AI-generated manicure design from Nail.ai',
+	siteChrome,
 } = Astro.props;
 const serializedStructuredData = structuredData
 	? JSON.stringify(structuredData).replace(/</g, '\\u003c')
 	: undefined;
-const nails = await loadNails();
-const editorial = await loadHubEditorial();
-const footerFacetPages = attachHubEditorial(nailAreas.flatMap((area) => getFacetPages(nails, area)), editorial);
-const availableAreas = nailAreas.filter((area) => isIndexablePage(getNailsForArea(nails, area).length));
 ---
 
 <!doctype html>
@@ -48,12 +33,12 @@ const availableAreas = nailAreas.filter((area) => isIndexablePage(getNailsForAre
 		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous" />
 		<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@500;600;700&display=swap" rel="stylesheet" />
 		<title>{title}</title>
-		{canonical && <link rel="canonical" href={canonical} />}
+		<link rel="canonical" href={canonical} />
 		<meta property="og:type" content="website" />
 		<meta property="og:site_name" content="Nail.ai" />
 		<meta property="og:title" content={title} />
 		<meta property="og:description" content={description} />
-		{canonical && <meta property="og:url" content={canonical} />}
+		<meta property="og:url" content={canonical} />
 		{socialImage && <meta property="og:image" content={socialImage} />}
 		{socialImage && <meta property="og:image:width" content="1200" />}
 		{socialImage && <meta property="og:image:height" content="630" />}
@@ -68,8 +53,8 @@ const availableAreas = nailAreas.filter((area) => isIndexablePage(getNailsForAre
 		<link rel="icon" href="/favicon.ico" />
 	</head>
 	<body class="flex min-h-screen flex-col">
-		<SiteHeader hubs={footerFacetPages} availableAreas={availableAreas} />
+		<SiteHeader {...siteChrome.header} />
 		<slot />
-		<SiteFooter hubs={footerFacetPages} />
+		<SiteFooter {...siteChrome.footer} />
 	</body>
 </html>

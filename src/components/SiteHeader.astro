@@ -1,33 +1,20 @@
 ---
-import type { NailArea } from '../domain/areas';
-import type { NailFacetPage } from '../domain/facet-combinations';
-import { buildAreaRoute, buildFacetRoute } from '../domain/routes';
-import { formatFacetLabel } from '../libs/seo-pages';
+import type { BrowseLinkGroupViewModel, LinkViewModel } from '../application/view-models';
 import Logo from './ui/Logo.astro';
 
 interface Props {
-	hubs: readonly NailFacetPage[];
-	availableAreas: readonly NailArea[];
+	browseGroups: readonly BrowseLinkGroupViewModel[];
+	availableAreas: readonly LinkViewModel[];
 }
 
-const { hubs, availableAreas } = Astro.props;
-const groups: { label: string; kind: NailFacetPage['kind'] }[] = [
-	{ label: 'Shapes', kind: 'shape' },
-	{ label: 'Colors', kind: 'color' },
-	{ label: 'Occasions', kind: 'occasion' },
-	{ label: 'Seasons', kind: 'season' },
-];
-const browseGroups = groups.map(({ label, kind }) => ({
-	label,
-	pages: hubs.filter((page) => page.kind === kind).slice(0, 6),
-})).filter(({ pages }) => pages.length > 0);
+const { browseGroups, availableAreas } = Astro.props;
 ---
 
 <header class="w-full border-b border-line bg-surface">
 	<div class="mx-auto flex w-full max-w-[1440px] items-center justify-between gap-5 px-5 py-4 sm:px-8 lg:px-14">
 		<Logo />
 		<nav aria-label="Main navigation" class="flex items-center gap-3 sm:gap-5">
-			<a class="inline-flex min-h-11 items-center text-sm font-semibold text-ink-soft hover:text-ink" href={buildAreaRoute('manicure')}>Manicure</a>
+			<a class="inline-flex min-h-11 items-center text-sm font-semibold text-ink-soft hover:text-ink" href="/manicure/">Manicure</a>
 			<details class="browse-menu group relative">
 				<summary class="inline-flex min-h-11 cursor-pointer list-none items-center gap-2 text-sm font-semibold text-ink-soft hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-olive">
 					Browse <span class="browse-chevron" aria-hidden="true">⌄</span>
@@ -41,13 +28,13 @@ const browseGroups = groups.map(({ label, kind }) => ({
 						<span class="hidden font-display text-5xl leading-none text-coral/30 sm:block" aria-hidden="true">✳</span>
 					</div>
 					<div class="grid gap-6 px-6 py-6 sm:grid-cols-2 sm:px-7">
-						{browseGroups.map(({ label, pages }, index) => (
+						{browseGroups.map(({ label, links }, index) => (
 							<section>
 								<h3 class="mb-2 flex items-center gap-2 text-xs font-bold uppercase tracking-[0.12em] text-muted">
 									<span class={`browse-mark browse-mark-${index + 1}`} aria-hidden="true"></span>{label}
 								</h3>
 								<ul class="browse-link-list">
-									{pages.map((page) => <li><a href={buildFacetRoute(page.area, page.slug)}>{formatFacetLabel(page)}<span aria-hidden="true">↗</span></a></li>)}
+									{links.map(({ href, label: linkLabel }) => <li><a href={href}>{linkLabel}<span aria-hidden="true">↗</span></a></li>)}
 								</ul>
 							</section>
 						))}
@@ -55,9 +42,9 @@ const browseGroups = groups.map(({ label, kind }) => ({
 					<div class="browse-panel-footer flex flex-wrap items-center justify-between gap-3 px-6 py-4 sm:px-7">
 						<span class="text-xs font-medium text-muted">Explore the full collections</span>
 						<div class="flex gap-2">
-							{availableAreas.map((area) => (
-								<a class="browse-area-link" href={buildAreaRoute(area)}>
-									{area.charAt(0).toUpperCase() + area.slice(1)} <span aria-hidden="true">→</span>
+							{availableAreas.map(({ href, label }) => (
+								<a class="browse-area-link" href={href}>
+									{label} <span aria-hidden="true">→</span>
 								</a>
 							))}
 						</div>

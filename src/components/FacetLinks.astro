@@ -1,66 +1,27 @@
 ---
-import { type NailFacetPage } from '../domain/facet-combinations';
-import { facetKinds } from '../domain/facets/registry';
-import { isIndexable } from '../domain/indexability';
-import { buildFacetRoute } from '../domain/routes';
-import { formatFacetLabel } from '../libs/seo-pages';
+import type { FacetBrowseLinksViewModel } from '../application/view-models';
 
-interface Props {
-	pages: readonly NailFacetPage[];
-	title: string;
-	currentSlug?: string;
-	variant?: 'default' | 'footer';
-}
+interface Props extends FacetBrowseLinksViewModel {}
 
-const { pages, title, currentSlug, variant = 'default' } = Astro.props;
-const indexablePages = pages.filter(isIndexable);
-const includeArea = new Set(indexablePages.map((page) => page.area)).size > 1;
-const groupLabels = {
-	color: 'Colors',
-	type: 'Design styles',
-	occasion: 'Occasions',
-	season: 'Seasons',
-	shape: 'Shapes',
-	length: 'Lengths',
-	finishing: 'Finishes',
-};
+const { groups, title } = Astro.props;
 ---
 
-<nav aria-label={title} hidden={indexablePages.length === 0} class:list={[
-	variant === 'footer' ? 'w-full' : 'border-y border-line py-7',
-]}>
-	<h2 class:list={[
-		'font-display text-2xl',
-		variant === 'footer' ? 'text-white' : 'text-ink',
-	]}>{title}</h2>
-	<div class:list={[
-		'mt-5 grid gap-6',
-		variant === 'footer' ? 'grid-cols-2 sm:grid-cols-3 lg:grid-cols-7' : 'sm:grid-cols-2 lg:grid-cols-3',
-	]}>
-		{facetKinds.map((kind) => {
-			const groupPages = indexablePages.filter((page) => page.kind === kind && page.slug !== currentSlug);
-			return groupPages.length > 0 && (
-				<div>
-					<h3 class:list={[
-						'text-xs font-bold uppercase tracking-[0.12em]',
-						variant === 'footer' ? 'text-white/80' : 'text-muted',
-					]}>{groupLabels[kind]}</h3>
-					<ul class:list={['mt-3 flex flex-wrap', variant === 'footer' ? 'gap-x-3 gap-y-2' : 'gap-2']}>
-						{groupPages.map((page) => (
-							<li class="max-w-full">
-								<a class:list={[
-									'max-w-full transition-colors hover:text-coral focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-olive',
-									variant === 'footer'
-										? 'text-xs text-white underline decoration-muted underline-offset-4'
-										: 'inline-flex min-h-9 items-center rounded-full border border-line bg-white px-3.5 py-2 text-xs font-semibold text-ink-soft hover:border-olive hover:bg-tint hover:text-ink',
-								]} href={buildFacetRoute(page.area, page.slug)}>
-									{includeArea ? `${formatFacetLabel(page)} ${page.area}` : formatFacetLabel(page)}
-								</a>
-							</li>
-						))}
-					</ul>
-				</div>
-			);
-		})}
+<nav aria-label={title} hidden={groups.length === 0} class="border-y border-line py-7">
+	<h2 class="font-display text-2xl text-ink">{title}</h2>
+	<div class="mt-5 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+		{groups.map(({ label, links }) => (
+			<div>
+				<h3 class="text-xs font-bold uppercase tracking-[0.12em] text-muted">{label}</h3>
+				<ul class="mt-3 flex flex-wrap gap-2">
+					{links.map(({ href, label: linkLabel }) => (
+						<li class="max-w-full">
+							<a class="inline-flex min-h-9 max-w-full items-center rounded-full border border-line bg-white px-3.5 py-2 text-xs font-semibold text-ink-soft transition-colors hover:border-olive hover:bg-tint hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-olive" href={href}>
+								{linkLabel}
+							</a>
+						</li>
+					))}
+				</ul>
+			</div>
+		))}
 	</div>
 </nav>

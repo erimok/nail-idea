@@ -1,43 +1,13 @@
 ---
 import CollectionPageView from '../../components/CollectionPageView.astro';
-import { getAllFacetPages, getFacetPages, type NailFacetPage } from '../../domain/facet-combinations';
-import { isIndexable } from '../../domain/indexability';
-import { buildAreaRoute, buildFacetRoute } from '../../domain/routes';
-import { loadNails, toNailSearchRecords } from '../../libs/nails';
-import { getFacetPageCopy } from '../../libs/seo-pages';
-import { attachHubEditorial, loadHubEditorial } from '../../libs/hubs';
+import { siteServices } from '../../composition';
 
 export async function getStaticPaths() {
-	const nails = await loadNails();
-	const editorial = await loadHubEditorial();
-	const facets = attachHubEditorial(getAllFacetPages(nails), editorial);
-	return facets.map((page) => ({
-		params: { area: page.area, slug: page.slug },
-		props: { page, relatedPages: attachHubEditorial(getFacetPages(nails, page.area), editorial) },
-	}));
+	return (await siteServices.listHubRoutes()).hubRoutes.map(({ area, slug }) => ({ params: { area, slug } }));
 }
 
-const { page, relatedPages } = Astro.props as { page: NailFacetPage; relatedPages: NailFacetPage[] };
-const copy = getFacetPageCopy(page);
-const areaLabel = page.area.charAt(0).toUpperCase() + page.area.slice(1);
-const facetLabel = page.facets.map((facet) => facet.value.charAt(0).toUpperCase() + facet.value.slice(1)).join(' ');
-const canonical = new URL(buildFacetRoute(page.area, page.slug), Astro.site).toString();
+const { area, slug } = Astro.params as { area: 'manicure' | 'pedicure'; slug: string };
+const viewModel = await siteServices.buildHubPage({ area, slug });
 ---
 
-<CollectionPageView
-	area={page.area}
-	title={copy.title}
-	description={copy.description}
-	canonical={canonical}
-	heading={copy.heading}
-	prompt={copy.prompt}
-	paragraphs={copy.paragraphs}
-	nails={page.nails}
-	searchRecords={toNailSearchRecords(page.nails)}
-	noIndex={!isIndexable(page)}
-	crumbs={[{ label: 'Home', href: '/' }, { label: areaLabel, href: buildAreaRoute(page.area) }, { label: facetLabel }]}
-	relatedPages={relatedPages}
-	currentSlug={page.slug}
-	sectionTitle={`${page.nails.length} ${facetLabel.toLowerCase()} designs`}
-	hubFaq={page.editorial?.faq}
-/>
+<CollectionPageView {...viewModel} />

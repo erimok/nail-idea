@@ -1,0 +1,50 @@
+import { describe, expect, it } from 'vitest';
+import { InMemoryHubRepository } from '../adapters/in-memory/InMemoryHubRepository';
+import { InMemoryNailRepository } from '../adapters/in-memory/InMemoryNailRepository';
+import { InMemorySiteConfig } from '../adapters/in-memory/InMemorySiteConfig';
+import { aHub, aNail } from '../test/builders';
+import { buildHomepage } from './buildHomepage';
+
+describe('buildHomepage', () => {
+	it('builds featured designs, categories, and browse features from indexable hubs', async () => {
+		// Arrange
+		const nails = Array.from({ length: 9 }, (_, index) => aNail({
+			slug: `nail-${index + 1}`,
+			colors: ['red'],
+			types: ['french'],
+			shape: 'almond',
+			length: 'short',
+			finishes: ['glossy'],
+			occasions: ['wedding'],
+			season: 'spring',
+		}));
+		const hubs = [
+			aHub({ area: 'manicure', urlSlug: 'red-nails' }),
+			aHub({ area: 'manicure', urlSlug: 'french-nails' }),
+			aHub({ area: 'manicure', urlSlug: 'almond-nails' }),
+			aHub({ area: 'manicure', urlSlug: 'short-nails' }),
+			aHub({ area: 'manicure', urlSlug: 'wedding-nails' }),
+			aHub({ area: 'manicure', urlSlug: 'spring-nails' }),
+		];
+		const ports = {
+			nailRepository: new InMemoryNailRepository(nails),
+			hubRepository: new InMemoryHubRepository(hubs),
+			siteConfig: new InMemorySiteConfig(),
+		};
+
+		// Act
+		const result = await buildHomepage(ports);
+
+		// Assert
+		expect(result.featured).toHaveLength(9);
+		expect(result.categories.map(({ title }) => title)).toEqual([
+			'Nail shapes',
+			'Nail colors',
+			'Designs by occasion',
+			'Seasonal nails',
+			'French and micro French',
+			'Short nails',
+		]);
+		expect(result.browseFeatures.map(({ title }) => title)).toEqual(['Manicure ideas', 'Browse by shape']);
+	});
+});
