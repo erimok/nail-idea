@@ -1,3 +1,4 @@
+import type { NailArea } from '../domain/areas';
 import type { HubFaqItem } from '../domain/hub-types';
 import type { NailRecord, NailSearchRecord } from '../domain/nail';
 
@@ -90,6 +91,6 @@ export interface StaticPageViewModel {
 }
 
 export interface HubRouteListing {
-	areaRoutes: readonly { area: 'manicure' | 'pedicure' }[];
-	hubRoutes: readonly { area: 'manicure' | 'pedicure'; slug: string }[];
+	areaRoutes: readonly { area: NailArea }[];
+	hubRoutes: readonly { area: NailArea; slug: string }[];
 }

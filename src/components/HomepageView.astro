@@ -13,6 +13,7 @@ import Chip from './ui/Chip.astro';
 interface Props extends HomepageViewModel {}
 
 const { layout, nails, searchRecords, featured, categories, faqItems, browseFeatures } = Astro.props;
+const primaryArea = layout.siteChrome.header.availableAreas[0];
 ---
 
 <BaseLayout {...layout}>
@@ -39,11 +40,11 @@ const { layout, nails, searchRecords, featured, categories, faqItems, browseFeat
 		</Section>}
 		<Section bg="surface">
 			<SectionHeader title="Featured nail ideas" eyebrow="From the Nails collection">
-				<a slot="action" class="text-sm font-bold text-ink-soft underline decoration-line underline-offset-4 transition-colors hover:text-coral" href="/manicure/">View all manicure ideas</a>
+				{primaryArea && <a slot="action" class="text-sm font-bold text-ink-soft underline decoration-line underline-offset-4 transition-colors hover:text-coral" href={primaryArea.href}>View all {primaryArea.label.toLowerCase()} ideas</a>}
 			</SectionHeader>
 			<p class="-mt-5 mb-6 max-w-prose text-sm leading-6 text-muted">Designs are organized by color, shape, length, finish, and occasion. Nail design photos are AI-generated visual references and may differ from results on natural nails.</p>
 			<NailCollectionGrid items={featured.map((nail, index) => ({ nail, eager: index < 3 }))} />
-			<div class="mt-8 flex justify-center"><Chip href="/manicure/">View all manicure ideas</Chip></div>
+			{primaryArea && <div class="mt-8 flex justify-center"><Chip href={primaryArea.href}>View all {primaryArea.label.toLowerCase()} ideas</Chip></div>}
 		</Section>
 		<FaqSection items={faqItems} />
 	</main>

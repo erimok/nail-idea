@@ -5,7 +5,7 @@ import { isIndexable, isIndexablePage, MIN_DESIGNS_FOR_INDEX } from './indexabil
 describe('domain indexability', () => {
 	it('uses one threshold for page and hub indexability', () => {
 		// Arrange
-		const designCounts = [5, 6];
+		const designCounts = [MIN_DESIGNS_FOR_INDEX - 1, MIN_DESIGNS_FOR_INDEX];
 
 		// Act
 		const result = designCounts.map((count) => isIndexablePage(count));
@@ -21,9 +21,9 @@ describe('domain indexability', () => {
 
 		// Act
 		const result = [
-			isIndexable({ nails: Array(6), editorial }),
-			isIndexable({ nails: Array(6) }),
-			isIndexable({ nails: Array(5), editorial }),
+			isIndexable({ nails: Array(MIN_DESIGNS_FOR_INDEX), editorial }),
+			isIndexable({ nails: Array(MIN_DESIGNS_FOR_INDEX) }),
+			isIndexable({ nails: Array(MIN_DESIGNS_FOR_INDEX - 1), editorial }),
 		];
 
 		// Assert

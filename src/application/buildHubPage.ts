@@ -1,4 +1,5 @@
 import { getAllFacetPages, getFacetPages, type NailFacetPage } from '../domain/facet-combinations';
+import type { NailArea } from '../domain/areas';
 import { isIndexable } from '../domain/indexability';
 import { buildAreaRoute, buildFacetRoute } from '../domain/routes';
 import type { SitePorts } from './ports';
@@ -16,7 +17,7 @@ import { resolveBrowseLinks } from './resolveBrowseLinks';
 import type { CollectionPageViewModel } from './view-models';
 
 interface BuildHubPageParams {
-	area: 'manicure' | 'pedicure';
+	area: NailArea;
 	slug: string;
 }
 

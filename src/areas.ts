@@ -1,1 +1,0 @@
-export { isNailArea, nailAreas, type NailArea } from './domain/areas';

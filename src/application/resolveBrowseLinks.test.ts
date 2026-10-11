@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { aHub, aNail } from '../test/builders';
+import { MIN_DESIGNS_FOR_INDEX } from '../domain/indexability';
 import { attachHubEditorial } from './support';
 import { getFacetPages } from '../domain/facet-combinations';
 import { resolveBrowseLinks } from './resolveBrowseLinks';
@@ -7,7 +8,7 @@ import { resolveBrowseLinks } from './resolveBrowseLinks';
 describe('resolveBrowseLinks', () => {
 	it('filters to indexable hubs, omits the current slug, and labels multi-area links', () => {
 		// Arrange
-		const nails = Array.from({ length: 6 }, (_, index) => aNail({
+		const nails = Array.from({ length: MIN_DESIGNS_FOR_INDEX }, (_, index) => aNail({
 			slug: `shared-${index + 1}`,
 			colors: ['red'],
 			typesOfNails: 'both',

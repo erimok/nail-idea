@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { InMemoryHubRepository } from '../adapters/in-memory/InMemoryHubRepository';
 import { InMemoryNailRepository } from '../adapters/in-memory/InMemoryNailRepository';
 import { InMemorySiteConfig } from '../adapters/in-memory/InMemorySiteConfig';
+import { MIN_DESIGNS_FOR_INDEX } from '../domain/indexability';
 import { aHub, aNail } from '../test/builders';
 import { buildAreaPage } from './buildAreaPage';
 
@@ -33,7 +34,7 @@ function createPorts(nailCount: number) {
 describe('buildAreaPage', () => {
 	it('marks area pages noindex below six designs and includes both-area records', async () => {
 		// Arrange
-		const ports = createPorts(5);
+		const ports = createPorts(MIN_DESIGNS_FOR_INDEX - 1);
 
 		// Act
 		const result = await buildAreaPage(ports, { area: 'manicure' });
@@ -52,7 +53,7 @@ describe('buildAreaPage', () => {
 
 	it('marks area pages indexable at six designs', async () => {
 		// Arrange
-		const ports = createPorts(6);
+		const ports = createPorts(MIN_DESIGNS_FOR_INDEX);
 
 		// Act
 		const result = await buildAreaPage(ports, { area: 'manicure' });

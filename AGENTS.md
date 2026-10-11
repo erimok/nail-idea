@@ -55,7 +55,7 @@ src/
   components/          # driving: human presentation only
 ```
 
-This is the target layout. Existing code such as `src/areas.ts` predates it. Migrate toward it incrementally.
+This is the target layout. Migrate toward it incrementally.
 
 ### Data access: repositories only
 
@@ -212,7 +212,7 @@ Single sources of truth for this project:
 
 | Knowledge | Lives in | Never repeated in |
 |---|---|---|
-| Area list (`manicure`, `pedicure`) | `src/areas.ts` | Pages, tests, config as string literals |
+| Area list (`manicure`, `pedicure`) | `src/domain/areas.ts` | Pages, tests, config as string literals |
 | Facet list and `combinable` flag | Facet registry in `domain` | Route code, sitemap code, components |
 | Slug normalization | One `normalizeSlug` function | Adapters, pages, tests (import it) |
 | Indexing threshold (6 designs) | One named constant, for example `MIN_DESIGNS_FOR_INDEX` | Conditions, tests, comments (import it) |
@@ -300,7 +300,7 @@ Co-locate tests with source as `*.test.ts`. Shared builders, fakes, and reposito
 These are easy to break. Check them whenever you touch routes, content, or SEO logic.
 
 **Areas**
-- Top-level areas are `manicure` and `pedicure`. Use the `NailArea` type and `isNailArea` guard from `src/areas.ts`. Do not hardcode area strings.
+- Top-level areas are `manicure` and `pedicure`. Use the `NailArea` type and `isNailArea` guard from `src/domain/areas.ts`. Do not hardcode area strings.
 - Records marked for both areas appear in both.
 
 **Routes** (`/{area}/{slug}/`)

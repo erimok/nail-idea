@@ -1,12 +1,13 @@
 ---
 import CollectionPageView from '../../components/CollectionPageView.astro';
+import type { NailArea } from '../../domain/areas';
 import { siteServices } from '../../composition';
 
 export async function getStaticPaths() {
 	return (await siteServices.listHubRoutes()).areaRoutes.map(({ area }) => ({ params: { area } }));
 }
 
-const { area } = Astro.params as { area: 'manicure' | 'pedicure' };
+const { area } = Astro.params as { area: NailArea };
 const viewModel = await siteServices.buildAreaPage({ area });
 ---
 

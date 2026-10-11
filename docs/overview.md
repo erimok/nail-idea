@@ -7,6 +7,14 @@ Nail.ai project is pSEO project that help to find an idea of manicure and pedicu
 - Astro.js
 - Keystatic CMS
 
+## Architecture
+
+The app follows a hexagonal layout: `src/domain` holds pure rules and types, `src/application` holds use-case services that return view models, `src/ports` defines repository/config interfaces, and `src/adapters` contains Keystatic/config/in-memory implementations plus presentation adapters. Dependencies point inward only: `adapters -> application -> domain`.
+
+`src/composition.ts` is the composition root. It is the only place that wires concrete repositories and config into application services for Astro pages.
+
+Route generation lives in the domain route builder (`src/domain/routes.ts`) and combination logic (`src/domain/facet-combinations.ts`). Indexability rules, including the minimum-design threshold and editorial requirements, live in `src/domain/indexability.ts`. Astro pages should only call services from `src/composition.ts` and render the returned view models.
+
 ## URL structure
 
 Implemented static pages:

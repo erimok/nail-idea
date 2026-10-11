@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { InMemoryHubRepository } from '../adapters/in-memory/InMemoryHubRepository';
 import { InMemoryNailRepository } from '../adapters/in-memory/InMemoryNailRepository';
 import { InMemorySiteConfig } from '../adapters/in-memory/InMemorySiteConfig';
+import { MIN_DESIGNS_FOR_INDEX } from '../domain/indexability';
 import type { HubEditorial } from '../domain/hub-types';
 import type { NailRecord } from '../domain/nail';
 import { aHub, aNail } from '../test/builders';
@@ -45,7 +46,7 @@ describe('buildHubPage', () => {
 
 	it('keeps curated hubs indexable at six designs', async () => {
 		// Arrange
-		const nails = Array.from({ length: 6 }, (_, index) => aNail({
+		const nails = Array.from({ length: MIN_DESIGNS_FOR_INDEX }, (_, index) => aNail({
 			slug: `red-${index + 1}`,
 			colors: ['red'],
 			types: ['solid'],

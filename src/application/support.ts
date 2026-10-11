@@ -187,13 +187,13 @@ export function buildSiteChromeViewModel(
 
 	return {
 		header: {
-		browseGroups: buildSiteChromeLinks(hubPages, { filterIndexable: false, limit: 6 }),
+			browseGroups: buildSiteChromeLinks(hubPages, { filterIndexable: false, limit: 6 }),
 			availableAreas: nailAreas
 				.filter((area) => isIndexablePage(getNailsForArea(allNails, area).length))
 				.map((area) => ({ label: formatAreaLabel(area), href: buildAreaRoute(area) })),
 		},
 		footer: {
-		groups: buildSiteChromeLinks(hubPages, { filterIndexable: true, limit: 8 }),
+			groups: buildSiteChromeLinks(hubPages, { filterIndexable: true, limit: 8 }),
 		},
 	};
 }
@@ -253,20 +253,23 @@ export function buildHomepageBrowseFeatures(
 
 	const shapeCategory = categories.find(({ title }) => title === 'Nail shapes');
 	const shapeNail = shapeCategory?.thumbnail ?? primaryNail;
+	const primaryArea = nailAreas[0];
+	const primaryAreaLabel = formatAreaLabel(primaryArea);
+	const primaryAreaRoute = buildAreaRoute(primaryArea);
 
 	return [
 		{
-			title: 'Manicure ideas',
-			description: 'Browse the complete manicure collection.',
-			href: '/manicure/',
+			title: `${primaryAreaLabel} ideas`,
+			description: `Browse the complete ${primaryArea.toLowerCase()} collection.`,
+			href: primaryAreaRoute,
 			nail: primaryNail,
 		},
 		{
 			title: shapeCategory ? 'Browse by shape' : 'Explore the collection',
 			description: shapeCategory
 				? 'Compare shapes and find a look that suits your routine.'
-				: 'Browse manicure ideas organized by color, shape, style, and occasion.',
-			href: shapeCategory?.links[0]?.href ?? '/manicure/',
+				: `Browse ${primaryArea.toLowerCase()} ideas organized by color, shape, style, and occasion.`,
+			href: shapeCategory?.links[0]?.href ?? primaryAreaRoute,
 			nail: shapeNail,
 		},
 	] as const;

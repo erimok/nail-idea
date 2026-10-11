@@ -8,13 +8,14 @@ interface Props {
 }
 
 const { browseGroups, availableAreas } = Astro.props;
+const primaryArea = availableAreas[0];
 ---
 
 <header class="w-full border-b border-line bg-surface">
 	<div class="mx-auto flex w-full max-w-[1440px] items-center justify-between gap-5 px-5 py-4 sm:px-8 lg:px-14">
 		<Logo />
 		<nav aria-label="Main navigation" class="flex items-center gap-3 sm:gap-5">
-			<a class="inline-flex min-h-11 items-center text-sm font-semibold text-ink-soft hover:text-ink" href="/manicure/">Manicure</a>
+			{primaryArea && <a class="inline-flex min-h-11 items-center text-sm font-semibold text-ink-soft hover:text-ink" href={primaryArea.href}>{primaryArea.label}</a>}
 			<details class="browse-menu group relative">
 				<summary class="inline-flex min-h-11 cursor-pointer list-none items-center gap-2 text-sm font-semibold text-ink-soft hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-olive">
 					Browse <span class="browse-chevron" aria-hidden="true">⌄</span>

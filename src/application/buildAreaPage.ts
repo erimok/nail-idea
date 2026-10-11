@@ -1,4 +1,5 @@
 import { getFacetPages, getNailsForArea } from '../domain/facet-combinations';
+import type { NailArea } from '../domain/areas';
 import { isIndexablePage } from '../domain/indexability';
 import { buildAreaRoute } from '../domain/routes';
 import type { SitePorts } from './ports';
@@ -15,7 +16,7 @@ import { resolveBrowseLinks } from './resolveBrowseLinks';
 import type { CollectionPageViewModel } from './view-models';
 
 interface BuildAreaPageParams {
-	area: 'manicure' | 'pedicure';
+	area: NailArea;
 }
 
 export async function buildAreaPage(

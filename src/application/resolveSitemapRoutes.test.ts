@@ -1,13 +1,14 @@
 import { describe, expect, it } from 'vitest';
 import { InMemoryHubRepository } from '../adapters/in-memory/InMemoryHubRepository';
 import { InMemoryNailRepository } from '../adapters/in-memory/InMemoryNailRepository';
+import { MIN_DESIGNS_FOR_INDEX } from '../domain/indexability';
 import { aHub, aNail } from '../test/builders';
 import { resolveSitemapRoutes } from './resolveSitemapRoutes';
 
 describe('resolveSitemapRoutes', () => {
 	it('excludes the empty pedicure area and hubs without editorial metadata', async () => {
 		// Arrange
-		const nails = Array.from({ length: 6 }, (_, index) => aNail({
+		const nails = Array.from({ length: MIN_DESIGNS_FOR_INDEX }, (_, index) => aNail({
 			slug: `red-${index + 1}`,
 			colors: ['red'],
 			typesOfNails: 'manicure',
@@ -26,7 +27,7 @@ describe('resolveSitemapRoutes', () => {
 
 	it('includes area and hub routes that meet the six-design threshold with editorial copy', async () => {
 		// Arrange
-		const nails = Array.from({ length: 6 }, (_, index) => aNail({
+		const nails = Array.from({ length: MIN_DESIGNS_FOR_INDEX }, (_, index) => aNail({
 			slug: `red-${index + 1}`,
 			colors: ['red'],
 			typesOfNails: 'manicure',

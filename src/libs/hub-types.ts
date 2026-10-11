@@ -1,1 +1,0 @@
-export type { HubEditorial, HubFaqItem } from '../domain/hub-types';
