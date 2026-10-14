@@ -7,7 +7,7 @@ export const facetMoods: Readonly<Record<string, string>> = {
 	blue: 'Blue brings calm and confidence to your hands, from soft sky shades for daytime to deep navy for evenings out.',
 	silver: 'Silver nails catch the light with a cool, modern shine that dresses up a plain outfit and feels right for parties and everyday alike.',
 	french: 'French nails are the timeless clean look: a neat white tip that stays polished, feels effortless and suits almost any occasion.',
-	'micro french': 'Micro French keeps the classic tip but thins it to a delicate line, so your nails look fresh, refined and quietly detailed.',
+	'micro french': 'A micro French style keeps the classic tip but thins it to a delicate line, so your nails look fresh, refined and quietly detailed.',
 };
 
 export const facetKindMoods: Readonly<Record<FacetKind, (value: string) => string>> = {

@@ -8,6 +8,16 @@ Stack: TypeScript, Astro, Keystatic CMS, Vitest.
 - `docs/overview.md` is the source of truth for URL structure, hub indexing rules, and planned routes. Read it before touching routing, sitemap, or hub logic. Update it in the same change when route conventions change.
 - `keystatic.config.ts` defines the content schema. Keep code and content in sync with it.
 
+## Content copy conventions
+
+Apply these rules to every task, not just to a single hub or example page:
+
+- Write “micro French” in prose, with a capital F. Keep existing slugs lowercase and hyphenated, and do not change existing URLs or slugs.
+- Use natural phrase order in titles and prose, such as “long almond nails,” not “Almond Long Nails.”
+- Keep copy unique for each design. Do not repeat sentences, and never use “flawless.”
+- Do not invent prices, durations, or claims beyond information supplied for the task or present in the source data.
+- Put design-specific copy in content data and reusable templates/view models. Do not hard-code a one-off version for an individual page when the behavior belongs across hub pages.
+
 ## Commands
 
 | Task | Command |

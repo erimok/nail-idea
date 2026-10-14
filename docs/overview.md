@@ -58,7 +58,7 @@ Implemented static pages:
 
 Each populated single facet gets a page; `occasion` and `season` are single-facet pages only. Pair and triple pages are generated from `color`, `type`, `shape`, `length`, and `finishing` only when at least one nail matches the full combination. Values are lowercased and normalized to kebab-case (for example, `rose gold` becomes `rose-gold`). URLs share one namespace per area, and a build error is raised if different facets or combinations normalize to the same slug. Records marked for both manicure and pedicure appear in both areas.
 
-Nail content records use the same ordered naming convention: `shape-length-color-style`. Include every selected style in the slug, and use `multi-color` as the color segment when that value is selected. Titles follow the same order in readable form, for example `Almond Short Nails: Nude Micro-French`. The content filename slug and title should describe the same design.
+Nail content record slugs use the ordered naming convention `shape-length-color-style`. Include every selected style in the slug, and use `multi-color` as the color segment when that value is selected. Keep existing content filenames and public URLs unchanged. Human-facing titles and prose use natural phrase order, for example `Short Almond Nails: Nude micro French`; write “micro French” with a capital F in prose.
 
 The Astro sitemap integration writes `sitemap-index.xml` during the production build and discovers all prerendered routes automatically. New static routes, including future comparison and guide pages, are included without editing a route list. Set `SITE_URL` to the production origin when building for a different domain; it must match the canonical site URL.
 

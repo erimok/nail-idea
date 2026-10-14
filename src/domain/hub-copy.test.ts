@@ -146,6 +146,37 @@ describe('generateHubCopy', () => {
 		expect(copy.intro[0]?.text.startsWith('Burgundy is the nail color')).toBe(true);
 	});
 
+	it('uses natural length-before-shape order in generated hub titles', () => {
+		// Arrange
+		const nails = Array.from({ length: MIN_DESIGNS_FOR_INDEX }, () => aNail({
+			typesOfNails: 'manicure',
+			shape: 'almond',
+			length: 'long',
+		}));
+		const { page, pages } = pageFor(nails, 'long-almond-nails');
+
+		// Act
+		const copy = generateHubCopy(page, pages.filter(isIndexable));
+
+		// Assert
+		expect(copy.title.startsWith('Long almond Nail Designs')).toBe(true);
+		expect(copy.heading.startsWith('Long almond manicure ideas')).toBe(true);
+	});
+
+	it('uses the canonical micro French spelling in generated hub prose', () => {
+		// Arrange
+		const nails = Array.from({ length: MIN_DESIGNS_FOR_INDEX }, () => aNail({
+			types: ['micro french'],
+		}));
+		const { page, pages } = pageFor(nails, 'micro-french-nails');
+
+		// Act
+		const copy = generateHubCopy(page, pages.filter(isIndexable));
+
+		// Assert
+		expect(copy.intro[0]?.text).toContain('A micro French style');
+	});
+
 	it('prefers curated editorial over generated copy', () => {
 		// Arrange
 		const { page, pages } = pageFor(burgundyNails(), 'burgundy-nails');
