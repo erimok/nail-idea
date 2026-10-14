@@ -1,5 +1,5 @@
 import type { NailArea } from './areas';
-import type { NailFacetPage } from './facet-combinations';
+import { isSubpageOfFacetPage, type NailFacetPage } from './facet-combinations';
 import { facetKinds, getFacetValues } from './facets/registry';
 import { facetKindMoods, facetMoods } from './hub-moods';
 import { buildFacetRoute } from './routes';
@@ -60,7 +60,7 @@ export function topSubfacets(page: Pick<HubCopyPage, 'facets' | 'nails'>, limit 
 }
 
 export function rankRelatedHubs<T extends RelatedCandidate>(
-	page: Pick<HubCopyPage, 'area' | 'slug' | 'facets' | 'nails'>,
+	page: Pick<HubCopyPage, 'area' | 'slug' | 'facets' | 'nails' | 'kind'>,
 	subfacets: readonly string[],
 	candidates: readonly T[],
 	limit = MAX_INTRO_LINKS,
@@ -71,6 +71,7 @@ export function rankRelatedHubs<T extends RelatedCandidate>(
 	return candidates
 		.filter((candidate) => candidate.area === page.area
 			&& candidate.slug !== page.slug
+			&& (page.kind !== 'type' || isSubpageOfFacetPage(page, candidate))
 			&& candidate.nails.some((nail) => pageNailSlugs.has(nail.slug)))
 		.map((candidate) => ({ candidate, score: candidate.facets.filter((facet) => relevant.has(facet.value)).length }))
 		.filter(({ score }) => score > 0)

@@ -3,6 +3,7 @@ import {
 	getFacetPages,
 	getNailsForArea,
 	type NailFacetPage,
+	type NailFacetSelection,
 } from '../domain/facet-combinations';
 import { facetKinds, type FacetKind } from '../domain/facets/registry';
 import type { HubEditorial } from '../domain/hub-types';
@@ -179,9 +180,34 @@ export function buildFacetBrowseLinksViewModel(
 	pages: readonly NailFacetPage[],
 	title: string,
 	currentSlug?: string,
+	parentFacets?: readonly NailFacetSelection[],
 ): FacetBrowseLinksViewModel | undefined {
 	const indexablePages = pages.filter(isIndexable);
 	const includeArea = new Set(indexablePages.map((page) => page.area)).size > 1;
+	if (parentFacets) {
+		const groups = facetKinds.flatMap((kind) => {
+			const definition = browseGroupDefinitions.find((group) => group.kind === kind);
+			if (!definition) return [];
+
+			const links = indexablePages
+				.filter((page) => page.kind === 'combination'
+					&& page.slug !== currentSlug
+					&& page.facets.length === parentFacets.length + 1
+					&& parentFacets.every((parentFacet) => page.facets.some((facet) =>
+						facet.kind === parentFacet.kind && facet.value === parentFacet.value))
+					&& page.facets.some((facet) => facet.kind === kind
+						&& !parentFacets.some((parentFacet) => parentFacet.kind === facet.kind)))
+				.map((page) => ({
+					label: formatFacetBreadcrumbLabel(page),
+					href: buildFacetRoute(page.area, page.slug),
+				}));
+
+			return links.length > 0 ? [{ label: definition.label, links }] : [];
+		});
+
+		return groups.length > 0 ? { title, groups } : undefined;
+	}
+
 	const groups = facetKinds.flatMap((kind) => {
 		const definition = browseGroupDefinitions.find((group) => group.kind === kind);
 		if (!definition) return [];

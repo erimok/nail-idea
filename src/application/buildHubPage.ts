@@ -1,4 +1,4 @@
-import { getAllFacetPages, getFacetPages } from '../domain/facet-combinations';
+import { getAllFacetPages, isDirectSubpageOfFacetPage } from '../domain/facet-combinations';
 import type { NailArea } from '../domain/areas';
 import { generateHubCopy } from '../domain/hub-copy';
 import { isIndexable } from '../domain/indexability';
@@ -37,7 +37,7 @@ export async function buildHubPage(
 		throw new Error(`Hub page not found for /${area}/${slug}/.`);
 	}
 
-	const relatedPages = attachHubEditorial(getFacetPages(allNails, area), editorial);
+	const relatedPages = pages.filter((candidate) => candidate.area === area);
 	const copy = generateHubCopy(page, relatedPages.filter(isIndexable));
 	const pageNailSlugs = new Set(page.nails.map((nail) => nail.slug));
 	const canonical = buildCanonicalUrl(siteConfig.siteUrl, buildFacetRoute(area, slug));
@@ -73,9 +73,11 @@ export async function buildHubPage(
 		breadcrumbs,
 		relatedLinks: relatedPages.length > 0
 			? resolveBrowseLinks({
-				pages: relatedPages.filter((candidate) => candidate.nails.some((nail) => pageNailSlugs.has(nail.slug))),
+				pages: relatedPages.filter((candidate) => candidate.nails.some((nail) => pageNailSlugs.has(nail.slug))
+					&& (page.kind !== 'type' || isDirectSubpageOfFacetPage(page, candidate))),
 				title: `Explore more ${area} ideas`,
 				currentSlug: slug,
+				parentFacets: page.kind === 'type' ? page.facets : undefined,
 			})
 			: undefined,
 		sectionTitle: `${page.nails.length} ${facetLabel.toLowerCase()} designs`,

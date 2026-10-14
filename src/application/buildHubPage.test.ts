@@ -75,7 +75,7 @@ describe('buildHubPage', () => {
 		expect(result.faq).toEqual([{ question: 'Is red timeless?', answer: 'Red is a classic.' }]);
 	});
 
-	it('links only to indexable facet hubs that share designs with the current hub', async () => {
+	it('links from type hubs only to indexable subpages that retain the type facet', async () => {
 		// Arrange
 		const frenchNails = Array.from({ length: MIN_DESIGNS_FOR_INDEX }, (_, index) => aNail({
 			slug: `french-${index + 1}`,
@@ -102,10 +102,24 @@ describe('buildHubPage', () => {
 
 		// Assert
 		const links = result.relatedLinks?.groups.flatMap(({ links: groupLinks }) => groupLinks) ?? [];
-		expect(links.map(({ href }) => href)).toContain('/manicure/burgundy-nails/');
-		expect(links.map(({ href }) => href)).toContain('/manicure/oval-nails/');
-		expect(links.map(({ href }) => href)).toContain('/manicure/spring-nails/');
+		expect(links.map(({ href }) => href)).toContain('/manicure/burgundy-french-nails/');
+		expect(links.map(({ href }) => href)).toContain('/manicure/short-french-nails/');
+		expect(links.map(({ href }) => href)).toContain('/manicure/glossy-french-nails/');
+		expect(links.map(({ href }) => href)).not.toContain('/manicure/burgundy-nails/');
+		expect(links.map(({ href }) => href)).not.toContain('/manicure/oval-nails/');
+		expect(links.map(({ href }) => href)).not.toContain('/manicure/spring-nails/');
 		expect(links.map(({ href }) => href)).not.toContain('/manicure/blue-nails/');
 		expect(links.map(({ href }) => href)).not.toContain('/manicure/square-nails/');
+		expect(result.relatedLinks?.groups.map(({ label }) => label)).toEqual([
+			'Colors',
+			'Shapes',
+			'Lengths',
+			'Finishes',
+		]);
+		expect(links.map(({ label }) => label)).toContain('Burgundy French');
+
+		const introLinks = result.intro?.flatMap(({ href }) => href ? [href] : []) ?? [];
+		expect(introLinks.length).toBeGreaterThan(0);
+		expect(introLinks.every((href) => href.includes('french'))).toBe(true);
 	});
 });

@@ -20,6 +20,23 @@ export interface NailFacetPage {
 	editorial?: HubEditorial;
 }
 
+export function isSubpageOfFacetPage(
+	parent: Pick<NailFacetPage, 'facets'>,
+	candidate: Pick<NailFacetPage, 'facets'>,
+): boolean {
+	return candidate.facets.length > parent.facets.length
+		&& parent.facets.every((parentFacet) => candidate.facets.some((facet) =>
+			facet.kind === parentFacet.kind && facet.value === parentFacet.value));
+}
+
+export function isDirectSubpageOfFacetPage(
+	parent: Pick<NailFacetPage, 'facets'>,
+	candidate: Pick<NailFacetPage, 'facets'>,
+): boolean {
+	return candidate.facets.length === parent.facets.length + 1
+		&& isSubpageOfFacetPage(parent, candidate);
+}
+
 function belongsToArea(nail: NailRecord, area: NailArea): boolean {
 	return nail.typesOfNails === area || nail.typesOfNails === 'both';
 }
