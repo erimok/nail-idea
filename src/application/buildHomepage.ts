@@ -40,7 +40,7 @@ export async function buildHomepage({
 			canonical,
 			socialImage,
 			socialImageAlt: 'AI-generated manicure design with a polished nude finish',
-			structuredData: buildHomepageStructuredData(canonical, description, socialImage, faqItems),
+			structuredData: buildHomepageStructuredData(canonical, description, socialImage, nails.slice(0, 9), faqItems),
 			siteChrome: buildSiteChromeViewModel(nails, editorial, navigationGroups),
 		},
 		nails,

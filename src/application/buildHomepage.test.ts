@@ -11,6 +11,7 @@ describe('buildHomepage', () => {
 		// Arrange
 		const nails = Array.from({ length: 9 }, (_, index) => aNail({
 			slug: `nail-${index + 1}`,
+			image: `/images/nails/nail-${index + 1}.jpg`,
 			colors: ['red'],
 			types: ['french'],
 			shape: 'almond',
@@ -66,6 +67,18 @@ describe('buildHomepage', () => {
 				name: 'CMS question?',
 				acceptedAnswer: { '@type': 'Answer', text: 'CMS answer.' },
 			}],
+		}));
+		expect(result.layout.structuredData?.['@graph']).toContainEqual(expect.objectContaining({
+			'@type': 'ImageGallery',
+			'@id': 'https://nail.ai/#gallery',
+			name: 'Featured nail ideas',
+			associatedMedia: expect.arrayContaining([
+				expect.objectContaining({
+					'@type': 'ImageObject',
+					contentUrl: 'https://nail.ai/images/nails/nail-1.jpg',
+					name: 'Sample nail 1',
+				}),
+			]),
 		}));
 		expect(result.layout.siteChrome.header.browseGroups.map(({ label }) => label)).toEqual([
 			'Type',

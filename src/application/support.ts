@@ -38,6 +38,31 @@ interface CollectionStructuredDataInput {
 	faq: readonly FaqItemViewModel[];
 }
 
+function buildImageGalleryStructuredData(
+	canonical: string,
+	name: string,
+	nails: readonly NailRecord[],
+): Record<string, unknown> {
+	return {
+		'@type': 'ImageGallery',
+		'@id': `${canonical}#gallery`,
+		name,
+		url: canonical,
+		mainEntityOfPage: canonical,
+		associatedMedia: nails.flatMap((nail) => {
+			const imageUrl = nail.imageSrc || nail.image;
+			if (!imageUrl) return [];
+
+			return [{
+				'@type': 'ImageObject',
+				contentUrl: buildCanonicalUrl(canonical, imageUrl),
+				name: nail.title,
+				caption: nail.imageAlt ?? nail.description,
+			}];
+		}),
+	};
+}
+
 const browseGroupDefinitions: readonly { kind: FacetKind; label: string }[] = [
 	{ kind: 'color', label: 'Colors' },
 	{ kind: 'type', label: 'Design styles' },
@@ -306,6 +331,7 @@ export function buildCollectionStructuredData({
 				url: canonical,
 				description,
 				mainEntity: { '@id': `${canonical}#designs` },
+				hasPart: { '@id': `${canonical}#gallery` },
 			},
 			{
 				'@type': 'ItemList',
@@ -316,6 +342,7 @@ export function buildCollectionStructuredData({
 					name: nail.title,
 				})),
 			},
+			buildImageGalleryStructuredData(canonical, heading, nails),
 			{
 				'@type': 'BreadcrumbList',
 				'@id': `${canonical}#breadcrumb`,
@@ -345,6 +372,7 @@ export function buildHomepageStructuredData(
 	canonical: string,
 	description: string,
 	socialImage: string,
+	featured: readonly NailRecord[],
 	faq: readonly FaqItemViewModel[],
 ): Record<string, unknown> {
 	return {
@@ -375,7 +403,9 @@ export function buildHomepageStructuredData(
 				image: socialImage,
 				publisher: { '@id': `${canonical}#organization` },
 				isPartOf: { '@id': `${canonical}#website` },
+				hasPart: { '@id': `${canonical}#gallery` },
 			},
+			buildImageGalleryStructuredData(canonical, 'Featured nail ideas', featured),
 			{
 				'@type': 'FAQPage',
 				'@id': `${canonical}#faq`,

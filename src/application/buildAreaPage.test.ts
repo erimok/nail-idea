@@ -11,6 +11,7 @@ function createPorts(nailCount: number) {
 	const nails = Array.from({ length: nailCount }, (_, index) => aNail({
 		slug: `manicure-${index + 1}`,
 		title: `Manicure ${index + 1}`,
+		image: `/images/nails/manicure-${index + 1}.jpg`,
 		typesOfNails: index === nailCount - 1 ? 'both' : 'manicure',
 		colors: ['red'],
 		types: ['solid'],
@@ -61,6 +62,14 @@ describe('buildAreaPage', () => {
 		// Assert
 		expect(result.layout.noIndex).toBe(false);
 		expect(result.layout.canonical).toBe('https://nail.ai/manicure/');
+		expect(result.layout.structuredData?.['@graph']).toContainEqual(expect.objectContaining({
+			'@type': 'ImageGallery',
+			'@id': 'https://nail.ai/manicure/#gallery',
+			name: 'Manicure ideas',
+			associatedMedia: expect.arrayContaining([
+				expect.objectContaining({ contentUrl: 'https://nail.ai/images/nails/manicure-1.jpg' }),
+			]),
+		}));
 		expect(result.relatedLinks?.title).toBe('You may like');
 		expect(result.relatedLinks?.groups.find(({ label }) => label === 'Combinations')?.links).toContainEqual(
 			{ label: 'Red Solid', href: '/manicure/red-solid-nails/' },
