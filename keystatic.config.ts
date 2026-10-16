@@ -49,9 +49,10 @@ export default config({
 			label: 'Nails',
 			slugField: 'title',
 			path: 'src/content/nails/*',
-			columns: ['typesOfNails', 'shape', 'title', 'length'],
+			columns: ['typesOfNails', 'shape', 'title', 'length', 'created_at'],
 			schema: {
 				title: fields.slug({ name: { label: 'Name (shape-length-color-style)' } }),
+				created_at: fields.datetime({ label: 'Created at', defaultValue: { kind: 'now' } }),
 				image: fields.image({
 					label: 'Image',
 					directory: 'src/assets/images/nails',
