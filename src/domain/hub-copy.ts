@@ -30,6 +30,15 @@ export interface HubCopy {
 type HubCopyPage = Pick<NailFacetPage, 'area' | 'kind' | 'value' | 'facets' | 'slug' | 'nails' | 'editorial'>;
 type RelatedCandidate = Pick<NailFacetPage, 'area' | 'facets' | 'slug' | 'nails'>;
 
+const proseFacetNames: Readonly<Record<string, string>> = {
+	french: 'French tip',
+	'micro french': 'micro French',
+};
+
+function proseDisplay(values: readonly string[]): string {
+	return values.map((value) => proseFacetNames[value] ?? value).join(' ');
+}
+
 function capitalize(value: string): string {
 	return value.charAt(0).toUpperCase() + value.slice(1);
 }
@@ -121,13 +130,13 @@ function buildIntro(
 		?? (page.kind === 'combination' ? `${display} nails bring a few favorite details together in one look.` : facetKindMoods[page.kind](display));
 	const browse = subfacets.length > 0
 		? ` Browse ${joinList(subfacets, 'and')} ${page.area} ideas`
-		: ` Browse ${display.toLowerCase()} ${page.area} ideas`;
+		: ` Browse ${display} ${page.area} ideas`;
 	const segments: IntroSegment[] = [{ text: `${mood}${browse}` }];
 
 	if (related.length > 0) {
 		segments.push({ text: ', or jump to ' });
 		related.forEach((hub, index) => {
-			const label = hub.facets.map((facet) => facet.value).join(' ');
+			const label = proseDisplay(hub.facets.map((facet) => facet.value));
 			if (index > 0) segments.push({ text: index === related.length - 1 ? ' and ' : ', ' });
 			segments.push({ text: `${label} ${page.area}`, href: buildFacetRoute(hub.area, hub.slug) });
 		});
@@ -143,9 +152,10 @@ export function countIntroWords(intro: readonly IntroSegment[]): number {
 }
 
 export function generateHubCopy(page: HubCopyPage, indexableHubs: readonly RelatedCandidate[]): HubCopy {
-	const subfacets = topSubfacets(page);
-	const display = page.facets.map((facet) => facet.value).join(' ');
-	const subject = `${display.toLowerCase()} ${page.area}`;
+	const rawSubfacets = topSubfacets(page);
+	const subfacets = rawSubfacets.map((value) => proseDisplay([value]));
+	const display = proseDisplay(page.facets.map((facet) => facet.value));
+	const subject = `${display} ${page.area}`;
 	const generatedDescription = buildDescription(subject, subfacets);
 	const editorial = page.editorial;
 
@@ -155,6 +165,6 @@ export function generateHubCopy(page: HubCopyPage, indexableHubs: readonly Relat
 		heading: `${capitalize(display)} ${page.area} ideas`,
 		intro: editorial?.intro.trim()
 			? [{ text: editorial.intro }]
-			: buildIntro(page, capitalize(display), subfacets, rankRelatedHubs(page, subfacets, indexableHubs)),
+			: buildIntro(page, capitalize(display), subfacets, rankRelatedHubs(page, rawSubfacets, indexableHubs)),
 	};
 }

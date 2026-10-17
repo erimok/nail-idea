@@ -177,6 +177,20 @@ describe('generateHubCopy', () => {
 		expect(copy.intro[0]?.text).toContain('A micro French style');
 	});
 
+	it('words the French type as French tip with a capital F', () => {
+		// Arrange
+		const nails = Array.from({ length: MIN_DESIGNS_FOR_INDEX }, () => aNail({ colors: ['pink'], types: ['french'] }));
+		const { page, pages } = pageFor(nails, 'pink-french-nails');
+
+		// Act
+		const copy = generateHubCopy(page, pages.filter(isIndexable));
+
+		// Assert
+		expect(copy.title.startsWith('Pink French tip Nail Designs')).toBe(true);
+		expect(copy.heading).toBe('Pink French tip manicure ideas');
+		expect(copy.description).toContain('pink French tip manicure');
+	});
+
 	it('prefers curated editorial over generated copy', () => {
 		// Arrange
 		const { page, pages } = pageFor(burgundyNails(), 'burgundy-nails');

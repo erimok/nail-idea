@@ -17,7 +17,10 @@ try {
 	for (const entry of sourceEntries) {
 		if (!entry.isDirectory()) continue;
 
-		const sourceImage = join(sourceDirectory, entry.name, `${entry.name}.jpg`);
+		const imageFiles = (await readdir(join(sourceDirectory, entry.name))).filter((filename) => /\.jpe?g$/i.test(filename));
+		const imageBase = imageFiles.includes(`${entry.name}.jpg`) ? entry.name : imageFiles[0]?.replace(/\.jpe?g$/i, '');
+		if (!imageBase) throw new Error(`No JPEG found in ${join(sourceDirectory, entry.name)}`);
+		const sourceImage = join(sourceDirectory, entry.name, `${imageBase}.jpg`);
 		await writeMetadata(sourceImage, {
 			'IPTC:Caption-Abstract': description,
 			'IPTC:SpecialInstructions': instructions,
@@ -33,7 +36,7 @@ try {
 		sourceCount += 1;
 
 		const variants = generatedImages.filter((filename) =>
-			filename.startsWith(`${entry.name}.`) && /\.(avif|webp)$/.test(filename),
+			filename.startsWith(`${imageBase}.`) && /\.(avif|webp)$/.test(filename),
 		);
 		for (const filename of variants) {
 			const outputImage = join(outputDirectory, filename);
