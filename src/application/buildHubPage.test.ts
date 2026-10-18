@@ -31,8 +31,8 @@ describe('buildHubPage', () => {
 
 		// Assert
 		expect(result.layout.noIndex).toBe(true);
-		expect(result.heading).toBe('Red manicure ideas');
-		expect(result.layout.title).toMatch(/^Red Nail Designs/);
+		expect(result.heading).toBe('Red Nails: 1 Idea');
+		expect(result.layout.title).toBe('Red Nail Ideas (2026): Glossy & Solid | Nail.ai');
 		expect(result.intro?.length).toBeGreaterThan(0);
 	});
 

@@ -38,7 +38,7 @@ export async function buildHubPage(
 	}
 
 	const relatedPages = pages.filter((candidate) => candidate.area === area);
-	const copy = generateHubCopy(page, relatedPages.filter(isIndexable));
+	const copy = generateHubCopy(page, relatedPages.filter(isIndexable), siteConfig.currentYear);
 	const pageNailSlugs = new Set(page.nails.map((nail) => nail.slug));
 	const canonical = buildCanonicalUrl(siteConfig.siteUrl, buildFacetRoute(area, slug));
 	const facetLabel = formatFacetBreadcrumbLabel(page);

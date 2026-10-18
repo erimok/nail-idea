@@ -11,9 +11,11 @@ interface SiteConfigEnvironment {
 
 export class EnvSiteConfig implements SiteConfig {
 	readonly siteUrl: string;
+	readonly currentYear: number;
 
-	constructor(environment: SiteConfigEnvironment = process.env) {
+	constructor(environment: SiteConfigEnvironment = process.env, now: Date = new Date()) {
 		const { SITE_URL } = siteConfigSchema.parse(environment);
 		this.siteUrl = SITE_URL;
+		this.currentYear = now.getFullYear();
 	}
 }

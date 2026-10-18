@@ -14,6 +14,8 @@ import {
 } from './hub-copy';
 import { MIN_DESIGNS_FOR_INDEX, isIndexable } from './indexability';
 
+const YEAR = 2026;
+
 function burgundyNails(count = MIN_DESIGNS_FOR_INDEX) {
 	return Array.from({ length: count }, (_, index) => aNail({
 		colors: ['burgundy'],
@@ -95,7 +97,7 @@ describe('generateHubCopy', () => {
 		const { pages } = pageFor(nails, 'burgundy-nails');
 
 		// Act
-		const results = pages.map((page) => generateHubCopy(page, pages.filter(isIndexable)));
+		const results = pages.map((page) => generateHubCopy(page, pages.filter(isIndexable), YEAR));
 
 		// Assert
 		for (const copy of results) {
@@ -111,11 +113,53 @@ describe('generateHubCopy', () => {
 		const { page, pages } = pageFor(burgundyNails(), 'burgundy-nails');
 
 		// Act
-		const copy = generateHubCopy(page, pages.filter(isIndexable));
+		const copy = generateHubCopy(page, pages.filter(isIndexable), YEAR);
 
 		// Assert
-		expect(copy.title).toBe('Burgundy Nail Designs: Matte, Party & Short Ideas | Nail.ai');
-		expect(copy.heading).toBe('Burgundy manicure ideas');
+		expect(copy.title).toBe('Burgundy Nail Ideas (2026): Almond & Oval | Nail.ai');
+		expect(copy.heading).toBe('Burgundy Nails: 6 Ideas for Every Shape');
+	});
+
+	it('builds the French tip title from shapes and the heading from design count, shapes and lengths', () => {
+		// Arrange
+		const shapes = ['almond', 'coffin', 'square'] as const;
+		const lengths = ['short', 'long'] as const;
+		const nails = Array.from({ length: MIN_DESIGNS_FOR_INDEX }, (_, index) => aNail({
+			types: ['french'],
+			shape: shapes[index % shapes.length],
+			length: lengths[index % lengths.length],
+		}));
+		const { page, pages } = pageFor(nails, 'french-nails');
+
+		// Act
+		const copy = generateHubCopy(page, pages.filter(isIndexable), YEAR);
+
+		// Assert
+		expect(copy.title).toBe('French Tip Nail Ideas (2026): Almond, Coffin & Square | Nail.ai');
+		expect(copy.heading).toBe('French Tip Nails: 6 Ideas for Every Shape and Length');
+	});
+
+	it('uses the supplied year in the title', () => {
+		// Arrange
+		const { page, pages } = pageFor(burgundyNails(), 'burgundy-nails');
+
+		// Act
+		const copy = generateHubCopy(page, pages.filter(isIndexable), 2031);
+
+		// Assert
+		expect(copy.title).toContain('(2031)');
+	});
+
+	it('omits the coverage phrase when designs do not vary by shape or length', () => {
+		// Arrange
+		const nails = Array.from({ length: MIN_DESIGNS_FOR_INDEX }, () => aNail({ colors: ['burgundy'], shape: 'almond', length: 'short' }));
+		const { page, pages } = pageFor(nails, 'burgundy-nails');
+
+		// Act
+		const copy = generateHubCopy(page, pages.filter(isIndexable), YEAR);
+
+		// Assert
+		expect(copy.heading).toBe('Burgundy Nails: 6 Ideas');
 	});
 
 	it('writes an intro of 40-70 words that links to related hubs', () => {
@@ -124,7 +168,7 @@ describe('generateHubCopy', () => {
 		const indexable = pages.filter(isIndexable);
 
 		// Act
-		const results = indexable.map((page) => generateHubCopy(page, indexable));
+		const results = indexable.map((page) => generateHubCopy(page, indexable, YEAR));
 
 		// Assert
 		for (const { intro } of results) {
@@ -140,7 +184,7 @@ describe('generateHubCopy', () => {
 		const { page, pages } = pageFor(burgundyNails(), 'burgundy-nails');
 
 		// Act
-		const copy = generateHubCopy(page, pages.filter(isIndexable));
+		const copy = generateHubCopy(page, pages.filter(isIndexable), YEAR);
 
 		// Assert
 		expect(copy.intro[0]?.text.startsWith('Burgundy is the nail color')).toBe(true);
@@ -156,11 +200,11 @@ describe('generateHubCopy', () => {
 		const { page, pages } = pageFor(nails, 'long-almond-nails');
 
 		// Act
-		const copy = generateHubCopy(page, pages.filter(isIndexable));
+		const copy = generateHubCopy(page, pages.filter(isIndexable), YEAR);
 
 		// Assert
-		expect(copy.title.startsWith('Long almond Nail Designs')).toBe(true);
-		expect(copy.heading.startsWith('Long almond manicure ideas')).toBe(true);
+		expect(copy.title.startsWith('Long Almond Nail Ideas')).toBe(true);
+		expect(copy.heading.startsWith('Long Almond Nails:')).toBe(true);
 	});
 
 	it('uses the canonical micro French spelling in generated hub prose', () => {
@@ -171,7 +215,7 @@ describe('generateHubCopy', () => {
 		const { page, pages } = pageFor(nails, 'micro-french-nails');
 
 		// Act
-		const copy = generateHubCopy(page, pages.filter(isIndexable));
+		const copy = generateHubCopy(page, pages.filter(isIndexable), YEAR);
 
 		// Assert
 		expect(copy.intro[0]?.text).toContain('A micro French style');
@@ -183,11 +227,11 @@ describe('generateHubCopy', () => {
 		const { page, pages } = pageFor(nails, 'pink-french-nails');
 
 		// Act
-		const copy = generateHubCopy(page, pages.filter(isIndexable));
+		const copy = generateHubCopy(page, pages.filter(isIndexable), YEAR);
 
 		// Assert
-		expect(copy.title.startsWith('Pink French tip Nail Designs')).toBe(true);
-		expect(copy.heading).toBe('Pink French tip manicure ideas');
+		expect(copy.title.startsWith('Pink French Tip Nail Ideas')).toBe(true);
+		expect(copy.heading).toBe('Pink French Tip Nails: 6 Ideas');
 		expect(copy.description).toContain('pink French tip manicure');
 	});
 
@@ -197,7 +241,7 @@ describe('generateHubCopy', () => {
 		const editorial = aHub({ intro: 'Curated.', metaDescription: 'Curated meta.' });
 
 		// Act
-		const copy = generateHubCopy({ ...page, editorial }, pages);
+		const copy = generateHubCopy({ ...page, editorial }, pages, YEAR);
 
 		// Assert
 		expect(copy.intro).toEqual([{ text: 'Curated.' }]);
@@ -211,7 +255,7 @@ describe('generateHubCopy', () => {
 		const page = pages.reduce((longest, candidate) => candidate.slug.length > longest.slug.length ? candidate : longest);
 
 		// Act
-		const copy = generateHubCopy(page, []);
+		const copy = generateHubCopy(page, [], YEAR);
 
 		// Assert
 		expect(copy.title.length).toBeLessThanOrEqual(MAX_TITLE_LENGTH);

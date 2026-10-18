@@ -1,10 +1,10 @@
 import type { NailArea } from './areas';
 import { isSubpageOfFacetPage, type NailFacetPage } from './facet-combinations';
-import { facetKinds, getFacetValues } from './facets/registry';
+import { facetKinds, getFacetValues, type FacetKind } from './facets/registry';
 import { facetKindMoods, facetMoods } from './hub-moods';
 import { buildFacetRoute } from './routes';
 
-export const MAX_TITLE_LENGTH = 60;
+export const MAX_TITLE_LENGTH = 65;
 export const MAX_DESCRIPTION_LENGTH = 160;
 export const MIN_INTRO_WORDS = 40;
 export const MAX_INTRO_WORDS = 70;
@@ -14,8 +14,20 @@ export const MAX_INTRO_LINKS = 3;
 const SITE_SUFFIX = ' | Nail.ai';
 
 const areaTitleNouns: Readonly<Record<NailArea, string>> = {
-	manicure: 'Nail Designs',
+	manicure: 'Nail Ideas',
 	pedicure: 'Pedicure Ideas',
+};
+
+const areaHeadingNouns: Readonly<Record<NailArea, string>> = {
+	manicure: 'Nails',
+	pedicure: 'Pedicures',
+};
+
+// Facet kinds that readers browse by, in the order the title and H1 mention them.
+const headlineFacetKinds: readonly FacetKind[] = ['shape', 'length'];
+const headlineFacetLabels: Readonly<Partial<Record<FacetKind, string>>> = {
+	shape: 'Shape',
+	length: 'Length',
 };
 
 export type IntroSegment = { text: string; href?: string };
@@ -43,17 +55,25 @@ function capitalize(value: string): string {
 	return value.charAt(0).toUpperCase() + value.slice(1);
 }
 
+function titleCase(value: string): string {
+	return value.split(' ').map(capitalize).join(' ');
+}
+
 function joinList(items: readonly string[], conjunction: string): string {
 	if (items.length <= 1) return items.join('');
 	return `${items.slice(0, -1).join(', ')} ${conjunction} ${items[items.length - 1]}`;
 }
 
-export function topSubfacets(page: Pick<HubCopyPage, 'facets' | 'nails'>, limit = MAX_SUBFACETS): string[] {
+export function topSubfacets(
+	page: Pick<HubCopyPage, 'facets' | 'nails'>,
+	limit = MAX_SUBFACETS,
+	kinds: readonly FacetKind[] = facetKinds,
+): string[] {
 	const pageKinds = new Set(page.facets.map((facet) => facet.kind));
 	const pageValues = new Set(page.facets.map((facet) => facet.value));
 	const counts = new Map<string, number>();
 
-	for (const kind of facetKinds) {
+	for (const kind of kinds) {
 		if (pageKinds.has(kind)) continue;
 		for (const nail of page.nails) {
 			for (const value of getFacetValues(nail, kind)) {
@@ -91,23 +111,45 @@ export function rankRelatedHubs<T extends RelatedCandidate>(
 		.map(({ candidate }) => candidate);
 }
 
-function buildTitle(display: string, area: NailArea, subfacets: readonly string[]): string {
-	const noun = areaTitleNouns[area];
+function titleSubfacets(page: Pick<HubCopyPage, 'facets' | 'nails'>): string[] {
+	for (const kind of headlineFacetKinds) {
+		const values = topSubfacets(page, MAX_SUBFACETS, [kind]);
+		if (values.length > 0) return values.map((value) => proseDisplay([value]));
+	}
+
+	return topSubfacets(page).map((value) => proseDisplay([value]));
+}
+
+function buildTitle(display: string, area: NailArea, subfacets: readonly string[], year: number): string {
+	const base = `${display} ${areaTitleNouns[area]} (${year})`;
 	const words = display.split(' ');
 
 	for (let count = subfacets.length; count >= 0; count -= 1) {
-		const details = count > 0 ? `: ${joinList(subfacets.slice(0, count).map(capitalize), '&')} Ideas` : '';
-		const title = `${display} ${noun}${details}${SITE_SUFFIX}`;
+		const details = count > 0 ? `: ${joinList(subfacets.slice(0, count).map(titleCase), '&')}` : '';
+		const title = `${base}${details}${SITE_SUFFIX}`;
 		if (title.length <= MAX_TITLE_LENGTH) return title;
 	}
 
 	while (words.length > 1) {
 		words.pop();
-		const title = `${words.join(' ')} ${noun}${SITE_SUFFIX}`;
+		const title = `${words.join(' ')} ${areaTitleNouns[area]} (${year})${SITE_SUFFIX}`;
 		if (title.length <= MAX_TITLE_LENGTH) return title;
 	}
 
 	return `${words[0]}${SITE_SUFFIX}`.slice(0, MAX_TITLE_LENGTH);
+}
+
+function buildHeading(page: HubCopyPage, display: string): string {
+	const pageKinds = new Set(page.facets.map((facet) => facet.kind));
+	const variedKinds = headlineFacetKinds
+		.filter((kind) => !pageKinds.has(kind))
+		.filter((kind) => new Set(page.nails.flatMap((nail) => getFacetValues(nail, kind))).size > 1)
+		.map((kind) => headlineFacetLabels[kind] ?? capitalize(kind));
+	const count = page.nails.length;
+	const ideas = `${count} ${count === 1 ? 'Idea' : 'Ideas'}`;
+	const coverage = variedKinds.length > 0 ? ` for Every ${joinList(variedKinds, 'and')}` : '';
+
+	return `${display} ${areaHeadingNouns[page.area]}: ${ideas}${coverage}`;
 }
 
 function buildDescription(subject: string, subfacets: readonly string[]): string {
@@ -151,7 +193,7 @@ export function countIntroWords(intro: readonly IntroSegment[]): number {
 	return intro.map(({ text }) => text).join('').split(/\s+/).filter(Boolean).length;
 }
 
-export function generateHubCopy(page: HubCopyPage, indexableHubs: readonly RelatedCandidate[]): HubCopy {
+export function generateHubCopy(page: HubCopyPage, indexableHubs: readonly RelatedCandidate[], year: number): HubCopy {
 	const rawSubfacets = topSubfacets(page);
 	const subfacets = rawSubfacets.map((value) => proseDisplay([value]));
 	const display = proseDisplay(page.facets.map((facet) => facet.value));
@@ -160,9 +202,9 @@ export function generateHubCopy(page: HubCopyPage, indexableHubs: readonly Relat
 	const editorial = page.editorial;
 
 	return {
-		title: buildTitle(capitalize(display), page.area, subfacets),
+		title: buildTitle(titleCase(display), page.area, titleSubfacets(page), year),
 		description: editorial?.metaDescription.trim() || generatedDescription,
-		heading: `${capitalize(display)} ${page.area} ideas`,
+		heading: buildHeading(page, titleCase(display)),
 		intro: editorial?.intro.trim()
 			? [{ text: editorial.intro }]
 			: buildIntro(page, capitalize(display), subfacets, rankRelatedHubs(page, rawSubfacets, indexableHubs)),
