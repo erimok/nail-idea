@@ -9,6 +9,24 @@ interface Props {
 const { items } = Astro.props;
 ---
 
-<div class="grid grid-cols-1 gap-4 sm:gap-5 sm:grid-cols-2 lg:grid-cols-3">
+<div class="grid grid-cols-1 gap-4 sm:gap-5 sm:grid-cols-2 lg:grid-cols-3" data-gallery-grid>
 	{items.map(({ nail, eager }) => <NailCard nail={nail} eager={eager} />)}
 </div>
+<dialog data-gallery-dialog aria-label="Image gallery" class="m-auto h-dvh max-h-none w-screen max-w-none bg-transparent p-0 backdrop:bg-ink/90">
+	<figure class="flex h-full w-full flex-col items-center justify-center gap-3 p-4 sm:p-10">
+		<img data-gallery-image alt="" class="max-h-[80dvh] max-w-full rounded-card object-contain" />
+		<figcaption data-gallery-caption class="text-center text-sm text-white"></figcaption>
+	</figure>
+	<button type="button" data-gallery-close aria-label="Close gallery" class="absolute right-4 top-4 flex size-11 cursor-pointer items-center justify-center rounded-full bg-white/90 text-xl text-ink">×</button>
+	<button type="button" data-gallery-prev aria-label="Previous image" class="absolute left-4 top-1/2 flex size-11 -translate-y-1/2 cursor-pointer items-center justify-center rounded-full bg-white/90 text-xl text-ink">‹</button>
+	<button type="button" data-gallery-next aria-label="Next image" class="absolute right-4 top-1/2 flex size-11 -translate-y-1/2 cursor-pointer items-center justify-center rounded-full bg-white/90 text-xl text-ink">›</button>
+</dialog>
+
+<script>
+	import { initGridGallery } from '../libs/gallery/grid-gallery';
+
+	document.querySelectorAll<HTMLElement>('[data-gallery-grid]').forEach((grid) => {
+		const dialog = grid.nextElementSibling;
+		if (dialog instanceof HTMLDialogElement) initGridGallery(grid, dialog);
+	});
+</script>

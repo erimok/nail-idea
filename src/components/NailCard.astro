@@ -1,5 +1,5 @@
 ---
-import { Picture } from 'astro:assets';
+import { getImage, Picture } from 'astro:assets';
 import type { NailRecord } from '../libs/ai/nail-search';
 import { getNailImageMetadata } from '../libs/nail-images';
 
@@ -10,10 +10,19 @@ interface Props {
 
 const { nail, eager = false } = Astro.props;
 const image = getNailImageMetadata(nail.image);
+const full = await getImage({ src: image, width: 1600, format: 'webp' });
 const meta = [nail.length, nail.shape, ...nail.finishes].filter(Boolean);
 ---
 
 <article class="group flex h-full flex-col overflow-hidden rounded-card border border-line bg-surface p-1.5 shadow-soft transition duration-300 hover:-translate-y-1 hover:shadow-lift">
+	<button
+		type="button"
+		class="group/zoom relative block w-full cursor-zoom-in rounded-[1.1rem] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-olive"
+		aria-label={`View full image: ${nail.title}`}
+		data-gallery-src={full.src}
+		data-gallery-alt={nail.imageAlt ?? nail.description}
+		data-gallery-caption={nail.title}
+	>
 	<Picture
 		src={image}
 		alt={nail.imageAlt ?? nail.description}
@@ -29,6 +38,8 @@ const meta = [nail.length, nail.shape, ...nail.finishes].filter(Boolean);
 		class="h-full w-full rounded-[1.1rem] object-cover transition duration-700 group-hover:scale-[1.03]"
 		pictureAttributes={{ class: 'block aspect-[4/3] w-full overflow-hidden rounded-[1.1rem]' }}
 	/>
+	<span aria-hidden="true" class="pointer-events-none absolute bottom-3 right-3 flex size-9 items-center justify-center rounded-full bg-white/90 text-ink shadow-soft transition group-hover/zoom:scale-110 group-hover/zoom:bg-white"><svg aria-hidden="true" class="size-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7" /></svg></span>
+	</button>
 	<div class="flex flex-1 flex-col gap-2 px-4 pb-4 pt-3">
 		<h3 class="line-clamp-2 font-display text-xl font-semibold leading-tight text-ink">{nail.title}</h3>
 		<p class="line-clamp-2 text-sm leading-6 text-muted">{nail.description}</p>
