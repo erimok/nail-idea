@@ -21,6 +21,8 @@ Implemented static pages:
 
 ```txt
 /
+/{area}/{slug}.md # Markdown representation of an indexable hub
+/llms.txt # index of indexable hub Markdown pages
 {manicure|pedicure}/
 # top level
 {manicure|pedicure}/{shape}-nails/ # manicure/almond-nails/
@@ -74,6 +76,11 @@ Planned routes:
 {manicure|pedicure}/comparison/{type}-vs-{type}/
 {manicure|pedicure}/guide/{type}/
 ```
+
+Each indexable hub also has a static Markdown representation at
+`/{area}/{slug}.md`. `/llms.txt` links to these files, grouped by area. Both
+outputs use the hub page view models and exclude routes that fail the shared
+indexability rule.
 
 ## Product ideas
 

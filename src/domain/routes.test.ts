@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { buildAreaRoute, buildFacetRoute } from './routes';
+import { buildAreaRoute, buildFacetMarkdownRoute, buildFacetRoute } from './routes';
 
 describe('domain routes', () => {
 	it('builds area and facet routes', () => {
@@ -8,9 +8,9 @@ describe('domain routes', () => {
 		const slug = 'rose-gold-nails';
 
 		// Act
-		const result = [buildAreaRoute(area), buildFacetRoute(area, slug)];
+		const result = [buildAreaRoute(area), buildFacetRoute(area, slug), buildFacetMarkdownRoute(area, slug)];
 
 		// Assert
-		expect(result).toEqual(['/manicure/', '/manicure/rose-gold-nails/']);
+		expect(result).toEqual(['/manicure/', '/manicure/rose-gold-nails/', '/manicure/rose-gold-nails.md']);
 	});
 });

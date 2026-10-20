@@ -27,6 +27,29 @@ describe('listHubRoutes', () => {
 		);
 	});
 
+	it('lists only indexable hubs for Markdown routes', async () => {
+		// Arrange
+		const nails = [
+			...Array.from({ length: 6 }, (_, index) => aNail({
+				slug: `red-${index + 1}`,
+				colors: ['red'],
+				types: ['solid'],
+			})),
+			aNail({ slug: 'blue-1', colors: ['blue'], types: ['solid'] }),
+		];
+		const ports = {
+			nailRepository: new InMemoryNailRepository(nails),
+			hubRepository: new InMemoryHubRepository([]),
+		};
+
+		// Act
+		const result = await listHubRoutes(ports);
+
+		// Assert
+		expect(result.indexableHubRoutes).toContainEqual({ area: 'manicure', slug: 'red-nails' });
+		expect(result.indexableHubRoutes).not.toContainEqual({ area: 'manicure', slug: 'blue-nails' });
+	});
+
 	it('propagates duplicate slug errors from the domain route generator', async () => {
 		// Arrange
 		const ports = {

@@ -19,6 +19,15 @@ async function getHtmlFiles(directory) {
 	return nested.flat();
 }
 
+async function getMarkdownFiles(directory) {
+	const entries = await readdir(directory, { withFileTypes: true });
+	const nested = await Promise.all(entries.map((entry) => {
+		const entryPath = path.join(directory, entry.name);
+		return entry.isDirectory() ? getMarkdownFiles(entryPath) : entry.name.endsWith('.md') ? [entryPath] : [];
+	}));
+	return nested.flat();
+}
+
 test('production sitemap includes only indexable routes', async () => {
 	const indexXml = await readFile(path.join(distDirectory, 'sitemap-index.xml'), 'utf8');
 	const sitemapLocations = getLocations(indexXml);
@@ -32,10 +41,30 @@ test('production sitemap includes only indexable routes', async () => {
 
 	const pagePaths = pageLocations.map((location) => new URL(location));
 	const hasPath = (pathname) => pagePaths.some((url) => url.origin === siteUrl.origin && url.pathname === pathname);
+	const llmsIndex = await readFile(path.join(distDirectory, 'llms.txt'), 'utf8');
+	const markdownFiles = await getMarkdownFiles(distDirectory);
+	const markdownPaths = markdownFiles.map((file) => `/${path.relative(distDirectory, file)}`);
+	const llmsMarkdownPaths = [...llmsIndex.matchAll(/\]\((https?:[^)]+\.md)\)/g)]
+		.map(([, url]) => new URL(url).pathname);
+	const sitemapHubPaths = pagePaths
+		.filter((url) => /^\/(?:manicure|pedicure)\/.+\/$/.test(url.pathname))
+		.map((url) => `${url.pathname.slice(0, -1)}.md`);
+
+	assert.deepEqual(markdownPaths.sort(), sitemapHubPaths.sort(), 'every indexable hub should have exactly one Markdown file');
+	assert.deepEqual(llmsMarkdownPaths.sort(), markdownPaths.sort(), 'llms.txt should link to every generated Markdown page and no others');
+	for (const markdownPath of markdownPaths) {
+		const markdown = await readFile(path.join(distDirectory, markdownPath), 'utf8');
+		for (const [, imageUrl] of markdown.matchAll(/\]\((https?:[^)]+\/_astro\/[^)]+)\)/g)) {
+			const imageFile = path.join(distDirectory, new URL(imageUrl).pathname);
+			assert.ok(await access(imageFile).then(() => true).catch(() => false), `${markdownPath} links to missing image ${imageUrl}`);
+		}
+	}
+
 	assert.ok(hasPath('/'), 'sitemap should include the homepage');
 	assert.ok(hasPath('/manicure/'), 'sitemap should include the manicure page');
 	assert.ok(!hasPath('/pedicure/'), 'empty pedicure page should not be in the sitemap');
 
+	let noindexHubPath;
 	for (const htmlFile of await getHtmlFiles(distDirectory)) {
 		const html = await readFile(htmlFile, 'utf8');
 		const document = new JSDOM(html).window.document;
@@ -55,6 +84,7 @@ test('production sitemap includes only indexable routes', async () => {
 		}
 		if (document.querySelector('meta[name="robots"][content="noindex,follow"]')) {
 			assert.ok(!hasPath(pathname), `noindex page ${pathname} must not appear in the sitemap`);
+			if (/^\/(?:manicure|pedicure)\/[^/]+\/$/.test(pathname)) noindexHubPath ??= pathname;
 		}
 	}
 
@@ -91,7 +121,11 @@ test('production sitemap includes only indexable routes', async () => {
 	assert.match(robots, /Disallow: \/keystatic/);
 	assert.match(robots, /Disallow: \/api\/keystatic/);
 
-	const thinFacet = await readFile(path.join(distDirectory, 'manicure', 'burgundy-nails', 'index.html'), 'utf8');
+	assert.ok(noindexHubPath, 'there should be at least one noindex hub for the exclusion check');
+	const markdownPathForNoindexHub = `${noindexHubPath.slice(0, -1)}.md`;
+	assert.ok(!markdownPaths.includes(markdownPathForNoindexHub), 'noindex hubs must not have Markdown files');
+	assert.ok(!llmsMarkdownPaths.includes(markdownPathForNoindexHub), 'noindex hubs must not appear in llms.txt');
+	const thinFacet = await readFile(path.join(distDirectory, noindexHubPath.replace(/^\//, ''), 'index.html'), 'utf8');
 	assert.match(thinFacet, /<meta name="robots" content="noindex,follow"/);
 	assert.doesNotMatch(thinFacet, /\b\d+ designs\b/);
 	assert.ok(!(await access(path.join(distDirectory, 'manicure', 'almond-short-nude-micro-french', 'index.html')).then(() => true).catch(() => false)), 'individual nail detail pages are intentionally not generated');

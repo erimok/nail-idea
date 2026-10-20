@@ -7,3 +7,7 @@ export function buildAreaRoute(area: NailArea): string {
 export function buildFacetRoute(area: NailArea, slug: string): string {
 	return `${buildAreaRoute(area)}${slug}/`;
 }
+
+export function buildFacetMarkdownRoute(area: NailArea, slug: string): string {
+	return `${buildAreaRoute(area)}${slug}.md`;
+}

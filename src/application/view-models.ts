@@ -95,4 +95,16 @@ export interface StaticPageViewModel {
 export interface HubRouteListing {
 	areaRoutes: readonly { area: NailArea }[];
 	hubRoutes: readonly { area: NailArea; slug: string }[];
+	indexableHubRoutes: readonly { area: NailArea; slug: string }[];
+}
+
+export interface LlmsIndexViewModel {
+	areas: readonly {
+		area: NailArea;
+		pages: readonly {
+			title: string;
+			description: string;
+			markdownUrl: string;
+		}[];
+	}[];
 }
