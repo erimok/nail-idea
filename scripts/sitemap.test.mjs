@@ -120,6 +120,9 @@ test('production sitemap includes only indexable routes', async () => {
 	const robots = await readFile(path.join(distDirectory, 'robots.txt'), 'utf8');
 	assert.match(robots, /Disallow: \/keystatic/);
 	assert.match(robots, /Disallow: \/api\/keystatic/);
+	assert.match(robots, /User-agent: Googlebot[\s\S]*?Disallow: \/\*\.md\$/);
+	assert.match(robots, /User-agent: GPTBot[\s\S]*?Allow: \/llms\.txt[\s\S]*?Allow: \/\*\.md\$/);
+	assert.match(await readFile(path.join(distDirectory, '_headers'), 'utf8'), /\/\*\.md\n\s+X-Robots-Tag: noindex, follow/);
 
 	assert.ok(noindexHubPath, 'there should be at least one noindex hub for the exclusion check');
 	const markdownPathForNoindexHub = `${noindexHubPath.slice(0, -1)}.md`;
@@ -127,6 +130,9 @@ test('production sitemap includes only indexable routes', async () => {
 	assert.ok(!llmsMarkdownPaths.includes(markdownPathForNoindexHub), 'noindex hubs must not appear in llms.txt');
 	const thinFacet = await readFile(path.join(distDirectory, noindexHubPath.replace(/^\//, ''), 'index.html'), 'utf8');
 	assert.match(thinFacet, /<meta name="robots" content="noindex,follow"/);
+	assert.doesNotMatch(thinFacet, /rel="alternate" type="text\/markdown"/);
+	const indexableHub = await readFile(path.join(distDirectory, markdownPaths[0].replace(/\.md$/, ''), 'index.html'), 'utf8');
+	assert.ok(indexableHub.includes(`<link rel="alternate" type="text/markdown" href="${new URL(markdownPaths[0], siteUrl)}"`), 'indexable hubs should link their Markdown alternate');
 	assert.doesNotMatch(thinFacet, /\b\d+ designs\b/);
 	assert.ok(!(await access(path.join(distDirectory, 'manicure', 'almond-short-nude-micro-french', 'index.html')).then(() => true).catch(() => false)), 'individual nail detail pages are intentionally not generated');
 

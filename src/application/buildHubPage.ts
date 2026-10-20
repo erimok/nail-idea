@@ -2,7 +2,7 @@ import { getAllFacetPages, isDirectSubpageOfFacetPage } from '../domain/facet-co
 import type { NailArea } from '../domain/areas';
 import { generateHubCopy } from '../domain/hub-copy';
 import { isIndexable } from '../domain/indexability';
-import { buildAreaRoute, buildFacetRoute } from '../domain/routes';
+import { buildAreaRoute, buildFacetMarkdownRoute, buildFacetRoute } from '../domain/routes';
 import type { SitePorts } from './ports';
 import {
 	attachHubEditorial,
@@ -53,6 +53,9 @@ export async function buildHubPage(
 			title: copy.title,
 			description: copy.description,
 			canonical,
+			markdownAlternate: isIndexable(page)
+				? buildCanonicalUrl(siteConfig.siteUrl, buildFacetMarkdownRoute(area, slug))
+				: undefined,
 			noIndex: !isIndexable(page),
 			structuredData: buildCollectionStructuredData({
 				canonical,

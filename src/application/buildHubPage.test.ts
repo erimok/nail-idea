@@ -48,6 +48,29 @@ describe('buildHubPage', () => {
 		expect(result.layout.noIndex).toBe(false);
 	});
 
+	it('points indexable hubs to their Markdown alternate', async () => {
+		// Arrange
+		const nails = Array.from({ length: MIN_DESIGNS_FOR_INDEX }, () => aNail({ colors: ['red'], types: ['solid'], finishes: ['glossy'] }));
+		const ports = createPorts(nails);
+
+		// Act
+		const result = await buildHubPage(ports, { area: 'manicure', slug: 'red-nails' });
+
+		// Assert
+		expect(result.layout.markdownAlternate).toBe(new URL('/manicure/red-nails.md', ports.siteConfig.siteUrl).toString());
+	});
+
+	it('omits the Markdown alternate for noindex hubs', async () => {
+		// Arrange
+		const ports = createPorts([aNail({ colors: ['red'], types: ['solid'], finishes: ['glossy'] })]);
+
+		// Act
+		const result = await buildHubPage(ports, { area: 'manicure', slug: 'red-nails' });
+
+		// Assert
+		expect(result.layout.markdownAlternate).toBeUndefined();
+	});
+
 	it('lets curated hubs override generated copy', async () => {
 		// Arrange
 		const nails = Array.from({ length: MIN_DESIGNS_FOR_INDEX }, (_, index) => aNail({

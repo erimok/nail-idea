@@ -1,3 +1,22 @@
+# Standard search engines: keep Markdown files out of the index
+User-agent: Googlebot
+User-agent: Bingbot
+User-agent: Yandex
+Disallow: /*.md$
+Disallow: /keystatic
+Disallow: /api/keystatic
+
+# AI crawlers: allow llms.txt and Markdown pages
+User-agent: GPTBot
+User-agent: ChatGPT-User
+User-agent: ClaudeBot
+User-agent: PerplexityBot
+Allow: /llms.txt
+Allow: /*.md$
+Disallow: /keystatic
+Disallow: /api/keystatic
+
+# Everyone else
 User-agent: *
 Allow: /
 Disallow: /keystatic

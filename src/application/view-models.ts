@@ -42,6 +42,7 @@ export interface LayoutViewModel {
 	title: string;
 	description: string;
 	canonical: string;
+	markdownAlternate?: string;
 	noIndex?: boolean;
 	socialImage?: string;
 	socialImageAlt?: string;
