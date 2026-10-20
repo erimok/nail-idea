@@ -6,7 +6,7 @@ interface Props {
 }
 
 const { href, type = 'button', mobileLarge = false } = Astro.props;
-const className = `inline-flex ${mobileLarge ? 'min-h-11 sm:min-h-10' : 'min-h-10'} items-center rounded-full border border-line bg-surface px-4 text-sm font-semibold text-ink-soft transition hover:border-olive hover:bg-tint focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-olive`;
+const className = `inline-flex ${mobileLarge ? 'min-h-11 sm:min-h-10' : 'min-h-10'} items-center rounded-control border border-line bg-surface px-5 text-xs font-semibold uppercase tracking-[0.14em] text-ink-soft shadow-soft transition duration-200 hover:-translate-y-0.5 hover:border-olive hover:bg-tint hover:shadow-lift active:translate-y-0 active:bg-lime focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-olive`;
 ---
 
 {href

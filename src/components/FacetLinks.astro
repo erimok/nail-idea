@@ -6,18 +6,16 @@ interface Props extends FacetBrowseLinksViewModel {}
 const { groups, title } = Astro.props;
 ---
 
-<nav aria-label={title} hidden={groups.length === 0} class="border-y border-line py-7">
-	<h2 class="font-display text-2xl text-ink">{title}</h2>
-	<div class="mt-5 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+<nav aria-label={title} hidden={groups.length === 0}>
+	<h2 class="font-display text-4xl font-semibold leading-[1.15] text-ink sm:text-5xl">{title}</h2>
+	<div class="mt-10 grid gap-x-10 gap-y-8 sm:grid-cols-2 lg:grid-cols-3">
 		{groups.map(({ label, links }) => (
 			<div>
-				<h3 class="text-xs font-bold uppercase tracking-[0.12em] text-muted">{label}</h3>
-				<ul class="mt-3 flex flex-wrap gap-2">
+				<h3 class="eyebrow !text-muted">{label}</h3>
+				<ul class="mt-4 flex flex-wrap gap-x-5 gap-y-3">
 					{links.map(({ href, label: linkLabel }) => (
 						<li class="max-w-full">
-							<a class="inline-flex min-h-9 max-w-full items-center rounded-full border border-line bg-white px-3.5 py-2 text-xs font-semibold text-ink-soft transition-colors hover:border-olive hover:bg-tint hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-olive" href={href}>
-								{linkLabel}
-							</a>
+							<a class="text-link text-base font-medium text-ink focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-olive" href={href}>{linkLabel}</a>
 						</li>
 					))}
 				</ul>

@@ -6,6 +6,6 @@ interface Props {
 const { color = 'coral' } = Astro.props;
 ---
 
-<p class:list={['text-xs font-bold uppercase tracking-[0.12em]', color === 'coral' ? 'text-coral' : 'text-olive']}>
+<p class:list={['eyebrow', { '!text-olive': color === 'olive' }]}>
 	<slot />
 </p>

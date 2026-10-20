@@ -21,14 +21,14 @@ const { groups } = Astro.props;
 				<div>
 					<h2 class="text-xs font-bold uppercase tracking-[0.12em] text-lime">{label}</h2>
 					<ul class="mt-4 space-y-2">
-						{links.map(({ href, label: linkLabel }) => <li><a class="inline-flex min-h-8 items-center text-sm text-white underline decoration-muted underline-offset-4 hover:text-white" href={href}>{linkLabel}</a></li>)}
+						{links.map(({ href, label: linkLabel }) => <li><a class="inline-flex min-h-8 items-center text-sm text-link text-white hover:!text-lime" href={href}>{linkLabel}</a></li>)}
 					</ul>
 				</div>
 			))}
 		</div>
 		<div class="mt-10 flex flex-wrap items-center justify-between gap-3 border-t border-ink-soft pt-5 text-xs text-white">
 			<p>© {new Date().getFullYear()} Nail.ai</p>
-			<nav aria-label="Footer links"><a class="font-semibold underline underline-offset-4 hover:text-white" href="/about/">About</a></nav>
+			<nav aria-label="Footer links"><a class="text-link font-semibold hover:!text-lime" href="/about/">About</a></nav>
 		</div>
 	</div>
 </footer>

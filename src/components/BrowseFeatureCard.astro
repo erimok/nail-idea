@@ -13,7 +13,7 @@ interface Props {
 const { title, description, href, nail } = Astro.props;
 ---
 
-<a href={href} class="group flex h-full flex-col overflow-hidden rounded-lg border border-line bg-surface transition hover:border-olive hover:shadow-md focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-olive">
+<a href={href} class="group flex h-full flex-col overflow-hidden rounded-card border border-line bg-surface p-4 shadow-soft transition duration-300 hover:-translate-y-1 hover:shadow-lift focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-olive">
 	<Picture
 		src={getNailImageMetadata(nail.image)}
 		alt={nail.imageAlt ?? ''}
@@ -25,11 +25,11 @@ const { title, description, href, nail } = Astro.props;
 		fallbackFormat="webp"
 		fit="cover"
 		loading="lazy"
-		class="aspect-[4/3] w-full object-cover transition duration-300 group-hover:scale-[1.02]"
+		class="aspect-[4/3] w-full rounded-[1.1rem] object-cover transition duration-700 group-hover:scale-[1.03]"
 	/>
-	<span class="flex flex-1 flex-col p-5">
-		<strong class="font-display text-xl text-ink">{title}</strong>
-		<span class="mt-2 text-sm leading-6 text-muted">{description}</span>
-		<span class="mt-auto pt-4 text-sm font-bold text-olive">Explore designs <span aria-hidden="true">→</span></span>
+	<span class="flex flex-1 flex-col pt-5">
+		<strong class="font-display text-2xl font-semibold leading-tight text-ink">{title}</strong>
+		<span class="mt-2 text-sm leading-7 text-muted">{description}</span>
+		<span class="mt-auto pt-4 text-[0.6875rem] font-semibold uppercase tracking-[0.18em] text-olive">Explore designs <span aria-hidden="true">→</span></span>
 	</span>
 </a>

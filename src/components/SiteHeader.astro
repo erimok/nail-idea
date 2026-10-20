@@ -11,21 +11,21 @@ const { browseGroups, availableAreas } = Astro.props;
 const primaryArea = availableAreas[0];
 ---
 
-<header class="relative w-full border-b border-line bg-surface">
-	<div class="mx-auto flex w-full max-w-[1440px] items-center justify-between gap-5 px-5 py-4 sm:px-8 lg:px-14">
+<header class="relative w-full bg-canvas px-3 pt-3 sm:px-5 sm:pt-4">
+	<div class="mx-auto flex w-full max-w-[1440px] items-center justify-between gap-5 rounded-card border border-line bg-surface px-5 py-2.5 shadow-soft sm:px-7">
 		<Logo />
-		<nav aria-label="Main navigation" class="flex items-center gap-3 sm:gap-5">
-			{primaryArea && <a class="inline-flex min-h-11 items-center text-sm font-semibold text-ink-soft hover:text-ink" href={primaryArea.href}>{primaryArea.label}</a>}
+		<nav aria-label="Main navigation" class="flex items-center gap-1 sm:gap-2">
+			{primaryArea && <a class="nav-pill" href={primaryArea.href}>{primaryArea.label}</a>}
 			<details class="browse-menu group">
-				<summary class="inline-flex min-h-11 cursor-pointer list-none items-center gap-2 text-sm font-semibold text-ink-soft hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-olive">
+				<summary class="nav-pill cursor-pointer list-none gap-2 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-olive">
 					Browse <span class="browse-chevron" aria-hidden="true">⌄</span>
 				</summary>
-				<div class="browse-panel absolute left-0 top-full z-20 mt-3 w-full overflow-hidden border-y border-line bg-surface shadow-2xl">
+				<div class="browse-panel absolute inset-x-3 top-full z-20 mt-2 overflow-hidden rounded-card border border-line bg-surface shadow-lift sm:inset-x-5">
 					<div class="browse-panel-heading">
 						<div class="browse-panel-inner flex items-end justify-between gap-5 px-6 py-5 sm:px-7">
 							<div>
-								<p class="mb-1 text-[0.65rem] font-bold uppercase tracking-[0.16em] text-coral">Find your next set</p>
-								<h2 class="font-display text-2xl font-semibold text-ink">Browse nail ideas</h2>
+								<p class="eyebrow mb-1">Find your next set</p>
+								<h2 class="font-display text-3xl font-semibold text-ink">Browse nail ideas</h2>
 							</div>
 							<span class="hidden font-display text-5xl leading-none text-coral/30 sm:block" aria-hidden="true">✳</span>
 						</div>
@@ -33,7 +33,7 @@ const primaryArea = availableAreas[0];
 					<div class="browse-panel-inner grid gap-6 px-6 py-6 sm:grid-cols-2 sm:px-7 lg:grid-cols-3 xl:grid-cols-5">
 						{browseGroups.map(({ label, links }, index) => (
 							<section>
-								<h3 class="mb-2 flex items-center gap-2 text-xs font-bold uppercase tracking-[0.12em] text-muted">
+								<h3 class="mb-2 flex items-center gap-2 eyebrow !text-muted">
 									<span class={`browse-mark browse-mark-${index + 1}`} aria-hidden="true"></span>{label}
 								</h3>
 								<ul class="browse-link-list">
@@ -56,30 +56,34 @@ const primaryArea = availableAreas[0];
 					</div>
 				</div>
 			</details>
-			<a class="inline-flex min-h-11 items-center text-sm font-semibold text-ink-soft hover:text-ink" href="/about/">About</a>
+			<a class="nav-pill" href="/about/">About</a>
 		</nav>
 	</div>
 </header>
 
 <style>
+	.nav-pill { display: inline-flex; min-height: 40px; align-items: center; border-radius: var(--radius-control); padding: 0 14px; color: var(--color-ink-soft); font-size: 0.875rem; font-weight: 600; transition: background 140ms ease, color 140ms ease; }
+	.nav-pill:hover, .browse-menu[open] > .nav-pill { background: var(--color-tint); color: var(--color-coral); }
+	.nav-pill:active { background: var(--color-lime); }
 	.browse-menu > summary::-webkit-details-marker { display: none; }
 	.browse-chevron { color: var(--color-coral); font-size: 1.1rem; transition: transform 180ms ease; }
 	.browse-menu[open] .browse-chevron { transform: rotate(180deg); }
 	.browse-panel { animation: browse-arrive 160ms ease-out both; transform-origin: top center; }
 	.browse-panel-inner { margin-inline: auto; max-width: 1440px; }
-	.browse-panel-heading { background: linear-gradient(110deg, #f7eee5 0%, #fbf8f2 58%, #f1e8dc 100%); }
-	.browse-panel-footer { border-top: 1px solid var(--color-line); background: #f8f5ef; }
+	.browse-panel-heading { background: var(--color-tint); }
+	.browse-panel-footer { border-top: 1px solid var(--color-line); background: var(--color-canvas); }
 	.browse-mark { width: 7px; height: 7px; border-radius: 50%; background: var(--color-coral); }
 	.browse-mark-2 { background: #a9a65f; }
 	.browse-mark-3 { background: #cc8d78; }
 	.browse-mark-4 { background: #777f64; }
 	.browse-link-list { display: grid; gap: 2px; }
-	.browse-link-list a { display: flex; min-height: 36px; align-items: center; justify-content: space-between; gap: 12px; border-radius: 5px; padding: 5px 9px; color: var(--color-ink-soft); font-size: 0.875rem; transition: background 140ms ease, color 140ms ease; }
+	.browse-link-list a { display: flex; min-height: 36px; align-items: center; justify-content: space-between; gap: 12px; border-radius: var(--radius-control); padding: 5px 12px; color: var(--color-ink-soft); font-size: 0.875rem; transition: background 140ms ease, color 140ms ease; }
 	.browse-link-list a span { color: var(--color-coral); opacity: 0; transform: translate(-3px, 3px); transition: opacity 140ms ease, transform 140ms ease; }
-	.browse-link-list a:hover, .browse-link-list a:focus-visible { background: #f7eee5; color: var(--color-ink); outline: none; }
+	.browse-link-list a:hover, .browse-link-list a:focus-visible { background: var(--color-tint); color: var(--color-coral); outline: none; }
 	.browse-link-list a:hover span, .browse-link-list a:focus-visible span { opacity: 1; transform: translate(0, 0); }
-	.browse-area-link { display: inline-flex; min-height: 34px; align-items: center; gap: 8px; border: 1px solid var(--color-line); border-radius: 5px; padding: 0 10px; color: var(--color-ink); font-size: 0.75rem; font-weight: 700; transition: border-color 140ms ease, background 140ms ease; }
-	.browse-area-link:hover { border-color: var(--color-coral); background: white; }
+	.browse-area-link { display: inline-flex; min-height: 34px; align-items: center; gap: 8px; border: 1px solid var(--color-line); border-radius: var(--radius-control); padding: 0 14px; color: var(--color-ink); font-size: 0.75rem; font-weight: 700; box-shadow: var(--shadow-soft); transition: border-color 140ms ease, background 140ms ease; }
+	.browse-area-link:hover { border-color: var(--color-olive); background: var(--color-tint); }
+	.browse-area-link:active { background: var(--color-lime); }
 	@keyframes browse-arrive { from { opacity: 0; transform: translateY(-5px) scale(0.99); } to { opacity: 1; transform: translateY(0) scale(1); } }
 	@media (prefers-reduced-motion: reduce) { .browse-panel, .browse-chevron, .browse-link-list a, .browse-link-list a span, .browse-area-link { animation: none; transition: none; } }
 	@media (max-width: 767px) { .browse-panel { max-height: calc(100dvh - 6rem); overflow-y: auto; } }

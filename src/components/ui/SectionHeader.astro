@@ -8,10 +8,10 @@ interface Props {
 const { title, eyebrow, level = 2 } = Astro.props;
 ---
 
-<header class="mb-8 flex flex-wrap items-end justify-between gap-4">
+<header class="mb-10 flex flex-wrap items-end justify-between gap-4 ">
 	<div>
-		{eyebrow && <p class="mb-2 text-xs font-bold uppercase tracking-[0.12em] text-olive">{eyebrow}</p>}
-	{level === 2 ? <h2 class="font-display text-3xl text-ink">{title}</h2> : <h3 class="font-display text-2xl text-ink">{title}</h3>}
+		{eyebrow && <p class="eyebrow mb-3">{eyebrow}</p>}
+	{level === 2 ? <h2 class="font-display text-4xl font-semibold leading-[1.15] text-ink sm:text-5xl">{title}</h2> : <h3 class="font-display text-2xl font-medium text-ink">{title}</h3>}
 	</div>
 	<div class="flex items-center gap-3"><slot name="action" /></div>
 </header>

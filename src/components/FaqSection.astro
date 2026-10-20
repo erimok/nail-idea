@@ -10,13 +10,20 @@ const { items } = Astro.props;
 ---
 
 <Section bg="tint">
-	<div class="grid gap-8 lg:grid-cols-[minmax(220px,0.7fr)_minmax(0,1.3fr)] lg:gap-14">
-		<div><p class="mb-2 text-xs font-bold uppercase tracking-[0.12em] text-coral">Helpful answers</p><h2 class="font-display text-3xl text-ink">Nail idea FAQ</h2></div>
-		<div>
-			{items.map(({ question, answer }) => (
-				<details class="border-b border-line py-5">
-					<summary class="cursor-pointer font-display text-xl text-ink marker:text-olive focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-olive">{question}</summary>
-					<p class="mt-3 max-w-prose text-base leading-7 text-ink-soft">{answer}</p>
+	<div class="grid gap-10 lg:grid-cols-[minmax(220px,0.8fr)_minmax(0,1.4fr)] lg:gap-20">
+		<div class="lg:sticky lg:top-10 lg:self-start">
+			<p class="eyebrow mb-3">Helpful answers</p>
+			<h2 class="font-display text-4xl font-semibold leading-[1.15] text-ink sm:text-5xl">Nail idea <em class="font-semibold italic text-olive">FAQ</em></h2>
+		</div>
+		<div class="grid gap-4">
+			{items.map(({ question, answer }, index) => (
+				<details class="group rounded-card border border-line bg-surface px-6 py-5 shadow-soft transition duration-200 open:shadow-lift hover:border-olive/60">
+					<summary class="flex cursor-pointer list-none items-baseline gap-5 font-display text-xl font-semibold leading-snug text-ink sm:text-2xl transition-colors hover:text-olive focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-olive [&::-webkit-details-marker]:hidden">
+						<span class="flex size-9 shrink-0 items-center justify-center self-center rounded-full bg-tint font-sans text-xs font-semibold not-italic text-olive" aria-hidden="true">{String(index + 1).padStart(2, '0')}</span>
+						<span class="flex-1">{question}</span>
+						<span class="flex size-9 shrink-0 items-center justify-center self-center rounded-control border border-line font-sans text-xl font-light transition group-open:rotate-45 group-open:border-transparent group-open:bg-lime" aria-hidden="true">+</span>
+					</summary>
+					<p class="mt-4 max-w-prose pl-14 text-base leading-8 text-ink-soft">{answer}</p>
 				</details>
 			))}
 		</div>

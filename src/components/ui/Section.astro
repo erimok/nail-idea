@@ -6,7 +6,7 @@ interface Props {
 const { bg = 'canvas' } = Astro.props;
 ---
 
-<section class:list={['w-full py-12 sm:py-16 lg:py-20', {
+<section class:list={['w-full py-16 sm:py-20 lg:py-28', {
 	'bg-canvas': bg === 'canvas',
 	'bg-surface': bg === 'surface',
 	'bg-tint': bg === 'tint',

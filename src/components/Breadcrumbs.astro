@@ -17,7 +17,7 @@ const { items } = Astro.props;
 			<li class="flex items-center gap-2">
 				{index > 0 && <span aria-hidden="true" class="text-muted">/</span>}
 				{item.href
-					? <a class="underline decoration-line underline-offset-4 transition-colors hover:text-coral" href={item.href}>{item.label}</a>
+					? <a class="text-link" href={item.href}>{item.label}</a>
 					: <span aria-current="page" class="text-ink-soft">{item.label}</span>}
 			</li>
 		))}
