@@ -16,7 +16,7 @@ npm run dev
 
 Open the site at `http://localhost:4321` and the Keystatic editor at `http://localhost:4321/keystatic`.
 
-Set `SITE_URL` to the public origin before building for deployment. It is used for canonical URLs and structured data; the development fallback is `https://nail.ai`.
+Set `SITE_URL` to override the public origin before building for deployment. It is used for canonical URLs and structured data; the default is `https://nail-idea.com`.
 
 Keystatic is configured with local storage. Entries are saved under `src/content/ideas/`; configure GitHub storage before enabling the editor on a hosted deployment.
 

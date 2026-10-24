@@ -22,4 +22,4 @@ Allow: /
 Disallow: /keystatic
 Disallow: /api/keystatic
 
-Sitemap: https://nail.ai/sitemap-index.xml
+Sitemap: https://nail-idea.com/sitemap-index.xml

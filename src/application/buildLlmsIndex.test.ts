@@ -33,7 +33,7 @@ describe('buildLlmsIndex', () => {
 		expect(result.areas[0].pages).toContainEqual({
 			title: 'Red Nails: 6 Ideas',
 			description: 'Browse red manicure ideas: solid looks. Save your favorites on Nail.ai.',
-			markdownUrl: 'https://nail.ai/manicure/red-nails.md',
+			markdownUrl: 'https://nail-idea.com/manicure/red-nails.md',
 		});
 		expect(result.areas[0].pages.every(({ markdownUrl }) => !markdownUrl.includes('blue-nails'))).toBe(true);
 	});

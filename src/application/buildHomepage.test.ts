@@ -70,12 +70,12 @@ describe('buildHomepage', () => {
 		}));
 		expect(result.layout.structuredData?.['@graph']).toContainEqual(expect.objectContaining({
 			'@type': 'ImageGallery',
-			'@id': 'https://nail.ai/#gallery',
+			'@id': 'https://nail-idea.com/#gallery',
 			name: 'Featured nail ideas',
 			associatedMedia: expect.arrayContaining([
 				expect.objectContaining({
 					'@type': 'ImageObject',
-					contentUrl: 'https://nail.ai/images/nails/nail-1.jpg',
+					contentUrl: 'https://nail-idea.com/images/nails/nail-1.jpg',
 					name: 'Sample nail 1',
 				}),
 			]),

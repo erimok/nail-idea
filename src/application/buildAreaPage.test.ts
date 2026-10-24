@@ -61,13 +61,13 @@ describe('buildAreaPage', () => {
 
 		// Assert
 		expect(result.layout.noIndex).toBe(false);
-		expect(result.layout.canonical).toBe('https://nail.ai/manicure/');
+		expect(result.layout.canonical).toBe('https://nail-idea.com/manicure/');
 		expect(result.layout.structuredData?.['@graph']).toContainEqual(expect.objectContaining({
 			'@type': 'ImageGallery',
-			'@id': 'https://nail.ai/manicure/#gallery',
+			'@id': 'https://nail-idea.com/manicure/#gallery',
 			name: 'Manicure ideas',
 			associatedMedia: expect.arrayContaining([
-				expect.objectContaining({ contentUrl: 'https://nail.ai/images/nails/manicure-1.jpg' }),
+				expect.objectContaining({ contentUrl: 'https://nail-idea.com/images/nails/manicure-1.jpg' }),
 			]),
 		}));
 		expect(result.relatedLinks?.title).toBe('You may like');

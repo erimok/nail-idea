@@ -21,6 +21,6 @@ describe('InMemorySiteConfig', () => {
 		const result = siteConfig.siteUrl;
 
 		// Assert
-		expect(result).toBe('https://nail.ai');
+		expect(result).toBe('https://nail-idea.com');
 	});
 });

@@ -7,7 +7,7 @@ import { JSDOM } from 'jsdom';
 
 const projectRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const distDirectory = path.join(projectRoot, 'dist', 'client');
-const siteUrl = new URL(process.env.SITE_URL ?? 'https://nail.ai');
+const siteUrl = new URL(process.env.SITE_URL ?? 'https://nail-idea.com');
 const getLocations = (xml) => [...xml.matchAll(/<loc>(.*?)<\/loc>/gs)].map(([, location]) => location.trim());
 
 async function getHtmlFiles(directory) {

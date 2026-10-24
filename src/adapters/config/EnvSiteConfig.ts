@@ -2,7 +2,7 @@ import { z } from 'zod';
 import type { SiteConfig } from '../../ports/SiteConfig';
 
 const siteConfigSchema = z.object({
-	SITE_URL: z.url().default('https://nail.ai'),
+	SITE_URL: z.url().default('https://nail-idea.com'),
 });
 
 interface SiteConfigEnvironment {
