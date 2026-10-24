@@ -18,6 +18,8 @@ Open the site at `http://localhost:4321` and the Keystatic editor at `http://loc
 
 Set `SITE_URL` to override the public origin before building for deployment. It is used for canonical URLs and structured data; the default is `https://nail-idea.com`.
 
+Cloudflare Workers Builds should use `npm run build` as the build command and `npx wrangler deploy` as the deploy command. `wrangler.jsonc` points the Worker at Astro's static output in `dist/client` so Wrangler publishes the built site without auto-configuring an Astro Cloudflare adapter.
+
 Keystatic is configured with local storage. Entries are saved under `src/content/ideas/`; configure GitHub storage before enabling the editor on a hosted deployment.
 
 The `Nails` collection stores curated nail ideas and image URLs. Colors, styles, and occasions use predefined options from `src/libs/ai/vocabulary.ts`; the AI search vocabulary is static code, not CMS content. Rebuild the static site after editing nail records.

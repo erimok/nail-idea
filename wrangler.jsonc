@@ -1,0 +1,8 @@
+{
+	"$schema": "./node_modules/wrangler/config-schema.json",
+	"name": "nail-idea",
+	"compatibility_date": "2026-10-24",
+	"assets": {
+		"directory": "./dist/client"
+	}
+}
