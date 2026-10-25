@@ -7,6 +7,8 @@ export type NailService = NailArea | 'both';
 export interface NailRecord {
 	slug: string;
 	title: string;
+	createdAt?: string;
+	updatedAt?: string;
 	image: string;
 	imageSrc?: string;
 	imageAlt?: string;

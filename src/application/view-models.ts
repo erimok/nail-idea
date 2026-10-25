@@ -1,7 +1,9 @@
 import type { IntroSegment } from '../domain/hub-copy';
 import type { NailArea } from '../domain/areas';
+import type { DesignGrid } from '../domain/gallery';
 import type { HubFaqItem } from '../domain/hub-types';
 import type { NailRecord, NailSearchRecord } from '../domain/nail';
+import type { SearchHubLink } from '../domain/search-hub-match';
 
 export interface LinkViewModel {
 	label: string;
@@ -50,6 +52,12 @@ export interface LayoutViewModel {
 	siteChrome: SiteChromeViewModel;
 }
 
+export interface CoreStyleLinkViewModel {
+	label: string;
+	href: string;
+	designCount: number;
+}
+
 export interface CollectionPageViewModel {
 	layout: LayoutViewModel;
 	heading: string;
@@ -57,9 +65,11 @@ export interface CollectionPageViewModel {
 	paragraphs: readonly string[];
 	intro?: readonly IntroSegment[];
 	designs: readonly NailRecord[];
+	designGrid?: DesignGrid;
 	searchRecords: readonly NailSearchRecord[];
 	breadcrumbs: readonly BreadcrumbViewModel[];
 	relatedLinks?: FacetBrowseLinksViewModel;
+	coreStyleLink?: CoreStyleLinkViewModel;
 	sectionTitle: string;
 	faq: readonly HubFaqItem[];
 	emptyStateMessage: string;
@@ -83,6 +93,7 @@ export interface HomepageViewModel {
 	layout: LayoutViewModel;
 	nails: readonly NailRecord[];
 	searchRecords: readonly NailSearchRecord[];
+	searchHubLinks: readonly SearchHubLink[];
 	featured: readonly NailRecord[];
 	categories: readonly HomepageCategoryViewModel[];
 	faqItems: readonly FaqItemViewModel[];

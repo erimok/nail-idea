@@ -8,6 +8,7 @@ export interface HubFaqItem {
 export interface HubEditorial {
 	area: NailArea;
 	urlSlug: string;
+	updatedAt?: string;
 	intro: string;
 	metaDescription: string;
 	faq: readonly HubFaqItem[];

@@ -15,6 +15,8 @@ import {
 import { resolveBrowseLinks } from './resolveBrowseLinks';
 import type { CollectionPageViewModel } from './view-models';
 
+const areaBrowseFacetKinds: readonly string[] = ['color', 'type', 'occasion', 'season', 'length', 'finishing'];
+
 interface BuildAreaPageParams {
 	area: NailArea;
 }
@@ -59,7 +61,10 @@ export async function buildAreaPage(
 		designs,
 		searchRecords: toSearchRecords(designs),
 		breadcrumbs,
-		relatedLinks: resolveBrowseLinks({ pages: relatedPages, title: 'You may like' }),
+		relatedLinks: resolveBrowseLinks({
+			pages: relatedPages.filter((page) => areaBrowseFacetKinds.includes(page.kind)),
+			title: 'You may like',
+		}),
 		sectionTitle: `All ${area} ideas`,
 		faq: [],
 		emptyStateMessage: `New ${area} ideas are coming soon.`,

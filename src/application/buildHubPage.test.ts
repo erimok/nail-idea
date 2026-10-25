@@ -3,6 +3,7 @@ import { InMemoryHubRepository } from '../adapters/in-memory/InMemoryHubReposito
 import { InMemoryNailRepository } from '../adapters/in-memory/InMemoryNailRepository';
 import { InMemorySiteContentRepository } from '../adapters/in-memory/InMemorySiteContentRepository';
 import { InMemorySiteConfig } from '../adapters/in-memory/InMemorySiteConfig';
+import { INITIAL_DESIGN_COUNT } from '../domain/gallery';
 import { MIN_DESIGNS_FOR_INDEX } from '../domain/indexability';
 import type { HubEditorial } from '../domain/hub-types';
 import type { NailRecord } from '../domain/nail';
@@ -22,6 +23,37 @@ function createPorts(
 }
 
 describe('buildHubPage', () => {
+	it('keeps every design while splitting a large hub into initial and deferred cards', async () => {
+		// Arrange
+		const nails = Array.from({ length: INITIAL_DESIGN_COUNT + 2 }, (_, index) => aNail({
+			slug: `red-${index + 1}`,
+			colors: ['red'],
+			types: ['solid'],
+		}));
+		const ports = createPorts(nails);
+
+		// Act
+		const result = await buildHubPage(ports, { area: 'manicure', slug: 'red-nails' });
+
+		// Assert
+		expect(result.designs).toEqual(nails);
+		expect(result.designGrid?.initial).toEqual(nails.slice(0, INITIAL_DESIGN_COUNT));
+		expect(result.designGrid?.remaining).toEqual(nails.slice(INITIAL_DESIGN_COUNT));
+	});
+
+	it('returns no deferred cards when the hub fits in the initial grid', async () => {
+		// Arrange
+		const nails = [aNail({ colors: ['red'], types: ['solid'] })];
+		const ports = createPorts(nails);
+
+		// Act
+		const result = await buildHubPage(ports, { area: 'manicure', slug: 'red-nails' });
+
+		// Assert
+		expect(result.designGrid?.initial).toEqual(nails);
+		expect(result.designGrid?.remaining).toEqual([]);
+	});
+
 	it('generates copy and stays noindex below the design threshold', async () => {
 		// Arrange
 		const ports = createPorts([aNail({ slug: 'red-1', colors: ['red'], types: ['solid'], finishes: ['glossy'] })]);
@@ -32,7 +64,7 @@ describe('buildHubPage', () => {
 		// Assert
 		expect(result.layout.noIndex).toBe(true);
 		expect(result.heading).toBe('Red Nails: 1 Idea');
-		expect(result.layout.title).toBe('Red Nail Ideas (2026): Glossy & Solid | Nail.ai');
+		expect(result.layout.title).toBe('Red Nail Ideas: 1 Design (2026) | nail-idea.com');
 		expect(result.intro?.length).toBeGreaterThan(0);
 	});
 
@@ -144,5 +176,94 @@ describe('buildHubPage', () => {
 		const introLinks = result.intro?.flatMap(({ href }) => href ? [href] : []) ?? [];
 		expect(introLinks.length).toBeGreaterThan(0);
 		expect(introLinks.every((href) => href.includes('french'))).toBe(true);
+	});
+
+	it('links from non-type single-facet hubs only to combinations that include the facet', async () => {
+		// Arrange
+		const nails = Array.from({ length: MIN_DESIGNS_FOR_INDEX }, (_, index) => aNail({
+			slug: `medium-${index + 1}`,
+			colors: ['burgundy'],
+			types: ['french'],
+			length: 'medium',
+		}));
+		const ports = createPorts(nails);
+
+		// Act
+		const result = await buildHubPage(ports, { area: 'manicure', slug: 'medium-nails' });
+
+		// Assert
+		const links = result.relatedLinks?.groups.flatMap(({ links: groupLinks }) => groupLinks) ?? [];
+		expect(links.length).toBeGreaterThan(0);
+		expect(links.every(({ href }) => href.includes('medium'))).toBe(true);
+	});
+
+	describe('core style parent link', () => {
+		function glitterFrenchNails(count: number) {
+			return Array.from({ length: count }, (_, index) => aNail({
+				slug: `glitter-french-${index + 1}`,
+				types: ['french'],
+				finishes: ['glitter'],
+			}));
+		}
+
+		it('links combination hubs to their indexable core style hub', async () => {
+			// Arrange
+			const ports = createPorts(glitterFrenchNails(MIN_DESIGNS_FOR_INDEX));
+
+			// Act
+			const result = await buildHubPage(ports, { area: 'manicure', slug: 'glitter-french-nails' });
+
+			// Assert
+			expect(result.coreStyleLink).toEqual({
+				label: 'French tip nails',
+				href: '/manicure/french-nails/',
+				designCount: MIN_DESIGNS_FOR_INDEX,
+			});
+		});
+
+		it('adds the core style hub to the breadcrumbs', async () => {
+			// Arrange
+			const ports = createPorts(glitterFrenchNails(MIN_DESIGNS_FOR_INDEX));
+
+			// Act
+			const result = await buildHubPage(ports, { area: 'manicure', slug: 'glitter-french-nails' });
+
+			// Assert
+			expect(result.breadcrumbs.map(({ href }) => href)).toEqual(['/', '/manicure/', '/manicure/french-nails/', undefined]);
+		});
+
+		it('does not link the core style hub itself', async () => {
+			// Arrange
+			const ports = createPorts(glitterFrenchNails(MIN_DESIGNS_FOR_INDEX));
+
+			// Act
+			const result = await buildHubPage(ports, { area: 'manicure', slug: 'french-nails' });
+
+			// Assert
+			expect(result.coreStyleLink).toBeUndefined();
+		});
+
+		it('omits the link when the core style hub is below the indexing threshold', async () => {
+			// Arrange
+			const glitter = glitterFrenchNails(MIN_DESIGNS_FOR_INDEX - 1);
+			const ports = createPorts(glitter);
+
+			// Act
+			const result = await buildHubPage(ports, { area: 'manicure', slug: 'glitter-french-nails' });
+
+			// Assert
+			expect(result.coreStyleLink).toBeUndefined();
+		});
+	});
+
+	it('sets a large social image from the canonical origin', async () => {
+		// Arrange
+		const ports = createPorts();
+
+		// Act
+		const result = await buildHubPage(ports, { area: 'manicure', slug: 'red-nails' });
+
+		// Assert
+		expect(result.layout.socialImage).toBe(new URL('/og/home.jpg', ports.siteConfig.siteUrl).toString());
 	});
 });

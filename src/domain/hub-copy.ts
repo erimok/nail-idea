@@ -11,7 +11,7 @@ export const MAX_INTRO_WORDS = 70;
 export const MAX_SUBFACETS = 3;
 export const MAX_INTRO_LINKS = 3;
 
-const SITE_SUFFIX = ' | Nail.ai';
+const SITE_SUFFIX = ' | nail-idea.com';
 
 const areaTitleNouns: Readonly<Record<NailArea, string>> = {
 	manicure: 'Nail Ideas',
@@ -45,6 +45,9 @@ type RelatedCandidate = Pick<NailFacetPage, 'area' | 'facets' | 'slug' | 'nails'
 const proseFacetNames: Readonly<Record<string, string>> = {
 	french: 'French tip',
 	'micro french': 'micro French',
+	christmas: 'Christmas',
+	'new year': 'New Year',
+	'valentine\'s day': 'Valentine\'s Day',
 };
 
 function proseDisplay(values: readonly string[]): string {
@@ -111,32 +114,15 @@ export function rankRelatedHubs<T extends RelatedCandidate>(
 		.map(({ candidate }) => candidate);
 }
 
-function titleSubfacets(page: Pick<HubCopyPage, 'facets' | 'nails'>): string[] {
-	for (const kind of headlineFacetKinds) {
-		const values = topSubfacets(page, MAX_SUBFACETS, [kind]);
-		if (values.length > 0) return values.map((value) => proseDisplay([value]));
-	}
-
-	return topSubfacets(page).map((value) => proseDisplay([value]));
-}
-
-function buildTitle(display: string, area: NailArea, subfacets: readonly string[], year: number): string {
-	const base = `${display} ${areaTitleNouns[area]} (${year})`;
+function buildTitle(display: string, area: NailArea, designCount: number, year: number): string {
+	const designs = designCount === 1 ? 'Design' : 'Designs';
 	const words = display.split(' ');
 
-	for (let count = subfacets.length; count >= 0; count -= 1) {
-		const details = count > 0 ? `: ${joinList(subfacets.slice(0, count).map(titleCase), '&')}` : '';
-		const title = `${base}${details}${SITE_SUFFIX}`;
-		if (title.length <= MAX_TITLE_LENGTH) return title;
-	}
-
-	while (words.length > 1) {
+	for (;;) {
+		const title = `${words.join(' ')} ${areaTitleNouns[area]}: ${designCount} ${designs} (${year})${SITE_SUFFIX}`;
+		if (title.length <= MAX_TITLE_LENGTH || words.length === 1) return title.slice(0, MAX_TITLE_LENGTH);
 		words.pop();
-		const title = `${words.join(' ')} ${areaTitleNouns[area]} (${year})${SITE_SUFFIX}`;
-		if (title.length <= MAX_TITLE_LENGTH) return title;
 	}
-
-	return `${words[0]}${SITE_SUFFIX}`.slice(0, MAX_TITLE_LENGTH);
 }
 
 function buildHeading(page: HubCopyPage, display: string): string {
@@ -152,14 +138,14 @@ function buildHeading(page: HubCopyPage, display: string): string {
 	return `${display} ${areaHeadingNouns[page.area]}: ${ideas}${coverage}`;
 }
 
-function buildDescription(subject: string, subfacets: readonly string[]): string {
+function buildDescription(subject: string, designCount: number, subfacets: readonly string[]): string {
 	for (let count = subfacets.length; count >= 0; count -= 1) {
 		const details = count > 0 ? `: ${joinList(subfacets.slice(0, count), 'and')} looks` : '';
-		const description = `Browse ${subject} ideas${details}. Save your favorites on Nail.ai.`;
+		const description = `Browse ${designCount} ${subject} ideas${details}. Save your favorites on nail-idea.com.`;
 		if (description.length <= MAX_DESCRIPTION_LENGTH) return description;
 	}
 
-	return `Browse ${subject} ideas on Nail.ai.`.slice(0, MAX_DESCRIPTION_LENGTH);
+	return `Browse ${designCount} ${subject} ideas on nail-idea.com.`.slice(0, MAX_DESCRIPTION_LENGTH);
 }
 
 function buildIntro(
@@ -189,6 +175,10 @@ function buildIntro(
 	return segments;
 }
 
+export function formatHubAnchorLabel(page: Pick<HubCopyPage, 'area' | 'facets'>): string {
+	return `${proseDisplay(page.facets.map((facet) => facet.value))} ${areaHeadingNouns[page.area].toLowerCase()}`;
+}
+
 export function countIntroWords(intro: readonly IntroSegment[]): number {
 	return intro.map(({ text }) => text).join('').split(/\s+/).filter(Boolean).length;
 }
@@ -197,12 +187,12 @@ export function generateHubCopy(page: HubCopyPage, indexableHubs: readonly Relat
 	const rawSubfacets = topSubfacets(page);
 	const subfacets = rawSubfacets.map((value) => proseDisplay([value]));
 	const display = proseDisplay(page.facets.map((facet) => facet.value));
-	const subject = `${display} ${page.area}`;
-	const generatedDescription = buildDescription(subject, subfacets);
+	const subject = display.endsWith(` ${page.area}`) ? display : `${display} ${page.area}`;
+	const generatedDescription = buildDescription(subject, page.nails.length, subfacets);
 	const editorial = page.editorial;
 
 	return {
-		title: buildTitle(titleCase(display), page.area, titleSubfacets(page), year),
+		title: buildTitle(titleCase(display), page.area, page.nails.length, year),
 		description: editorial?.metaDescription.trim() || generatedDescription,
 		heading: buildHeading(page, titleCase(display)),
 		intro: editorial?.intro.trim()

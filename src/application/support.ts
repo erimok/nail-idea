@@ -6,9 +6,11 @@ import {
 	type NailFacetSelection,
 } from '../domain/facet-combinations';
 import { facetKinds, type FacetKind } from '../domain/facets/registry';
+import { formatHubAnchorLabel } from '../domain/hub-copy';
 import type { HubEditorial } from '../domain/hub-types';
 import { isIndexable, isIndexablePage } from '../domain/indexability';
 import type { NailRecord, NailSearchRecord } from '../domain/nail';
+import type { SearchHubLink } from '../domain/search-hub-match';
 import type { NavigationGroup, NavigationPlacement } from '../domain/site-content';
 import { buildAreaRoute, buildFacetRoute } from '../domain/routes';
 import type {
@@ -136,18 +138,18 @@ export function buildAreaPageCopy(
 	area: NailArea,
 	nails: readonly NailRecord[],
 ): SeoPageCopy {
-	const title = `${formatAreaLabel(area)} ideas | Nail.ai`;
+	const title = `${formatAreaLabel(area)} ideas | nail-idea.com`;
 	const designs = countLabel(nails.length, `${area} design`, `${area} designs`);
 	const details = getAreaDetails(nails);
 	const examples = getRecordDescriptions(nails);
 
 	return {
 		title,
-		description: `Browse ${designs} in the Nail.ai ${area} collection, with ideas organized by color, style, occasion, and season.`,
+		description: `Browse ${designs} in the nail-idea.com ${area} collection, with ideas organized by color, style, occasion, and season.`,
 		heading: `${formatAreaLabel(area)} ideas`,
 		prompt: `Show me ${area} nail ideas`,
 		paragraphs: [
-			[`We found ${designs} in the Nail.ai ${area} collection.`, examples].filter(Boolean).join(' '),
+			[`We found ${designs} in the nail-idea.com ${area} collection.`, examples].filter(Boolean).join(' '),
 			[details, `Browse the designs below, or describe a color, shape, finish, or occasion in the search above to narrow down your next ${area}.`].filter(Boolean).join(' '),
 		],
 	};
@@ -382,20 +384,20 @@ export function buildHomepageStructuredData(
 				'@type': 'WebSite',
 				'@id': `${canonical}#website`,
 				url: canonical,
-				name: 'Nail.ai',
+				name: 'nail-idea.com',
 				publisher: { '@id': `${canonical}#organization` },
 			},
 			{
 				'@type': 'Organization',
 				'@id': `${canonical}#organization`,
-				name: 'Nail.ai',
+				name: 'nail-idea.com',
 				url: canonical,
 				logo: { '@type': 'ImageObject', url: buildCanonicalUrl(canonical, '/favicon.svg') },
 			},
 			{
 				'@type': 'WebApplication',
 				'@id': `${canonical}#app`,
-				name: 'Nail.ai',
+				name: 'nail-idea.com',
 				url: canonical,
 				description,
 				applicationCategory: 'LifestyleApplication',
@@ -460,4 +462,14 @@ function getRecordDescriptions(nails: readonly NailRecord[]): string {
 		.slice(0, 2)
 		.map((description) => /[.!?]$/.test(description) ? description : `${description}.`)
 		.join(' ');
+}
+
+export function buildSearchHubLinks(pages: readonly NailFacetPage[]): SearchHubLink[] {
+	return pages.filter(isIndexable).map((page) => ({
+		area: page.area,
+		facets: page.facets,
+		href: buildFacetRoute(page.area, page.slug),
+		label: formatHubAnchorLabel(page),
+		designCount: page.nails.length,
+	}));
 }

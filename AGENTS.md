@@ -1,6 +1,6 @@
-# Nail.ai Agent Instructions
+# nail-idea.com Agent Instructions
 
-Nail.ai is a programmatic SEO site (pSEO) for manicure and pedicure ideas.
+nail-idea.com is a programmatic SEO site (pSEO) for manicure and pedicure ideas.
 Stack: TypeScript, Astro, Keystatic CMS, Vitest.
 
 ## Read first

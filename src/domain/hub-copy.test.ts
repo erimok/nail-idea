@@ -102,13 +102,13 @@ describe('generateHubCopy', () => {
 		// Assert
 		for (const copy of results) {
 			expect(copy.title.length).toBeLessThanOrEqual(MAX_TITLE_LENGTH);
-			expect(copy.title.endsWith(' | Nail.ai')).toBe(true);
+			expect(copy.title.endsWith(' | nail-idea.com')).toBe(true);
 			expect(copy.heading).not.toBe(copy.title);
 			expect(copy.description.length).toBeLessThanOrEqual(MAX_DESCRIPTION_LENGTH);
 		}
 	});
 
-	it('builds a keyword title with top subfacets', () => {
+	it('builds a keyword title with the design count', () => {
 		// Arrange
 		const { page, pages } = pageFor(burgundyNails(), 'burgundy-nails');
 
@@ -116,11 +116,11 @@ describe('generateHubCopy', () => {
 		const copy = generateHubCopy(page, pages.filter(isIndexable), YEAR);
 
 		// Assert
-		expect(copy.title).toBe('Burgundy Nail Ideas (2026): Almond & Oval | Nail.ai');
+		expect(copy.title).toBe('Burgundy Nail Ideas: 6 Designs (2026) | nail-idea.com');
 		expect(copy.heading).toBe('Burgundy Nails: 6 Ideas for Every Shape');
 	});
 
-	it('builds the French tip title from shapes and the heading from design count, shapes and lengths', () => {
+	it('builds the French tip title from the design count and the heading from design count, shapes and lengths', () => {
 		// Arrange
 		const shapes = ['almond', 'coffin', 'square'] as const;
 		const lengths = ['short', 'long'] as const;
@@ -135,8 +135,33 @@ describe('generateHubCopy', () => {
 		const copy = generateHubCopy(page, pages.filter(isIndexable), YEAR);
 
 		// Assert
-		expect(copy.title).toBe('French Tip Nail Ideas (2026): Almond, Coffin & Square | Nail.ai');
+		expect(copy.title).toBe('French Tip Nail Ideas: 6 Designs (2026) | nail-idea.com');
 		expect(copy.heading).toBe('French Tip Nails: 6 Ideas for Every Shape and Length');
+	});
+
+	it('does not repeat the area word in the description subject', () => {
+		// Arrange
+		const nails = Array.from({ length: MIN_DESIGNS_FOR_INDEX }, () => aNail({ types: ['russian manicure'] }));
+		const { page, pages } = pageFor(nails, 'russian-manicure-nails');
+
+		// Act
+		const copy = generateHubCopy(page, pages.filter(isIndexable), YEAR);
+
+		// Assert
+		expect(copy.description).toContain('Browse 6 russian manicure ideas');
+		expect(copy.description).not.toContain('manicure manicure');
+	});
+
+	it('capitalizes Christmas in generated descriptions', () => {
+		// Arrange
+		const nails = Array.from({ length: MIN_DESIGNS_FOR_INDEX }, () => aNail({ colors: ['red'], occasions: ['christmas'] }));
+		const { page, pages } = pageFor(nails, 'red-nails');
+
+		// Act
+		const copy = generateHubCopy(page, pages.filter(isIndexable), YEAR);
+
+		// Assert
+		expect(copy.description).toContain('Christmas');
 	});
 
 	it('uses the supplied year in the title', () => {

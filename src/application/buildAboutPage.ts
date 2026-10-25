@@ -16,8 +16,8 @@ export async function buildAboutPage({
 
 	return {
 		layout: {
-			title: 'About Nail.ai | Nail Design Inspiration',
-			description: 'Learn about Nail.ai, a searchable collection of manicure and pedicure ideas organized around the details you care about.',
+			title: 'About nail-idea.com | Nail Design Inspiration',
+			description: 'Learn about nail-idea.com, a searchable collection of manicure and pedicure ideas organized around the details you care about.',
 			canonical: buildCanonicalUrl(siteConfig.siteUrl, '/about/'),
 			siteChrome: buildSiteChromeViewModel(nails, editorial, navigationGroups),
 		},

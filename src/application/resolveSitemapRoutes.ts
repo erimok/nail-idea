@@ -5,24 +5,46 @@ import { buildAreaRoute, buildFacetRoute } from '../domain/routes';
 import type { ContentPorts } from './ports';
 import { attachHubEditorial } from './support';
 
+export interface SitemapRoute {
+	url: string;
+	lastmod?: string;
+}
+
+function latestContentDate(records: readonly { updatedAt?: string }[]): string | undefined {
+	const dates = records
+		.map(({ updatedAt }) => updatedAt?.slice(0, 10))
+		.filter((date): date is string => date !== undefined);
+
+	return dates.sort().at(-1);
+}
+
 export async function resolveSitemapRoutes({
 	nailRepository,
 	hubRepository,
-}: ContentPorts): Promise<readonly string[]> {
+}: ContentPorts): Promise<readonly SitemapRoute[]> {
 	const [nails, editorial] = await Promise.all([
 		nailRepository.findAllNails(),
 		hubRepository.listHubs(),
 	]);
 
 	return [
-		'/',
-		'/about/',
+		{ url: '/', lastmod: latestContentDate(nails) },
+		{ url: '/about/' },
 		...nailAreas.flatMap((area) => {
 			const areaNails = getNailsForArea(nails, area);
-			return isIndexablePage(areaNails.length) ? [buildAreaRoute(area)] : [];
+			return isIndexablePage(areaNails.length) ? [{
+				url: buildAreaRoute(area),
+				lastmod: latestContentDate(areaNails),
+			}] : [];
 		}),
 		...attachHubEditorial(getAllFacetPages(nails), editorial)
 			.filter(isIndexable)
-			.map((page) => buildFacetRoute(page.area, page.slug)),
+			.map((page) => ({
+				url: buildFacetRoute(page.area, page.slug),
+				lastmod: latestContentDate([
+					...page.nails,
+					...(page.editorial ? [page.editorial] : []),
+				]),
+			})),
 	];
 }

@@ -14,7 +14,7 @@ const {
 	socialImage,
 	structuredData,
 	noIndex = false,
-	socialImageAlt = 'AI-generated manicure design from Nail.ai',
+	socialImageAlt = 'AI-generated manicure design from nail-idea.com',
 	siteChrome,
 } = Astro.props;
 const serializedStructuredData = structuredData
@@ -37,7 +37,7 @@ const serializedStructuredData = structuredData
 		<link rel="canonical" href={canonical} />
 		{markdownAlternate && <link rel="alternate" type="text/markdown" href={markdownAlternate} />}
 		<meta property="og:type" content="website" />
-		<meta property="og:site_name" content="Nail.ai" />
+		<meta property="og:site_name" content="nail-idea.com" />
 		<meta property="og:title" content={title} />
 		<meta property="og:description" content={description} />
 		<meta property="og:url" content={canonical} />

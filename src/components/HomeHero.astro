@@ -2,14 +2,16 @@
 import { getImage } from 'astro:assets';
 import IdeaExplorer from './IdeaExplorer';
 import type { NailRecord, NailSearchRecord } from '../libs/ai/nail-search';
+import type { SearchHubLink } from '../domain/search-hub-match';
 import { getNailImageMetadata } from '../libs/nail-images';
 
 interface Props {
 	nails: readonly NailRecord[];
 	searchRecords: readonly NailSearchRecord[];
+	searchHubLinks: readonly SearchHubLink[];
 }
 
-const { nails, searchRecords } = Astro.props;
+const { nails, searchRecords, searchHubLinks } = Astro.props;
 const collage = await Promise.all(nails.slice(9, 13).map(async (nail, index) => {
 	const source = getNailImageMetadata(nail.image);
 	const [avif, webp] = await Promise.all([
@@ -29,6 +31,6 @@ const collage = await Promise.all(nails.slice(9, 13).map(async (nail, index) => 
 
 <section class="bg-canvas py-10 sm:py-12 lg:py-16" aria-label="Nail idea finder">
 	<div class="mx-auto w-full max-w-[1440px] px-5 sm:px-8 lg:px-14">
-		<IdeaExplorer nails={searchRecords} collage={collage} client:idle />
+		<IdeaExplorer nails={searchRecords} hubLinks={searchHubLinks} collage={collage} client:idle />
 	</div>
 </section>

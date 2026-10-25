@@ -42,7 +42,8 @@ export function initGridGallery(root: HTMLElement, dialog: HTMLDialogElement): v
 	root.addEventListener('click', (event) => {
 		const trigger = (event.target as Element).closest<HTMLElement>(GALLERY_TRIGGER);
 		if (!trigger || !root.contains(trigger)) return;
-		triggers = [...root.querySelectorAll<HTMLElement>(GALLERY_TRIGGER)];
+		triggers = [...root.querySelectorAll<HTMLElement>(GALLERY_TRIGGER)]
+			.filter((candidate) => !candidate.closest('[hidden]'));
 		show(triggers.indexOf(trigger));
 		dialog.showModal();
 	});

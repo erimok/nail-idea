@@ -14,6 +14,14 @@
 | JSON-LD generator | `buildCollectionStructuredData()` and its image-gallery helper are in `src/application/support.ts`; `src/application/buildHubPage.ts` supplies the hub view-model data. |
 | Hub copy and view model | `src/application/buildHubPage.ts` combines facet data, editorial overrides, routes, and shared site chrome for any area/slug. Generated hub copy comes from `src/domain/hub-copy.ts`. |
 
+## Related links ("Explore more")
+
+These rules build a topical silo: the area page is the top hub, single-facet pages are its spokes, and combination pages sit one level below the single-facet page they extend. Links flow down the silo (area -> facet -> combination) so each page passes relevance to the pages that deepen its topic, and sibling or unrelated facet hubs are not cross-linked. This keeps each cluster focused and makes the site structure clear to search engines.
+
+- Area pages (`/manicure/`, `/pedicure/`, built by `src/application/buildAreaPage.ts`) list only single-facet groups: colors, styles (type), occasions, seasons, lengths, and finishes. They do not list shapes or combinations.
+- Nested hub pages (for example `/manicure/french-nails/` or `/manicure/medium-nails/`, built by `src/application/buildHubPage.ts`) list only indexable combinations that extend the current page's facets by one facet, such as `/manicure/short-french-nails/`. They never link to unrelated single-facet hubs.
+- In Markdown hub pages, these related links point to the corresponding `/{area}/{slug}.md` page; HTML hub pages keep their trailing-slash URLs.
+
 ## Shared vs page-specific
 
 French, nude, almond, and other hub pages share the same dynamic route, hub service, collection template, card/grid, `IdeaExplorer`, layout, header, footer, and JSON-LD builder. There are no separate French-, nude-, or almond-specific page components.

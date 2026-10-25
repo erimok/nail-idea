@@ -6,7 +6,7 @@ interface Props {
 const { light = false } = Astro.props;
 ---
 
-<a class="flex items-center gap-3" href="/" aria-label="Nail.ai home">
-	<span class="grid size-9 place-items-center rounded-full bg-lime font-display text-xl font-bold text-ink">n</span>
-	<span class:list={['text-lg font-bold', light ? 'text-white' : 'text-ink']}>nail.ai</span>
+<a class="inline-flex shrink-0 items-center font-display text-2xl font-semibold leading-none tracking-tight" href="/" aria-label="Nail Idea home">
+	<span class={light ? 'text-white' : 'text-forest'}>Nail</span>
+	<span class={light ? 'ml-1 text-lime' : 'ml-1 text-coral'}>Idea</span>
 </a>

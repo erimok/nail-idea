@@ -1,4 +1,4 @@
-# Nail.ai
+# nail-idea.com
 
 Astro project for discovering manicure and pedicure ideas. See [docs/overview.md](docs/overview.md) for the planned URL structure.
 

@@ -10,7 +10,7 @@ describe('renderLlmsTxt', () => {
 				pages: [{
 					title: 'Red [nails]',
 					description: 'Ideas for red nails.',
-					markdownUrl: 'https://nail.ai/manicure/red-nails.md',
+					markdownUrl: 'https://nail-idea.com/manicure/red-nails.md',
 				}],
 			}],
 		};
@@ -19,9 +19,9 @@ describe('renderLlmsTxt', () => {
 		const result = renderLlmsTxt(viewModel);
 
 		// Assert
-		expect(result).toContain('# Nail.ai');
+		expect(result).toContain('# nail-idea.com');
 		expect(result).toContain('## Manicure');
-		expect(result).toContain('https://nail.ai/manicure/red-nails.md');
+		expect(result).toContain('https://nail-idea.com/manicure/red-nails.md');
 		expect(result).toContain('Ideas for red nails.');
 		expect(result).not.toContain('## Pedicure');
 		expect(result).not.toContain('<a ');
@@ -33,9 +33,9 @@ describe('renderPageMarkdown', () => {
 		// Arrange
 		const viewModel = {
 			layout: {
-				title: 'Red Nail Ideas | Nail.ai',
+				title: 'Red Nail Ideas | nail-idea.com',
 				description: 'A collection of red nail designs.',
-				canonical: 'https://nail.ai/manicure/red-nails/',
+				canonical: 'https://nail-idea.com/manicure/red-nails/',
 				siteChrome: { header: { browseGroups: [], availableAreas: [] }, footer: { groups: [] } },
 			},
 			heading: 'Red Nails: 6 Ideas',
@@ -77,11 +77,12 @@ describe('renderPageMarkdown', () => {
 		expect(result).toContain('A collection of red nail designs.');
 		expect(result).toContain('Explore red designs.');
 		expect(result).toContain('Area: Manicure.');
-		expect(result).toContain('(https://nail.ai/_astro/red-1.abc123.jpg)');
+		expect(result).toContain('(https://nail-idea.com/_astro/red-1.abc123.jpg)');
 		expect(result).toContain('Cherry red tips');
 		expect(result).toContain('Glossy cherry color.');
-		expect(result).toContain('https://nail.ai/manicure/rose-nails/');
-		expect(result).toContain('https://nail.ai/manicure/red-nails/');
+		expect(result).toContain('https://nail-idea.com/manicure/rose-nails.md');
+		expect(result).not.toContain('https://nail-idea.com/manicure/rose-nails/');
+		expect(result).toContain('https://nail-idea.com/manicure/red-nails/');
 		expect(result).not.toContain('<a ');
 	});
 });

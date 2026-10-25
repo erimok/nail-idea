@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState, type SubmitEvent } from 'react';
 import type { IAIResponse } from '../libs/ai/types';
 import { searchNails, type NailSearchRecord } from '../libs/ai/nail-search';
+import { findHubForSearch } from '../libs/ai/search-facets';
+import type { SearchHubLink } from '../domain/search-hub-match';
 import aiService from '../libs/ai/local';
 import NailGrid from './NailGrid';
 
@@ -30,11 +32,13 @@ interface HeroImage {
 
 export default function IdeaExplorer({
 	nails = [],
+	hubLinks = [],
 	initialPrompt = '',
 	compact = false,
 	collage = [],
 }: {
 	nails?: readonly NailSearchRecord[];
+	hubLinks?: readonly SearchHubLink[];
 	initialPrompt?: string;
 	compact?: boolean;
 	collage?: readonly HeroImage[];
@@ -45,6 +49,7 @@ export default function IdeaExplorer({
 	const [isAnalyzing, setIsAnalyzing] = useState(false);
 	const resultsRef = useRef<HTMLElement>(null);
 	const matches = result ? searchNails(result, nails) : [];
+	const hub = result ? findHubForSearch(result, hubLinks) : undefined;
 	const visibleMatches = matches.slice(0, 3);
 	const matchCountLabel = matches.length > visibleMatches.length
 		? `Showing ${visibleMatches.length} of ${matches.length} matches`
@@ -167,7 +172,20 @@ export default function IdeaExplorer({
 						{matches.length === 0 ? (
 							<p className="mt-4 text-sm leading-6 text-muted">No close matches yet. Try another color, style, or nail shape.</p>
 						) : (
-							<NailGrid items={visibleMatches} />
+							<>
+								<NailGrid items={visibleMatches} />
+								{hub && (
+									<div className="mt-8 flex justify-center">
+										<a
+											className="inline-flex min-h-11 items-center justify-center gap-3 rounded-control border border-ink bg-white px-7 text-xs font-semibold uppercase tracking-[0.18em] text-ink shadow-soft transition hover:-translate-y-0.5 hover:bg-tint focus-visible:outline-2 focus-visible:outline-offset-3 focus-visible:outline-olive"
+											href={hub.href}
+										>
+											Show more {hub.label}
+											<span aria-hidden="true">→</span>
+										</a>
+									</div>
+								)}
+							</>
 						)}
 					</section>
 					)}

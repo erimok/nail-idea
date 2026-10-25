@@ -3,11 +3,18 @@ import { z } from 'zod';
 import keystaticConfig from '../../../keystatic.config';
 import type { NailArea } from '../../domain/areas';
 import type { NailRecord } from '../../domain/nail';
+import { orderNailsByNewest } from '../../domain/nail-order';
 import { getNailImageMetadata } from '../../libs/nail-images';
 import type { NailRepository } from '../../ports/NailRepository';
 
+const timestampSchema = z.string().refine((value) => !Number.isNaN(Date.parse(value)), {
+	message: 'Expected a valid timestamp',
+});
+
 const nailEntrySchema = z.object({
 	title: z.string().min(1),
+	created_at: timestampSchema.nullish(),
+	updated_at: timestampSchema.nullish(),
 	image: z.string().min(1),
 	imageAlt: z.string().min(1).optional(),
 	description: z.string(),
@@ -49,7 +56,7 @@ export class KeystaticNailRepository implements NailRepository {
 
 	async findAllNails(): Promise<readonly NailRecord[]> {
 		const entries = await this.#reader.collections.nails.all();
-		return entries.map(({ slug, entry }) => this.#mapEntry(slug, entry));
+		return orderNailsByNewest(entries.map(({ slug, entry }) => this.#mapEntry(slug, entry)));
 	}
 
 	async findNailsByArea(area: NailArea): Promise<readonly NailRecord[]> {
@@ -60,10 +67,14 @@ export class KeystaticNailRepository implements NailRepository {
 	#mapEntry(slug: string, entry: unknown): NailRecord {
 		const parsedSlug = z.string().min(1).parse(slug);
 		const parsedEntry = nailEntrySchema.parse(entry);
+		const createdAt = parsedEntry.created_at ?? undefined;
+		const updatedAt = parsedEntry.updated_at ?? createdAt;
 
 		return {
 			slug: parsedSlug,
 			title: parsedEntry.title,
+			...(createdAt ? { createdAt } : {}),
+			...(updatedAt ? { updatedAt } : {}),
 			image: parsedEntry.image,
 			imageSrc: this.#imageMetadataResolver(parsedEntry.image).src,
 			imageAlt: parsedEntry.imageAlt,

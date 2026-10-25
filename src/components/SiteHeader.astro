@@ -8,17 +8,19 @@ interface Props {
 }
 
 const { browseGroups, availableAreas } = Astro.props;
-const primaryArea = availableAreas[0];
 ---
 
-<header class="relative w-full bg-canvas px-3 pt-3 sm:px-5 sm:pt-4">
+<header class="sticky top-0 z-50 w-full bg-canvas px-3 pt-3 sm:px-5 sm:pt-4">
 	<div class="mx-auto flex w-full max-w-[1440px] items-center justify-between gap-5 rounded-card border border-line bg-surface px-5 py-2.5 shadow-soft sm:px-7">
 		<Logo />
-		<nav aria-label="Main navigation" class="flex items-center gap-1 sm:gap-2">
-			{primaryArea && <a class="nav-pill" href={primaryArea.href}>{primaryArea.label}</a>}
+		<nav aria-label="Main navigation" class="flex min-w-0 flex-wrap items-center justify-end gap-1 sm:flex-nowrap sm:gap-2">
+			<!-- {primaryArea && <a class="nav-pill" href={primaryArea.href}>{primaryArea.label}</a>} -->
 			<details class="browse-menu group">
 				<summary class="nav-pill cursor-pointer list-none gap-2 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-olive">
-					Browse <span class="browse-chevron" aria-hidden="true">⌄</span>
+					Browse
+					<svg class="browse-chevron" width="16" height="16" viewBox="0 0 16 16" aria-hidden="true" focusable="false">
+						<path d="m4 6 4 4 4-4" />
+					</svg>
 				</summary>
 				<div class="browse-panel absolute inset-x-3 top-full z-20 mt-2 overflow-hidden rounded-card border border-line bg-surface shadow-lift sm:inset-x-5">
 					<div class="browse-panel-heading">
@@ -56,17 +58,16 @@ const primaryArea = availableAreas[0];
 					</div>
 				</div>
 			</details>
-			<a class="nav-pill" href="/about/">About</a>
 		</nav>
 	</div>
 </header>
 
 <style>
-	.nav-pill { display: inline-flex; min-height: 40px; align-items: center; border-radius: var(--radius-control); padding: 0 14px; color: var(--color-ink-soft); font-size: 0.875rem; font-weight: 600; transition: background 140ms ease, color 140ms ease; }
+	.nav-pill { display: inline-flex; min-height: 40px; align-items: center; border-radius: var(--radius-control); padding: 0 8px; color: var(--color-ink-soft); font-size: 0.875rem; font-weight: 600; transition: background 140ms ease, color 140ms ease; }
 	.nav-pill:hover, .browse-menu[open] > .nav-pill { background: var(--color-tint); color: var(--color-coral); }
 	.nav-pill:active { background: var(--color-lime); }
 	.browse-menu > summary::-webkit-details-marker { display: none; }
-	.browse-chevron { color: var(--color-coral); font-size: 1.1rem; transition: transform 180ms ease; }
+	.browse-chevron { width: 16px; height: 16px; flex: none; fill: none; stroke: currentColor; stroke-linecap: round; stroke-linejoin: round; stroke-width: 1.75; transition: transform 180ms ease; }
 	.browse-menu[open] .browse-chevron { transform: rotate(180deg); }
 	.browse-panel { animation: browse-arrive 160ms ease-out both; transform-origin: top center; }
 	.browse-panel-inner { margin-inline: auto; max-width: 1440px; }
@@ -84,6 +85,7 @@ const primaryArea = availableAreas[0];
 	.browse-area-link { display: inline-flex; min-height: 34px; align-items: center; gap: 8px; border: 1px solid var(--color-line); border-radius: var(--radius-control); padding: 0 14px; color: var(--color-ink); font-size: 0.75rem; font-weight: 700; box-shadow: var(--shadow-soft); transition: border-color 140ms ease, background 140ms ease; }
 	.browse-area-link:hover { border-color: var(--color-olive); background: var(--color-tint); }
 	.browse-area-link:active { background: var(--color-lime); }
+	@media (min-width: 640px) { .nav-pill { padding-inline: 14px; } }
 	@keyframes browse-arrive { from { opacity: 0; transform: translateY(-5px) scale(0.99); } to { opacity: 1; transform: translateY(0) scale(1); } }
 	@media (prefers-reduced-motion: reduce) { .browse-panel, .browse-chevron, .browse-link-list a, .browse-link-list a span, .browse-area-link { animation: none; transition: none; } }
 	@media (max-width: 767px) { .browse-panel { max-height: calc(100dvh - 6rem); overflow-y: auto; } }

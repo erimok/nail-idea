@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { aNail } from '../test/builders';
-import { getAllFacetPages, getFacetPages, getNailsForArea } from './facet-combinations';
+import { findCoreStyleParentPage, getAllFacetPages, getFacetPages, getNailsForArea } from './facet-combinations';
 import { SlugCollisionError } from './slug-collision';
 
 describe('domain facet combinations', () => {
@@ -99,5 +99,35 @@ describe('domain facet combinations', () => {
 		// Assert
 		expect(action).toThrow(SlugCollisionError);
 		expect(action).toThrow(/multiple facet combinations normalize to the same slug/);
+	});
+
+	describe('findCoreStyleParentPage', () => {
+		const sixNails = (overrides: Parameters<typeof aNail>[0]) => Array.from({ length: 6 }, () => aNail(overrides));
+
+		it('returns the type hub for a combination containing a type', () => {
+			// Arrange
+			const pages = getAllFacetPages(sixNails({ colors: ['pink'], types: ['french'], finishes: ['glitter'] }));
+			const page = pages.find(({ slug }) => slug === 'pink-french-nails');
+			if (!page) throw new Error('missing page');
+
+			// Act
+			const result = findCoreStyleParentPage(page, pages);
+
+			// Assert
+			expect(result?.slug).toBe('french-nails');
+		});
+
+		it('returns nothing for a combination without a type', () => {
+			// Arrange
+			const pages = getAllFacetPages(sixNails({ colors: ['pink'], types: [], finishes: ['glitter'] }));
+			const page = pages.find(({ facets }) => facets.length === 2);
+			if (!page) throw new Error('missing page');
+
+			// Act
+			const result = findCoreStyleParentPage(page, pages);
+
+			// Assert
+			expect(result).toBeUndefined();
+		});
 	});
 });

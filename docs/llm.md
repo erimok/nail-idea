@@ -1,6 +1,6 @@
 # LLM content
 
-This document describes the static LLM-facing representation of Nail.ai.
+This document describes the static LLM-facing representation of nail-idea.com.
 The AI presentation layer is implemented as static build-time output. The human-facing
 pages and sitemap remain the source for currently published routes.
 
@@ -10,7 +10,7 @@ pages and sitemap remain the source for currently published routes.
 site's useful pages. Follow the format described at
 [llmstxt.org](https://llmstxt.org/):
 
-- Start with one H1 containing the site name (`Nail.ai`).
+- Start with one H1 containing the site name (`nail-idea.com`).
 - Add a short blockquote describing the site's manicure and pedicure ideas.
 - Organize links under H2 headings by area, such as `Manicure` and `Pedicure`.
 - Link to each indexable hub page's Markdown representation, with its page-specific
@@ -23,7 +23,7 @@ Example shape (illustrative; URLs and page descriptions must come from the site'
 route builder and page view models):
 
 ```md
-# Nail.ai
+# nail-idea.com
 
 > Find manicure and pedicure ideas, with designs organized by style and attributes.
 

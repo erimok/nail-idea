@@ -2,8 +2,8 @@ import type { NailArea } from '../domain/areas';
 import type { NailRecord } from '../domain/nail';
 
 /**
- * Returns validated domain records in the repository's canonical order.
- * Each call returns a new array while preserving the record order.
+ * Returns validated domain records newest-first by creation date, then update date.
+ * Each call returns a new array.
  */
 export interface NailRepository {
 	findAllNails(): Promise<readonly NailRecord[]>;

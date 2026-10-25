@@ -49,10 +49,11 @@ export default config({
 			label: 'Nails',
 			slugField: 'title',
 			path: 'src/content/nails/*',
-			columns: ['typesOfNails', 'shape', 'title', 'length', 'created_at'],
+			columns: ['typesOfNails', 'shape', 'title', 'length', 'created_at', 'updated_at'],
 			schema: {
 				title: fields.slug({ name: { label: 'Name (shape-length-color-style)' } }),
 				created_at: fields.datetime({ label: 'Created at', defaultValue: { kind: 'now' } }),
+				updated_at: fields.datetime({ label: 'Last updated at', defaultValue: { kind: 'now' } }),
 				image: fields.image({
 					label: 'Image',
 					directory: 'src/assets/images/nails',
@@ -80,9 +81,10 @@ export default config({
 			label: 'SEO hubs',
 			slugField: 'title',
 			path: 'src/content/hubs/*',
-			columns: ['area', 'urlSlug', 'title'],
+			columns: ['area', 'urlSlug', 'title', 'updated_at'],
 			schema: {
 				title: fields.slug({ name: { label: 'Editorial record name' } }),
+				updated_at: fields.datetime({ label: 'Last updated at', defaultValue: { kind: 'now' } }),
 				area: fields.select({
 					label: 'Nail service',
 					options: [{ label: 'Manicure', value: 'manicure' }, { label: 'Pedicure', value: 'pedicure' }],

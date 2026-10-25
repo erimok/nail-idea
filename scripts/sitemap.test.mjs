@@ -9,6 +9,10 @@ const projectRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '
 const distDirectory = path.join(projectRoot, 'dist', 'client');
 const siteUrl = new URL(process.env.SITE_URL ?? 'https://nail-idea.com');
 const getLocations = (xml) => [...xml.matchAll(/<loc>(.*?)<\/loc>/gs)].map(([, location]) => location.trim());
+const getEntries = (xml) => [...xml.matchAll(/<url>([\s\S]*?)<\/url>/g)].map(([, entry]) => ({
+	location: entry.match(/<loc>(.*?)<\/loc>/s)?.[1]?.trim(),
+	lastmod: entry.match(/<lastmod>(.*?)<\/lastmod>/s)?.[1]?.trim(),
+}));
 
 async function getHtmlFiles(directory) {
 	const entries = await readdir(directory, { withFileTypes: true });
@@ -28,19 +32,41 @@ async function getMarkdownFiles(directory) {
 	return nested.flat();
 }
 
+test('production sitemap includes source-content lastmod values', async () => {
+	const indexXml = await readFile(path.join(distDirectory, 'sitemap-index.xml'), 'utf8');
+	const sitemapLocations = getLocations(indexXml);
+	const entries = (await Promise.all(sitemapLocations.map(async (location) => {
+		const sitemapName = path.basename(new URL(location).pathname);
+		const sitemapXml = await readFile(path.join(distDirectory, sitemapName), 'utf8');
+		return getEntries(sitemapXml);
+	}))).flat();
+	const lastmodByPath = new Map(entries.map(({ location, lastmod }) => [new URL(location).pathname, lastmod]));
+
+	assert.match(lastmodByPath.get('/') ?? '', /^\d{4}-\d{2}-\d{2}T00:00:00\.000Z$/);
+	assert.match(lastmodByPath.get('/manicure/') ?? '', /^\d{4}-\d{2}-\d{2}T00:00:00\.000Z$/);
+	assert.equal(lastmodByPath.get('/about/'), undefined);
+	for (const [pathname, lastmod] of lastmodByPath) {
+		if (pathname !== '/about/') {
+			assert.match(lastmod ?? '', /^\d{4}-\d{2}-\d{2}T00:00:00\.000Z$/, `${pathname} should use a content date`);
+		}
+	}
+});
+
 test('production sitemap includes only indexable routes', async () => {
 	const indexXml = await readFile(path.join(distDirectory, 'sitemap-index.xml'), 'utf8');
 	const sitemapLocations = getLocations(indexXml);
 	assert.ok(sitemapLocations.length > 0, 'sitemap index should point to at least one sitemap');
 
-	const pageLocations = (await Promise.all(sitemapLocations.map(async (location) => {
+	const pageEntries = (await Promise.all(sitemapLocations.map(async (location) => {
 		const sitemapName = path.basename(new URL(location).pathname);
 		const sitemapXml = await readFile(path.join(distDirectory, sitemapName), 'utf8');
-		return getLocations(sitemapXml);
+		return getEntries(sitemapXml);
 	}))).flat();
 
+	const pageLocations = pageEntries.map(({ location }) => location);
 	const pagePaths = pageLocations.map((location) => new URL(location));
 	const hasPath = (pathname) => pagePaths.some((url) => url.origin === siteUrl.origin && url.pathname === pathname);
+	const lastmodByPath = new Map(pageEntries.map(({ location, lastmod }) => [new URL(location).pathname, lastmod]));
 	const llmsIndex = await readFile(path.join(distDirectory, 'llms.txt'), 'utf8');
 	const markdownFiles = await getMarkdownFiles(distDirectory);
 	const markdownPaths = markdownFiles.map((file) => `/${path.relative(distDirectory, file)}`);
@@ -63,6 +89,13 @@ test('production sitemap includes only indexable routes', async () => {
 	assert.ok(hasPath('/'), 'sitemap should include the homepage');
 	assert.ok(hasPath('/manicure/'), 'sitemap should include the manicure page');
 	assert.ok(!hasPath('/pedicure/'), 'empty pedicure page should not be in the sitemap');
+	for (const [pathname, lastmod] of lastmodByPath) {
+		if (pathname === '/about/') {
+			assert.equal(lastmod, undefined, 'static About page should omit lastmod without a source timestamp');
+		} else {
+			assert.match(lastmod ?? '', /^\d{4}-\d{2}-\d{2}(?:T00:00:00\.000Z)?$/, `${pathname} should have a date-only lastmod`);
+		}
+	}
 
 	let noindexHubPath;
 	for (const htmlFile of await getHtmlFiles(distDirectory)) {
@@ -72,7 +105,7 @@ test('production sitemap includes only indexable routes', async () => {
 		const pathname = relative === 'index.html' ? '/' : `/${relative.replace(/\/index\.html$/, '').replace(/\.html$/, '')}/`;
 		assert.equal(document.querySelectorAll('main').length, 1, `${pathname} should have one main landmark`);
 		assert.equal(document.querySelectorAll('h1').length, 1, `${pathname} should have one H1`);
-		for (const image of document.querySelectorAll('img')) {
+		for (const image of document.querySelectorAll('img:not([data-gallery-image])')) {
 			assert.ok(image.hasAttribute('alt'), `${pathname} images should have alt attributes`);
 			assert.ok(image.hasAttribute('width') && image.hasAttribute('height'), `${pathname} images should have intrinsic dimensions`);
 		}
@@ -84,12 +117,15 @@ test('production sitemap includes only indexable routes', async () => {
 		}
 		if (document.querySelector('meta[name="robots"][content="noindex,follow"]')) {
 			assert.ok(!hasPath(pathname), `noindex page ${pathname} must not appear in the sitemap`);
-			if (/^\/(?:manicure|pedicure)\/[^/]+\/$/.test(pathname)) noindexHubPath ??= pathname;
+			if (/^\/(?:manicure|pedicure)\/[^/]+\/$/.test(pathname)) {
+				noindexHubPath ??= pathname;
+				assert.equal(document.querySelector('[data-show-more]'), null, `${pathname} should not show a button without deferred cards`);
+			}
 		}
 	}
 
 	const homepage = await readFile(path.join(distDirectory, 'index.html'), 'utf8');
-	assert.match(homepage, /<title>Manicure Ideas by Color, Shape &amp; Occasion \| Nail\.ai<\/title>/);
+	assert.match(homepage, /<title>Manicure Ideas by Color, Shape &amp; Occasion \| nail-idea\.com<\/title>/);
 	assert.match(homepage, /<meta name="description" content="Browse manicure ideas by color, shape, and occasion, or describe your look and get matching nail designs\."/);
 	assert.doesNotMatch(homepage, /\b\d+ designs\b/);
 	assert.match(homepage, /fonts\.googleapis\.com\/css2/);
@@ -111,7 +147,7 @@ test('production sitemap includes only indexable routes', async () => {
 	assert.ok(Array.isArray(graph['@graph']), 'homepage JSON-LD should use @graph');
 	const schemaFaq = graph['@graph'].find((entry) => entry['@type'] === 'FAQPage').mainEntity;
 	const visibleFaq = [...document.querySelectorAll('main details')].map((item) => ({
-		question: item.querySelector('summary')?.textContent,
+		question: item.querySelector('summary span:not([aria-hidden="true"])')?.textContent?.trim(),
 		answer: item.querySelector('p')?.textContent,
 	}));
 	assert.deepEqual(visibleFaq.map(({ question }) => question), schemaFaq.map(({ name }) => name));
@@ -153,4 +189,34 @@ test('production sitemap includes only indexable routes', async () => {
 			await access(path.join(distDirectory, imagePath.replace(/^\//, '')));
 		}
 	}
+});
+
+test('large hub galleries keep all designs in HTML and small hubs omit the button', async () => {
+	const frenchHub = await readFile(path.join(distDirectory, 'manicure', 'french-nails', 'index.html'), 'utf8');
+	const frenchDocument = new JSDOM(frenchHub).window.document;
+	const frenchCards = frenchDocument.querySelectorAll('article');
+	const frenchItemList = JSON.parse(frenchDocument.querySelector('script[type="application/ld+json"]')?.textContent ?? '{}')
+		['@graph'].find((entry) => entry['@type'] === 'ItemList');
+	assert.ok(frenchCards.length > 24, 'French hub should have enough designs to defer cards');
+	assert.equal(frenchDocument.querySelectorAll('article[data-gallery-deferred][hidden]').length, frenchCards.length - 24);
+	assert.equal(Number(frenchDocument.querySelector('[data-show-more]')?.getAttribute('data-total-count')), frenchCards.length);
+	assert.equal(frenchItemList.itemListElement.length, frenchCards.length, 'JSON-LD should include every server-rendered design');
+	assert.match(frenchHub, /<noscript>[\s\S]*?\[data-gallery-deferred\]\[hidden\][\s\S]*?\[data-show-more\]/);
+
+	const htmlFiles = await getHtmlFiles(distDirectory);
+	let smallHub;
+	for (const htmlFile of htmlFiles) {
+		const html = await readFile(htmlFile, 'utf8');
+		const document = new JSDOM(html).window.document;
+		const relative = path.relative(distDirectory, htmlFile);
+		const pathname = relative === 'index.html' ? '/' : `/${relative.replace(/\/index\.html$/, '').replace(/\.html$/, '')}/`;
+		if (/^\/(?:manicure|pedicure)\/[^/]+\/$/.test(pathname)
+			&& document.querySelector('meta[name="robots"][content="noindex,follow"]')
+			&& document.querySelectorAll('article').length <= 24) {
+			smallHub = document;
+			break;
+		}
+	}
+	assert.ok(smallHub, 'there should be a small noindex hub for the no-button check');
+	assert.equal(smallHub.querySelector('[data-show-more]'), null, 'small hubs should not show the button');
 });

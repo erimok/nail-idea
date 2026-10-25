@@ -25,6 +25,9 @@ type FacetRegistryEntry = { name: FacetKind; combinable: boolean };
 
 export const facetRegistry = facetDefinitions.map(({ name, combinable }) => ({ name, combinable })) as ReadonlyArray<FacetRegistryEntry>;
 
+// The facet kind that defines a design's core style; its hub is the parent of combination hubs.
+export const coreStyleFacetKind: FacetKind = 'type';
+
 export const facetKinds = facetDefinitions.map(({ name }) => name) as readonly FacetKind[];
 export const combinableFacetKinds = [...facetDefinitions]
 	.filter((definition): definition is CombinableFacetDefinition => definition.combinable)

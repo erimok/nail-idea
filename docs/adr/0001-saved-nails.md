@@ -6,7 +6,7 @@
 
 ## Context
 
-Nail.ai is fully prerendered (SSG). Visitors browse hubs at `/{area}/{slug}/` made of nail cards. We want visitors to save ("like") designs and see them on a separate page.
+nail-idea.com is fully prerendered (SSG). Visitors browse hubs at `/{area}/{slug}/` made of nail cards. We want visitors to save ("like") designs and see them on a separate page.
 
 Constraints:
 

@@ -8,6 +8,7 @@ const expectedHubs = [
 	{
 		area: 'manicure',
 		urlSlug: 'red-nails',
+		updatedAt: '2026-10-04T12:00',
 		intro: 'Red hub intro.',
 		metaDescription: 'Red hub description.',
 		faq: [{ question: 'What is a red manicure?', answer: 'A manicure with red polish.' }],

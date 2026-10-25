@@ -10,7 +10,9 @@ import { siteServices, siteUrl } from './src/composition.ts';
 import { devNailContentEndpoint } from './src/libs/dev-nail-content-endpoint.ts';
 
 // https://astro.build/config
-const sitemapPaths = new Set(await siteServices.resolveSitemapRoutes());
+const sitemapRoutes = await siteServices.resolveSitemapRoutes();
+const sitemapPaths = new Set(sitemapRoutes.map(({ url }) => url));
+const sitemapLastmod = new Map(sitemapRoutes.map(({ url, lastmod }) => [url, lastmod]));
 
 export default defineConfig({
 	site: siteUrl,
@@ -21,6 +23,10 @@ export default defineConfig({
 	},
 	integrations: [react(), markdoc(), ...(process.env.NODE_ENV === 'development' ? [keystatic()] : []), sitemap({
 		filter: (page) => sitemapPaths.has(new URL(page).pathname),
+		serialize: (page) => {
+			const lastmod = sitemapLastmod.get(new URL(page.url).pathname);
+			return lastmod ? { ...page, lastmod } : page;
+		},
 	})],
 	vite: {
 		plugins: [tailwindcss(), devNailContentEndpoint()],

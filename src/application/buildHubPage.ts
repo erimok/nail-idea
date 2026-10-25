@@ -1,6 +1,7 @@
-import { getAllFacetPages, isDirectSubpageOfFacetPage } from '../domain/facet-combinations';
+import { findCoreStyleParentPage, getAllFacetPages, isDirectSubpageOfFacetPage } from '../domain/facet-combinations';
 import type { NailArea } from '../domain/areas';
-import { generateHubCopy } from '../domain/hub-copy';
+import { formatHubAnchorLabel, generateHubCopy } from '../domain/hub-copy';
+import { INITIAL_DESIGN_COUNT, splitDesigns } from '../domain/gallery';
 import { isIndexable } from '../domain/indexability';
 import { buildAreaRoute, buildFacetMarkdownRoute, buildFacetRoute } from '../domain/routes';
 import type { SitePorts } from './ports';
@@ -15,6 +16,8 @@ import {
 } from './support';
 import { resolveBrowseLinks } from './resolveBrowseLinks';
 import type { CollectionPageViewModel } from './view-models';
+
+const DEFAULT_SOCIAL_IMAGE_PATH = '/og/home.jpg';
 
 interface BuildHubPageParams {
 	area: NailArea;
@@ -42,11 +45,15 @@ export async function buildHubPage(
 	const pageNailSlugs = new Set(page.nails.map((nail) => nail.slug));
 	const canonical = buildCanonicalUrl(siteConfig.siteUrl, buildFacetRoute(area, slug));
 	const facetLabel = formatFacetBreadcrumbLabel(page);
+	const coreStyleParent = findCoreStyleParentPage(page, pages);
 	const breadcrumbs = [
 		{ label: 'Home', href: '/' },
 		{ label: formatAreaLabel(area), href: buildAreaRoute(area) },
+		...(coreStyleParent
+			? [{ label: formatFacetBreadcrumbLabel(coreStyleParent), href: buildFacetRoute(area, coreStyleParent.slug) }]
+			: []),
 		{ label: facetLabel },
-	] as const;
+	];
 
 	return {
 		layout: {
@@ -57,6 +64,8 @@ export async function buildHubPage(
 				? buildCanonicalUrl(siteConfig.siteUrl, buildFacetMarkdownRoute(area, slug))
 				: undefined,
 			noIndex: !isIndexable(page),
+			socialImage: buildCanonicalUrl(siteConfig.siteUrl, DEFAULT_SOCIAL_IMAGE_PATH),
+			socialImageAlt: `${copy.heading} on nail-idea.com`,
 			structuredData: buildCollectionStructuredData({
 				canonical,
 				heading: copy.heading,
@@ -72,18 +81,26 @@ export async function buildHubPage(
 		paragraphs: [],
 		intro: copy.intro,
 		designs: page.nails,
+		designGrid: splitDesigns(page.nails, INITIAL_DESIGN_COUNT),
 		searchRecords: toSearchRecords(page.nails),
 		breadcrumbs,
 		relatedLinks: relatedPages.length > 0
 			? resolveBrowseLinks({
 				pages: relatedPages.filter((candidate) => candidate.nails.some((nail) => pageNailSlugs.has(nail.slug))
-					&& (page.kind !== 'type' || isDirectSubpageOfFacetPage(page, candidate))),
+					&& isDirectSubpageOfFacetPage(page, candidate)),
 				title: `Explore more ${area} ideas`,
 				currentSlug: slug,
-				parentFacets: page.kind === 'type' ? page.facets : undefined,
+				parentFacets: page.facets,
 			})
 			: undefined,
-		sectionTitle: `${page.nails.length} ${facetLabel.toLowerCase()} designs`,
+		coreStyleLink: coreStyleParent
+			? {
+				label: formatHubAnchorLabel(coreStyleParent),
+				href: buildFacetRoute(area, coreStyleParent.slug),
+				designCount: coreStyleParent.nails.length,
+			}
+			: undefined,
+		sectionTitle: `${page.nails.length} ${facetLabel} designs`,
 		faq: page.editorial?.faq ?? [],
 		emptyStateMessage: `New ${area} ideas are coming soon.`,
 	};

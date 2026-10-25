@@ -8,6 +8,7 @@ function setup() {
 		<div id="root">
 			<button data-gallery-src="/a.webp" data-gallery-alt="A" data-gallery-caption="Alpha"></button>
 			<button data-gallery-src="/b.webp" data-gallery-alt="B" data-gallery-caption="Beta"></button>
+			<article hidden><button data-gallery-src="/hidden.webp" data-gallery-alt="Hidden" data-gallery-caption="Hidden"></button></article>
 		</div>
 		<dialog id="dlg">
 			<img data-gallery-image />

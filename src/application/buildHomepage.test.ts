@@ -59,6 +59,10 @@ describe('buildHomepage', () => {
 			'Short nails',
 		]);
 		expect(result.browseFeatures.map(({ title }) => title)).toEqual(['Manicure ideas', 'Browse by shape']);
+		expect(result.searchHubLinks).toContainEqual(expect.objectContaining({
+			href: '/manicure/red-french-almond-nails/',
+			designCount: 9,
+		}));
 		expect(result.faqItems).toEqual([{ question: 'CMS question?', answer: 'CMS answer.' }]);
 		expect(result.layout.structuredData?.['@graph']).toContainEqual(expect.objectContaining({
 			'@type': 'FAQPage',

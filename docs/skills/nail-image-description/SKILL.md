@@ -5,7 +5,7 @@ description: Analyze an uploaded nail-design image and produce a Nails collectio
 
 # Nail Image Description
 
-Use this skill when the user provides an image of a manicure or pedicure and wants it described or prepared as a Nail.ai `nails` collection entry.
+Use this skill when the user provides an image of a manicure or pedicure and wants it described or prepared as a nail-idea.com `nails` collection entry.
 
 ## Input
 

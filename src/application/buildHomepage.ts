@@ -1,5 +1,5 @@
 import { nailAreas } from '../domain/areas';
-import { getFacetPages } from '../domain/facet-combinations';
+import { getAllFacetPages, getFacetPages } from '../domain/facet-combinations';
 import type { SitePorts } from './ports';
 import {
 	attachHubEditorial,
@@ -7,6 +7,7 @@ import {
 	buildHomepageBrowseFeatures,
 	buildHomepageCategories,
 	buildHomepageStructuredData,
+	buildSearchHubLinks,
 	buildSiteChromeViewModel,
 	toSearchRecords,
 } from './support';
@@ -35,7 +36,7 @@ export async function buildHomepage({
 
 	return {
 		layout: {
-			title: 'Manicure Ideas by Color, Shape & Occasion | Nail.ai',
+			title: 'Manicure Ideas by Color, Shape & Occasion | nail-idea.com',
 			description,
 			canonical,
 			socialImage,
@@ -45,6 +46,7 @@ export async function buildHomepage({
 		},
 		nails,
 		searchRecords: toSearchRecords(nails),
+		searchHubLinks: buildSearchHubLinks(attachHubEditorial(getAllFacetPages(nails), editorial)),
 		featured: nails.slice(0, 9),
 		categories,
 		faqItems,

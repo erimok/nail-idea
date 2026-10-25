@@ -32,7 +32,7 @@ describe('buildLlmsIndex', () => {
 		expect(result.areas[0].area).toBe('manicure');
 		expect(result.areas[0].pages).toContainEqual({
 			title: 'Red Nails: 6 Ideas',
-			description: 'Browse red manicure ideas: solid looks. Save your favorites on Nail.ai.',
+			description: 'Browse 6 red manicure ideas: solid looks. Save your favorites on nail-idea.com.',
 			markdownUrl: 'https://nail-idea.com/manicure/red-nails.md',
 		});
 		expect(result.areas[0].pages.every(({ markdownUrl }) => !markdownUrl.includes('blue-nails'))).toBe(true);

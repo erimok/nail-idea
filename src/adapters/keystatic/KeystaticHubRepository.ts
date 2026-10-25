@@ -5,9 +5,14 @@ import type { NailArea } from '../../domain/areas';
 import type { HubEditorial } from '../../domain/hub-types';
 import type { HubRepository } from '../../ports/HubRepository';
 
+const timestampSchema = z.string().refine((value) => !Number.isNaN(Date.parse(value)), {
+	message: 'Expected a valid timestamp',
+});
+
 const hubEntrySchema = z.object({
 	area: z.enum(['manicure', 'pedicure']),
 	urlSlug: z.string().trim().min(1),
+	updated_at: timestampSchema.nullish(),
 	intro: z.string().trim().min(1),
 	metaDescription: z.string().trim().min(1),
 	faq: z.array(z.object({
@@ -42,6 +47,7 @@ export class KeystaticHubRepository implements HubRepository {
 		return {
 			area: parsedEntry.area,
 			urlSlug: parsedEntry.urlSlug,
+			...(parsedEntry.updated_at ? { updatedAt: parsedEntry.updated_at } : {}),
 			intro: parsedEntry.intro,
 			metaDescription: parsedEntry.metaDescription,
 			faq: parsedEntry.faq,

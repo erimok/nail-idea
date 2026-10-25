@@ -12,19 +12,19 @@ import Chip from './ui/Chip.astro';
 
 interface Props extends HomepageViewModel {}
 
-const { layout, nails, searchRecords, featured, categories, faqItems, browseFeatures } = Astro.props;
+const { layout, nails, searchRecords, searchHubLinks, featured, categories, faqItems, browseFeatures } = Astro.props;
 const primaryArea = layout.siteChrome.header.availableAreas[0];
 ---
 
 <BaseLayout {...layout}>
 	<main>
-		<HomeHero nails={nails} searchRecords={searchRecords} />
+		<HomeHero nails={nails} searchRecords={searchRecords} searchHubLinks={searchHubLinks} />
 		<Section bg="surface">
 			<div class="grid gap-10 lg:grid-cols-2 lg:gap-20">
 				<div class="max-w-prose">
 					<p class="eyebrow mb-3">Find your next look</p>
 					<h2 class="font-display text-4xl font-semibold leading-[1.15] text-ink sm:text-5xl">Manicure ideas for the <em class="font-semibold italic text-olive">way you live</em></h2>
-					<p class="mt-5 text-base leading-8 text-ink-soft">Not sure what to ask your nail tech for? Describe the look you have in mind and Nail.ai turns it into a clear plan.</p>
+					<p class="mt-5 text-base leading-8 text-ink-soft">Not sure what to ask your nail tech for? Describe the look you have in mind and nail-idea.com turns it into a clear plan.</p>
 					<p class="mt-5 text-base leading-8 text-ink-soft">Browse designs by color, shape, style, or occasion, then bring a reference you like to your appointment. Add details to your search to narrow down the closest looks.</p>
 				</div>
 				<div class="grid gap-5 sm:grid-cols-2">
@@ -43,7 +43,7 @@ const primaryArea = layout.siteChrome.header.availableAreas[0];
 				{primaryArea && <a slot="action" class="rounded-control border border-line bg-surface px-5 py-3 text-[0.6875rem] font-semibold uppercase tracking-[0.16em] text-ink shadow-soft transition hover:-translate-y-0.5 hover:border-coral hover:text-coral hover:shadow-lift" href={primaryArea.href}>View all {primaryArea.label.toLowerCase()} ideas</a>}
 			</SectionHeader>
 			<p class="-mt-5 mb-6 max-w-prose text-sm leading-6 text-muted">Designs are organized by color, shape, length, finish, and occasion. Nail design photos are AI-generated visual references and may differ from results on natural nails.</p>
-			<NailCollectionGrid items={featured.map((nail, index) => ({ nail, eager: index < 3 }))} />
+			<NailCollectionGrid items={featured.map((nail) => ({ nail }))} />
 			{primaryArea && <div class="mt-8 flex justify-center"><Chip href={primaryArea.href}>View all {primaryArea.label.toLowerCase()} ideas</Chip></div>}
 		</Section>
 		<FaqSection items={faqItems} />

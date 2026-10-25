@@ -131,4 +131,46 @@ describe('IdeaExplorer', () => {
 			}
 		}
 	});
+
+	it('links to the matching collection page from the results', async () => {
+		const user = userEvent.setup();
+		const nail: NailSearchRecord = {
+			slug: 'nude-almond',
+			title: 'Nude almond',
+			description: 'A soft nude set.',
+			typesOfNails: 'manicure',
+			colors: ['nude'],
+			types: [],
+			occasions: [],
+			shape: 'almond',
+			length: 'short',
+			finishes: [],
+			nailConcerns: [],
+		};
+		const hubLinks = [{
+			area: 'manicure' as const,
+			facets: [{ kind: 'color' as const, value: 'nude' }, { kind: 'shape' as const, value: 'almond' }],
+			href: '/manicure/nude-almond-nails/',
+			label: 'nude almond nails',
+			designCount: 8,
+		}];
+		render(<IdeaExplorer nails={[nail]} hubLinks={hubLinks} />);
+
+		await user.type(screen.getByRole('textbox', { name: 'Describe your nail idea' }), 'Short nude almond nails.');
+		await user.click(screen.getByRole('button', { name: /find my designs/i }));
+
+		const link = await screen.findByRole('link', { name: /show more nude almond nails/i });
+		expect(link.getAttribute('href')).toBe('/manicure/nude-almond-nails/');
+	});
+
+	it('omits the collection link when no hub fits the search', async () => {
+		const user = userEvent.setup();
+		render(<IdeaExplorer nails={[]} hubLinks={[]} />);
+
+		await user.type(screen.getByRole('textbox', { name: 'Describe your nail idea' }), 'Short nude almond nails.');
+		await user.click(screen.getByRole('button', { name: /find my designs/i }));
+
+		await screen.findByRole('region', { name: 'Matching nail ideas' });
+		expect(screen.queryByRole('link', { name: /show more/i })).toBeNull();
+	});
 });

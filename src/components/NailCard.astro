@@ -6,15 +6,20 @@ import { getNailImageMetadata } from '../libs/nail-images';
 interface Props {
 	nail: NailRecord;
 	eager?: boolean;
+	deferred?: boolean;
 }
 
-const { nail, eager = false } = Astro.props;
+const { nail, eager = false, deferred = false } = Astro.props;
 const image = getNailImageMetadata(nail.image);
 const full = await getImage({ src: image, width: 1600, format: 'webp' });
 const meta = [nail.length, nail.shape, ...nail.finishes].filter(Boolean);
 ---
 
-<article class="group flex h-full flex-col overflow-hidden rounded-card border border-line bg-surface p-1.5 shadow-soft transition duration-300 hover:-translate-y-1 hover:shadow-lift">
+<article
+	class="group flex h-full flex-col overflow-hidden rounded-card border border-line bg-surface p-1.5 shadow-soft transition duration-300 hover:-translate-y-1 hover:shadow-lift"
+	hidden={deferred}
+	data-gallery-deferred={deferred ? '' : undefined}
+>
 	<button
 		type="button"
 		class="group/zoom relative block w-full cursor-zoom-in rounded-[1.1rem] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-olive"

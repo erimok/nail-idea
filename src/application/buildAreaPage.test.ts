@@ -71,8 +71,7 @@ describe('buildAreaPage', () => {
 			]),
 		}));
 		expect(result.relatedLinks?.title).toBe('You may like');
-		expect(result.relatedLinks?.groups.find(({ label }) => label === 'Combinations')?.links).toContainEqual(
-			{ label: 'Red Solid', href: '/manicure/red-solid-nails/' },
-		);
+		expect(result.relatedLinks?.groups.map(({ label }) => label)).not.toContain('Combinations');
+		expect(result.relatedLinks?.groups.map(({ label }) => label)).not.toContain('Shapes');
 	});
 });

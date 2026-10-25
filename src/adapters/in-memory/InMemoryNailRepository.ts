@@ -1,5 +1,6 @@
 import type { NailArea } from '../../domain/areas';
 import type { NailRecord } from '../../domain/nail';
+import { orderNailsByNewest } from '../../domain/nail-order';
 import type { NailRepository } from '../../ports/NailRepository';
 
 function belongsToArea(nail: NailRecord, area: NailArea): boolean {
@@ -14,10 +15,10 @@ export class InMemoryNailRepository implements NailRepository {
 	}
 
 	async findAllNails(): Promise<readonly NailRecord[]> {
-		return [...this.#nails];
+		return orderNailsByNewest(this.#nails);
 	}
 
 	async findNailsByArea(area: NailArea): Promise<readonly NailRecord[]> {
-		return this.#nails.filter((nail) => belongsToArea(nail, area));
+		return orderNailsByNewest(this.#nails).filter((nail) => belongsToArea(nail, area));
 	}
 }

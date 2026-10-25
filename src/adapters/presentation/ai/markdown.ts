@@ -73,7 +73,7 @@ export function renderPageMarkdown(viewModel: CollectionPageViewModel): string {
 							type: 'paragraph',
 							children: [{
 								type: 'link',
-								url: absoluteUrl(link.href, viewModel.layout.canonical),
+								url: absoluteUrl(link.href.replace(/\/$/, '.md'), viewModel.layout.canonical),
 								children: [text(link.label)],
 							}],
 						}],
@@ -101,7 +101,7 @@ export function renderPageMarkdown(viewModel: CollectionPageViewModel): string {
 
 export function renderLlmsTxt(viewModel: LlmsIndexViewModel): string {
 	const children: RootContent[] = [
-		{ type: 'heading', depth: 1, children: [text('Nail.ai')] },
+		{ type: 'heading', depth: 1, children: [text('nail-idea.com')] },
 		{
 			type: 'blockquote',
 			children: [{

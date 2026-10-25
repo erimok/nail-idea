@@ -1,7 +1,8 @@
 import type { NailRecord } from './nail';
 import { isNailArea, nailAreas, type NailArea } from './areas';
-import { combinableFacetKinds, facetKinds, getFacetValues, type CombinableFacetKind, type FacetKind } from './facets/registry';
+import { combinableFacetKinds, coreStyleFacetKind, facetKinds, getFacetValues, type CombinableFacetKind, type FacetKind } from './facets/registry';
 import type { HubEditorial } from './hub-types';
+import { isIndexable } from './indexability';
 import { normalizeSlug } from './slug';
 import { createCombinationSlugCollisionError, createFacetSlugCollisionError } from './slug-collision';
 
@@ -35,6 +36,25 @@ export function isDirectSubpageOfFacetPage(
 ): boolean {
 	return candidate.facets.length === parent.facets.length + 1
 		&& isSubpageOfFacetPage(parent, candidate);
+}
+
+export function findCoreStyleParentPage<T extends Pick<NailFacetPage, 'area' | 'facets' | 'nails'>>(
+	page: Pick<NailFacetPage, 'area' | 'facets'>,
+	pages: readonly T[],
+): T | undefined {
+	const coreFacets = page.facets.filter((facet) => facet.kind === coreStyleFacetKind);
+
+	if (page.facets.length < 2) return undefined;
+
+	for (const coreFacet of coreFacets) {
+		const parent = pages.find((candidate) => candidate.area === page.area
+			&& candidate.facets.length === 1
+			&& candidate.facets[0].kind === coreFacet.kind
+			&& candidate.facets[0].value === coreFacet.value);
+		if (parent && isIndexable(parent)) return parent;
+	}
+
+	return undefined;
 }
 
 function belongsToArea(nail: NailRecord, area: NailArea): boolean {
