@@ -42,6 +42,7 @@ describe('renderPageMarkdown', () => {
 			prompt: 'red manicure ideas',
 			paragraphs: [],
 			intro: [{ text: 'Explore red designs.' }],
+			editorialSections: [{ heading: 'Choosing a red shade', body: 'Compare warm and cool reds with a reference image.' }],
 			designs: [{
 				slug: 'red-1',
 				title: 'Cherry red tips',
@@ -76,6 +77,8 @@ describe('renderPageMarkdown', () => {
 		expect(result).toContain('# Red Nails: 6 Ideas');
 		expect(result).toContain('A collection of red nail designs.');
 		expect(result).toContain('Explore red designs.');
+		expect(result).toContain('## Choosing a red shade');
+		expect(result).toContain('Compare warm and cool reds with a reference image.');
 		expect(result).toContain('Area: Manicure.');
 		expect(result).toContain('(https://nail-idea.com/_astro/red-1.abc123.jpg)');
 		expect(result).toContain('Cherry red tips');

@@ -1,7 +1,7 @@
 import type { IntroSegment } from '../domain/hub-copy';
 import type { NailArea } from '../domain/areas';
 import type { DesignGrid } from '../domain/gallery';
-import type { HubFaqItem } from '../domain/hub-types';
+import type { HubEditorialSection, HubFaqItem } from '../domain/hub-types';
 import type { NailRecord, NailSearchRecord } from '../domain/nail';
 import type { SearchHubLink } from '../domain/search-hub-match';
 
@@ -48,6 +48,7 @@ export interface LayoutViewModel {
 	noIndex?: boolean;
 	socialImage?: string;
 	socialImageAlt?: string;
+	socialImageDimensions?: { width: number; height: number };
 	structuredData?: Record<string, unknown>;
 	siteChrome: SiteChromeViewModel;
 }
@@ -64,6 +65,7 @@ export interface CollectionPageViewModel {
 	prompt: string;
 	paragraphs: readonly string[];
 	intro?: readonly IntroSegment[];
+	editorialSections?: readonly HubEditorialSection[];
 	designs: readonly NailRecord[];
 	designGrid?: DesignGrid;
 	searchRecords: readonly NailSearchRecord[];

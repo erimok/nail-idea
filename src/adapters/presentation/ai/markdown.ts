@@ -57,6 +57,13 @@ export function renderPageMarkdown(viewModel: CollectionPageViewModel): string {
 		},
 	];
 
+	for (const section of viewModel.editorialSections ?? []) {
+		children.push(
+			{ type: 'heading', depth: 2, children: [text(section.heading)] },
+			{ type: 'paragraph', children: [text(section.body)] },
+		);
+	}
+
 	if (viewModel.relatedLinks) {
 		const links = viewModel.relatedLinks.groups.flatMap((group) => group.links);
 		if (links.length > 0) {

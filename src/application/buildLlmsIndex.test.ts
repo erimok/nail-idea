@@ -3,7 +3,7 @@ import { InMemoryHubRepository } from '../adapters/in-memory/InMemoryHubReposito
 import { InMemoryNailRepository } from '../adapters/in-memory/InMemoryNailRepository';
 import { InMemorySiteContentRepository } from '../adapters/in-memory/InMemorySiteContentRepository';
 import { InMemorySiteConfig } from '../adapters/in-memory/InMemorySiteConfig';
-import { aNail } from '../test/builders';
+import { aHub, aNail } from '../test/builders';
 import { buildLlmsIndex } from './buildLlmsIndex';
 
 describe('buildLlmsIndex', () => {
@@ -19,7 +19,12 @@ describe('buildLlmsIndex', () => {
 		];
 		const ports = {
 			nailRepository: new InMemoryNailRepository(nails),
-			hubRepository: new InMemoryHubRepository([]),
+			hubRepository: new InMemoryHubRepository([aHub({
+				area: 'manicure',
+				urlSlug: 'red-nails',
+				intro: 'A curated introduction.',
+				metaDescription: 'Browse 6 red manicure ideas: solid looks. Save your favorites on nail-idea.com.',
+			})]),
 			siteContentRepository: new InMemorySiteContentRepository(),
 			siteConfig: new InMemorySiteConfig(),
 		};

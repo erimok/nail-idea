@@ -8,6 +8,7 @@ import { JSDOM } from 'jsdom';
 const projectRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const distDirectory = path.join(projectRoot, 'dist', 'client');
 const siteUrl = new URL(process.env.SITE_URL ?? 'https://nail-idea.com');
+const staticPagePaths = ['/about/', '/terms/', '/privacy-policy/'];
 const getLocations = (xml) => [...xml.matchAll(/<loc>(.*?)<\/loc>/gs)].map(([, location]) => location.trim());
 const getEntries = (xml) => [...xml.matchAll(/<url>([\s\S]*?)<\/url>/g)].map(([, entry]) => ({
 	location: entry.match(/<loc>(.*?)<\/loc>/s)?.[1]?.trim(),
@@ -44,9 +45,11 @@ test('production sitemap includes source-content lastmod values', async () => {
 
 	assert.match(lastmodByPath.get('/') ?? '', /^\d{4}-\d{2}-\d{2}T00:00:00\.000Z$/);
 	assert.match(lastmodByPath.get('/manicure/') ?? '', /^\d{4}-\d{2}-\d{2}T00:00:00\.000Z$/);
-	assert.equal(lastmodByPath.get('/about/'), undefined);
+	for (const pathname of staticPagePaths) {
+		assert.equal(lastmodByPath.get(pathname), undefined);
+	}
 	for (const [pathname, lastmod] of lastmodByPath) {
-		if (pathname !== '/about/') {
+		if (!staticPagePaths.includes(pathname)) {
 			assert.match(lastmod ?? '', /^\d{4}-\d{2}-\d{2}T00:00:00\.000Z$/, `${pathname} should use a content date`);
 		}
 	}
@@ -88,10 +91,12 @@ test('production sitemap includes only indexable routes', async () => {
 
 	assert.ok(hasPath('/'), 'sitemap should include the homepage');
 	assert.ok(hasPath('/manicure/'), 'sitemap should include the manicure page');
+	assert.ok(hasPath('/terms/'), 'sitemap should include the Terms of Use page');
+	assert.ok(hasPath('/privacy-policy/'), 'sitemap should include the Privacy Policy page');
 	assert.ok(!hasPath('/pedicure/'), 'empty pedicure page should not be in the sitemap');
 	for (const [pathname, lastmod] of lastmodByPath) {
-		if (pathname === '/about/') {
-			assert.equal(lastmod, undefined, 'static About page should omit lastmod without a source timestamp');
+		if (staticPagePaths.includes(pathname)) {
+			assert.equal(lastmod, undefined, `static page ${pathname} should omit lastmod without a source timestamp`);
 		} else {
 			assert.match(lastmod ?? '', /^\d{4}-\d{2}-\d{2}(?:T00:00:00\.000Z)?$/, `${pathname} should have a date-only lastmod`);
 		}
@@ -105,9 +110,25 @@ test('production sitemap includes only indexable routes', async () => {
 		const pathname = relative === 'index.html' ? '/' : `/${relative.replace(/\/index\.html$/, '').replace(/\.html$/, '')}/`;
 		assert.equal(document.querySelectorAll('main').length, 1, `${pathname} should have one main landmark`);
 		assert.equal(document.querySelectorAll('h1').length, 1, `${pathname} should have one H1`);
+		if (pathname === '/' || /^\/(?:manicure|pedicure)\/[^/]+\/$/.test(pathname)) {
+			assert.ok(document.querySelector('aside[aria-label="Image disclosure"]'), `${pathname} should disclose AI-generated images near the gallery`);
+		}
 		for (const image of document.querySelectorAll('img:not([data-gallery-image])')) {
 			assert.ok(image.hasAttribute('alt'), `${pathname} images should have alt attributes`);
 			assert.ok(image.hasAttribute('width') && image.hasAttribute('height'), `${pathname} images should have intrinsic dimensions`);
+		}
+		if (/^\/(?:manicure|pedicure)\/[^/]+\/$/.test(pathname)) {
+			const socialImage = document.querySelector('meta[property="og:image"]')?.getAttribute('content');
+			const socialImageAlt = document.querySelector('meta[property="og:image:alt"]')?.getAttribute('content');
+			assert.ok(socialImage, `${pathname} should set a social image`);
+			assert.ok(socialImageAlt, `${pathname} should describe its social image`);
+			const socialImageUrl = new URL(socialImage, siteUrl);
+			if (socialImageUrl.origin === siteUrl.origin) {
+				assert.ok(
+					await access(path.join(distDirectory, socialImageUrl.pathname.replace(/^\//, ''))).then(() => true).catch(() => false),
+					`${pathname} should reference an emitted social image`,
+				);
+			}
 		}
 		assert.equal(document.querySelectorAll('a a').length, 0, `${pathname} should not nest links`);
 		for (const anchor of document.querySelectorAll('a[href^="/"]')) {
@@ -119,7 +140,11 @@ test('production sitemap includes only indexable routes', async () => {
 			assert.ok(!hasPath(pathname), `noindex page ${pathname} must not appear in the sitemap`);
 			if (/^\/(?:manicure|pedicure)\/[^/]+\/$/.test(pathname)) {
 				noindexHubPath ??= pathname;
-				assert.equal(document.querySelector('[data-show-more]'), null, `${pathname} should not show a button without deferred cards`);
+				assert.equal(
+					Boolean(document.querySelector('[data-show-more]')),
+					document.querySelectorAll('article[data-gallery-deferred][hidden]').length > 0,
+					`${pathname} should show the button only when cards are deferred`,
+				);
 			}
 		}
 	}
@@ -127,6 +152,51 @@ test('production sitemap includes only indexable routes', async () => {
 	const homepage = await readFile(path.join(distDirectory, 'index.html'), 'utf8');
 	assert.match(homepage, /<title>Manicure Ideas by Color, Shape &amp; Occasion \| nail-idea\.com<\/title>/);
 	assert.match(homepage, /<meta name="description" content="Browse manicure ideas by color, shape, and occasion, or describe your look and get matching nail designs\."/);
+	const homepageDocument = new JSDOM(homepage).window.document;
+	for (const [pathname, label] of [['/terms/', 'Terms of Use'], ['/privacy-policy/', 'Privacy Policy']]) {
+		assert.equal(homepageDocument.querySelector(`footer a[href="${pathname}"]`)?.textContent?.trim(), label);
+	}
+	const terms = new JSDOM(await readFile(path.join(distDirectory, 'terms', 'index.html'), 'utf8')).window.document;
+	assert.equal(terms.querySelector('h1')?.textContent?.trim(), 'Terms of Use');
+	assert.ok(terms.body.textContent?.includes('Last updated: October 29, 2026'));
+	assert.ok(terms.body.textContent?.includes('Nothing in these Terms excludes or limits a right, remedy, or liability'));
+	assert.ok(terms.body.textContent?.includes('The operator has not specified a governing law or court'));
+	assert.equal(terms.querySelector('a[href="mailto:admin@nail-idea.com"]')?.textContent?.trim(), 'admin@nail-idea.com');
+	const privacy = new JSDOM(await readFile(path.join(distDirectory, 'privacy-policy', 'index.html'), 'utf8')).window.document;
+	assert.equal(privacy.querySelector('h1')?.textContent?.trim(), 'Privacy Policy');
+	assert.ok(privacy.body.textContent?.includes('The site is hosted on Cloudflare Pages'));
+	assert.ok(privacy.body.textContent?.includes('The site loads fonts from Google Fonts'));
+	assert.ok(privacy.body.textContent?.includes('If you email the operator, the operator receives your email address'));
+	assert.ok(privacy.body.textContent?.includes('Privacy rights depend on the laws that apply to you'));
+	assert.equal(privacy.querySelector('a[href="mailto:admin@nail-idea.com"]')?.textContent?.trim(), 'Email the site operator');
+	assert.equal(privacy.querySelector('a[href="https://www.cloudflare.com/privacypolicy/"]')?.textContent?.trim(), 'Cloudflare Privacy Policy');
+	assert.equal(privacy.querySelector('a[href="https://policies.google.com/privacy"]')?.textContent?.trim(), 'Google Privacy Policy');
+	const primaryFacetRoutes = [
+		'black-nails', 'blue-nails', 'burgundy-nails', 'multi-color-nails', 'nude-nails',
+		'pink-nails', 'red-nails', 'white-nails', 'yellow-nails',
+		'long-nails', 'medium-nails', 'short-nails',
+		'almond-nails', 'coffin-nails', 'square-nails', 'squoval-nails',
+		'glossy-nails', 'glazed-nails', 'glitter-nails', 'matte-nails',
+		'micro-french-nails', 'floral-nails', 'solid-nails', 'press-on-nails',
+		'ombre-nails', 'russian-manicure-nails', 'polka-dot-nails',
+	].map((slug) => `/manicure/${slug}/`);
+	const footerFacetRoutes = [
+		'anniversary-nails', 'baby-shower-nails', 'beach-vacation-nails', 'birthday-nails',
+		'christmas-nails', 'concert-nails', 'date-night-nails', 'easter-nails', 'everyday-nails',
+		'festival-nails', 'graduation-nails', 'holiday-nails', 'interview-nails', 'mothers-day-nails',
+		'new-year-nails', 'office-nails', 'party-nails', 'thanksgiving-nails', 'vacation-nails',
+		'valentines-day-nails', 'wedding-nails', 'autumn-nails', 'spring-nails', 'summer-nails',
+		'winter-nails',
+	].map((slug) => `/manicure/${slug}/`);
+	for (const route of primaryFacetRoutes) {
+		assert.ok(hasPath(route), `sitemap should include populated facet hub ${route}`);
+		assert.ok(homepageDocument.querySelector(`header a[href="${route}"]`), `browse menu should link to ${route}`);
+		assert.ok(homepageDocument.querySelector(`footer a[href="${route}"]`), `footer navigation should link to ${route}`);
+	}
+	for (const route of footerFacetRoutes) {
+		assert.ok(hasPath(route), `sitemap should include populated facet hub ${route}`);
+		assert.ok(homepageDocument.querySelector(`footer a[href="${route}"]`), `footer navigation should link to ${route}`);
+	}
 	assert.doesNotMatch(homepage, /\b\d+ designs\b/);
 	assert.match(homepage, /fonts\.googleapis\.com\/css2/);
 	assert.equal([...homepage.matchAll(/<h1\b/g)].length, 1, 'homepage should render one H1');
@@ -142,7 +212,7 @@ test('production sitemap includes only indexable routes', async () => {
 	assert.match(homepage, /twitter:image:alt/);
 	assert.match(homepage, /Disclaimer: Images are AI-generated visual references\./);
 	assert.equal([...homepage.matchAll(/type="application\/ld\+json"/g)].length, 1, 'homepage should render one JSON-LD graph');
-	const document = new JSDOM(homepage).window.document;
+	const document = homepageDocument;
 	const graph = JSON.parse(document.querySelector('script[type="application/ld+json"]')?.textContent ?? '{}');
 	assert.ok(Array.isArray(graph['@graph']), 'homepage JSON-LD should use @graph');
 	const schemaFaq = graph['@graph'].find((entry) => entry['@type'] === 'FAQPage').mainEntity;
@@ -194,13 +264,22 @@ test('production sitemap includes only indexable routes', async () => {
 test('large hub galleries keep all designs in HTML and small hubs omit the button', async () => {
 	const frenchHub = await readFile(path.join(distDirectory, 'manicure', 'french-nails', 'index.html'), 'utf8');
 	const frenchDocument = new JSDOM(frenchHub).window.document;
-	const frenchCards = frenchDocument.querySelectorAll('article');
 	const frenchItemList = JSON.parse(frenchDocument.querySelector('script[type="application/ld+json"]')?.textContent ?? '{}')
 		['@graph'].find((entry) => entry['@type'] === 'ItemList');
+	const frenchGallery = JSON.parse(frenchDocument.querySelector('script[type="application/ld+json"]')?.textContent ?? '{}')
+		['@graph'].find((entry) => entry['@type'] === 'ImageGallery');
+	const frenchCards = [...frenchDocument.querySelectorAll('[data-gallery-grid] > article')];
 	assert.ok(frenchCards.length > 24, 'French hub should have enough designs to defer cards');
 	assert.equal(frenchDocument.querySelectorAll('article[data-gallery-deferred][hidden]').length, frenchCards.length - 24);
 	assert.equal(Number(frenchDocument.querySelector('[data-show-more]')?.getAttribute('data-total-count')), frenchCards.length);
 	assert.equal(frenchItemList.itemListElement.length, frenchCards.length, 'JSON-LD should include every server-rendered design');
+	assert.equal(frenchGallery.associatedMedia.length, frenchCards.length, 'Image schema should include every server-rendered design');
+	for (const [index, card] of frenchCards.entries()) {
+		const schemaImage = frenchGallery.associatedMedia[index];
+		assert.equal(schemaImage.name, card.querySelector('h3')?.textContent?.trim());
+		assert.equal(schemaImage.description, card.querySelector('p')?.textContent?.trim());
+		assert.equal(schemaImage.caption, card.querySelector('img')?.getAttribute('alt'));
+	}
 	assert.match(frenchHub, /<noscript>[\s\S]*?\[data-gallery-deferred\]\[hidden\][\s\S]*?\[data-show-more\]/);
 
 	const htmlFiles = await getHtmlFiles(distDirectory);

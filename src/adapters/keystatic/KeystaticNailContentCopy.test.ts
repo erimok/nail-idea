@@ -42,6 +42,17 @@ describe('Keystatic nail content copy', () => {
 		expect(new Set(sentences).size).toBe(sentences.length);
 	});
 
+	it('uses a unique title for every design card', async () => {
+		// Arrange
+		const repository = createContentRepository();
+
+		// Act
+		const nails = await repository.findAllNails();
+
+		// Assert
+		expect(new Set(nails.map(({ title }) => title)).size).toBe(nails.length);
+	});
+
 	it('uses the approved micro French spelling and excludes banned copy', async () => {
 		// Arrange
 		const repository = createContentRepository();

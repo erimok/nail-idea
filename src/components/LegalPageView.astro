@@ -1,0 +1,55 @@
+---
+import type { LayoutViewModel } from '../application/view-models';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Breadcrumbs from './Breadcrumbs.astro';
+import Section from './ui/Section.astro';
+
+interface LegalSection {
+	heading: string;
+	paragraphs?: readonly string[];
+	listItems?: readonly string[];
+	links?: readonly { label: string; href: string }[];
+}
+
+interface Props {
+	layout: LayoutViewModel;
+	title: string;
+	updatedAt: string;
+	sections: readonly LegalSection[];
+}
+
+const { layout, title, updatedAt, sections } = Astro.props;
+---
+
+<BaseLayout {...layout}>
+	<main>
+		<Section bg="canvas">
+			<article class="max-w-3xl">
+				<Breadcrumbs items={[{ label: 'Home', href: '/' }, { label: title }]} />
+				<h1 class="mt-8 font-display text-4xl leading-tight text-ink sm:text-5xl">{title}</h1>
+				<p class="mt-4 text-sm text-muted">
+					Last updated: <time datetime={updatedAt}>{new Date(`${updatedAt}T00:00:00Z`).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric', timeZone: 'UTC' })}</time>
+				</p>
+
+				<div class="mt-8 space-y-8 border-y border-line py-8">
+					{sections.map(({ heading, paragraphs = [], listItems = [], links = [] }) => (
+						<section>
+							<h2 class="font-display text-2xl text-ink">{heading}</h2>
+							{paragraphs.map((paragraph) => <p class="mt-3 text-base leading-7 text-muted">{paragraph}</p>)}
+							{listItems.length > 0 && (
+								<ul class="mt-3 list-disc space-y-2 pl-6 text-base leading-7 text-muted">
+									{listItems.map((item) => <li>{item}</li>)}
+								</ul>
+							)}
+							{links.length > 0 && (
+								<ul class="mt-3 space-y-2 text-base leading-7">
+									{links.map(({ label, href }) => <li><a class="text-link font-semibold" href={href}>{label}</a></li>)}
+								</ul>
+							)}
+						</section>
+					))}
+				</div>
+			</article>
+		</Section>
+	</main>
+</BaseLayout>

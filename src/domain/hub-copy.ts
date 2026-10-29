@@ -25,6 +25,7 @@ const areaHeadingNouns: Readonly<Record<NailArea, string>> = {
 
 // Facet kinds that readers browse by, in the order the title and H1 mention them.
 const headlineFacetKinds: readonly FacetKind[] = ['shape', 'length'];
+const descriptiveFacetKinds = facetKinds.filter((kind) => kind !== 'occasion' && kind !== 'season');
 const headlineFacetLabels: Readonly<Partial<Record<FacetKind, string>>> = {
 	shape: 'Shape',
 	length: 'Length',
@@ -70,7 +71,7 @@ function joinList(items: readonly string[], conjunction: string): string {
 export function topSubfacets(
 	page: Pick<HubCopyPage, 'facets' | 'nails'>,
 	limit = MAX_SUBFACETS,
-	kinds: readonly FacetKind[] = facetKinds,
+	kinds: readonly FacetKind[] = descriptiveFacetKinds,
 ): string[] {
 	const pageKinds = new Set(page.facets.map((facet) => facet.kind));
 	const pageValues = new Set(page.facets.map((facet) => facet.value));
@@ -170,7 +171,7 @@ function buildIntro(
 		});
 	}
 
-	segments.push({ text: '. Save the one that fits your hands.' });
+	segments.push({ text: '. Compare the details that matter most before saving a reference that fits your preferences.' });
 
 	return segments;
 }

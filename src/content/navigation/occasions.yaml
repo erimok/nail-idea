@@ -1,4 +1,46 @@
 title: Occasions
-order: 3
+order: 6
 placement: both
-links: []
+links:
+  - label: Anniversary
+    href: /manicure/anniversary-nails/
+  - label: Baby shower
+    href: /manicure/baby-shower-nails/
+  - label: Beach vacation
+    href: /manicure/beach-vacation-nails/
+  - label: Birthday
+    href: /manicure/birthday-nails/
+  - label: Christmas
+    href: /manicure/christmas-nails/
+  - label: Concert
+    href: /manicure/concert-nails/
+  - label: Date night
+    href: /manicure/date-night-nails/
+  - label: Easter
+    href: /manicure/easter-nails/
+  - label: Everyday
+    href: /manicure/everyday-nails/
+  - label: Festival
+    href: /manicure/festival-nails/
+  - label: Graduation
+    href: /manicure/graduation-nails/
+  - label: Holiday
+    href: /manicure/holiday-nails/
+  - label: Interview
+    href: /manicure/interview-nails/
+  - label: Mother's Day
+    href: /manicure/mothers-day-nails/
+  - label: New Year
+    href: /manicure/new-year-nails/
+  - label: Office
+    href: /manicure/office-nails/
+  - label: Party
+    href: /manicure/party-nails/
+  - label: Thanksgiving
+    href: /manicure/thanksgiving-nails/
+  - label: Vacation
+    href: /manicure/vacation-nails/
+  - label: Valentine's Day
+    href: /manicure/valentines-day-nails/
+  - label: Wedding
+    href: /manicure/wedding-nails/

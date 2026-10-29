@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { InMemoryHubRepository } from '../adapters/in-memory/InMemoryHubRepository';
 import { InMemoryNailRepository } from '../adapters/in-memory/InMemoryNailRepository';
-import { aNail } from '../test/builders';
+import { aHub, aNail } from '../test/builders';
 import { listHubRoutes } from './listHubRoutes';
 
 describe('listHubRoutes', () => {
@@ -39,7 +39,12 @@ describe('listHubRoutes', () => {
 		];
 		const ports = {
 			nailRepository: new InMemoryNailRepository(nails),
-			hubRepository: new InMemoryHubRepository([]),
+			hubRepository: new InMemoryHubRepository([aHub({
+				area: 'manicure',
+				urlSlug: 'red-nails',
+				intro: 'A curated introduction.',
+				metaDescription: 'A curated description.',
+			})]),
 		};
 
 		// Act

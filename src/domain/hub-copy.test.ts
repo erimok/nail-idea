@@ -43,7 +43,7 @@ describe('topSubfacets', () => {
 		const result = topSubfacets(page);
 
 		// Assert
-		expect(result).toEqual(['matte', 'party', 'short']);
+		expect(result).toEqual(['matte', 'short', 'almond']);
 	});
 
 	it('excludes values of the page own facet kinds', () => {
@@ -152,16 +152,33 @@ describe('generateHubCopy', () => {
 		expect(copy.description).not.toContain('manicure manicure');
 	});
 
-	it('capitalizes Christmas in generated descriptions', () => {
+	it('capitalizes Christmas in an occasion hub description', () => {
 		// Arrange
 		const nails = Array.from({ length: MIN_DESIGNS_FOR_INDEX }, () => aNail({ colors: ['red'], occasions: ['christmas'] }));
-		const { page, pages } = pageFor(nails, 'red-nails');
+		const { page, pages } = pageFor(nails, 'christmas-nails');
 
 		// Act
 		const copy = generateHubCopy(page, pages.filter(isIndexable), YEAR);
 
 		// Assert
 		expect(copy.description).toContain('Christmas');
+	});
+
+	it('does not present occasion tags as visual design attributes', () => {
+		// Arrange
+		const nails = Array.from({ length: MIN_DESIGNS_FOR_INDEX }, () => aNail({
+			colors: ['red'],
+			types: ['french'],
+			occasions: ['anniversary', 'date night', 'birthday'],
+		}));
+		const { page, pages } = pageFor(nails, 'red-nails');
+
+		// Act
+		const copy = generateHubCopy(page, pages.filter(isIndexable), YEAR);
+
+		// Assert
+		expect(copy.description).not.toMatch(/anniversary|date night|birthday/i);
+		expect(copy.intro.map(({ text }) => text).join('')).not.toMatch(/anniversary|date night|birthday/i);
 	});
 
 	it('uses the supplied year in the title', () => {
@@ -190,10 +207,19 @@ describe('generateHubCopy', () => {
 	it('writes an intro of 40-70 words that links to related hubs', () => {
 		// Arrange
 		const { pages } = pageFor(burgundyNails(), 'burgundy-nails');
-		const indexable = pages.filter(isIndexable);
+		const indexable = pages.map((page) => ({
+			...page,
+			editorial: {
+				area: page.area,
+				urlSlug: page.slug,
+				intro: `Curated intro for ${page.slug}.`,
+				metaDescription: `Curated description for ${page.slug}.`,
+				faq: [],
+			},
+		})).filter(isIndexable);
 
 		// Act
-		const results = indexable.map((page) => generateHubCopy(page, indexable, YEAR));
+		const results = pages.map((page) => generateHubCopy(page, indexable, YEAR));
 
 		// Assert
 		for (const { intro } of results) {

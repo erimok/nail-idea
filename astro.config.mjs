@@ -17,6 +17,7 @@ const sitemapLastmod = new Map(sitemapRoutes.map(({ url, lastmod }) => [url, las
 export default defineConfig({
 	site: siteUrl,
 	output: 'static',
+	build: { inlineStylesheets: 'always' },
 	adapter: node({ mode: 'standalone' }),
 	image: {
 		remotePatterns: [{ protocol: 'https', hostname: 'images.unsplash.com' }],

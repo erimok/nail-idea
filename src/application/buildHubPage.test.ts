@@ -22,6 +22,15 @@ function createPorts(
 	};
 }
 
+function curatedHubs(slugs: readonly string[]): HubEditorial[] {
+	return slugs.map((urlSlug) => aHub({
+		area: 'manicure',
+		urlSlug,
+		intro: `Curated introduction for ${urlSlug}.`,
+		metaDescription: `Curated description for ${urlSlug}.`,
+	}));
+}
+
 describe('buildHubPage', () => {
 	it('keeps every design while splitting a large hub into initial and deferred cards', async () => {
 		// Arrange
@@ -68,7 +77,7 @@ describe('buildHubPage', () => {
 		expect(result.intro?.length).toBeGreaterThan(0);
 	});
 
-	it('makes hubs indexable at six designs using generated copy only', async () => {
+	it('keeps a six-design hub noindex when it has no curated copy', async () => {
 		// Arrange
 		const nails = Array.from({ length: MIN_DESIGNS_FOR_INDEX }, () => aNail({ colors: ['red'], types: ['solid'], finishes: ['glossy'] }));
 		const ports = createPorts(nails);
@@ -77,13 +86,18 @@ describe('buildHubPage', () => {
 		const result = await buildHubPage(ports, { area: 'manicure', slug: 'red-nails' });
 
 		// Assert
-		expect(result.layout.noIndex).toBe(false);
+		expect(result.layout.noIndex).toBe(true);
 	});
 
 	it('points indexable hubs to their Markdown alternate', async () => {
 		// Arrange
 		const nails = Array.from({ length: MIN_DESIGNS_FOR_INDEX }, () => aNail({ colors: ['red'], types: ['solid'], finishes: ['glossy'] }));
-		const ports = createPorts(nails);
+		const ports = createPorts(nails, [aHub({
+			area: 'manicure',
+			urlSlug: 'red-nails',
+			intro: 'A curated introduction.',
+			metaDescription: 'A curated description.',
+		})]);
 
 		// Act
 		const result = await buildHubPage(ports, { area: 'manicure', slug: 'red-nails' });
@@ -117,6 +131,7 @@ describe('buildHubPage', () => {
 			urlSlug: 'red-nails',
 			intro: 'Curated red intro.',
 			metaDescription: 'Curated red description.',
+			sections: [{ heading: 'Choosing a red shade', body: 'Use a reference image to compare undertones.' }],
 			faq: [{ question: 'Is red timeless?', answer: 'Red is a classic.' }],
 		})];
 		const ports = createPorts(nails, hubs);
@@ -126,6 +141,7 @@ describe('buildHubPage', () => {
 
 		// Assert
 		expect(result.intro).toEqual([{ text: 'Curated red intro.' }]);
+		expect(result.editorialSections).toEqual([{ heading: 'Choosing a red shade', body: 'Use a reference image to compare undertones.' }]);
 		expect(result.layout.description).toBe('Curated red description.');
 		expect(result.faq).toEqual([{ question: 'Is red timeless?', answer: 'Red is a classic.' }]);
 	});
@@ -150,7 +166,10 @@ describe('buildHubPage', () => {
 			shape: 'square',
 			season: ['winter'],
 		}));
-		const ports = createPorts([...frenchNails, ...unrelatedNails]);
+		const ports = createPorts(
+			[...frenchNails, ...unrelatedNails],
+			curatedHubs(['burgundy-french-nails', 'oval-french-nails', 'short-french-nails', 'glossy-french-nails']),
+		);
 
 		// Act
 		const result = await buildHubPage(ports, { area: 'manicure', slug: 'french-nails' });
@@ -186,7 +205,7 @@ describe('buildHubPage', () => {
 			types: ['french'],
 			length: 'medium',
 		}));
-		const ports = createPorts(nails);
+		const ports = createPorts(nails, curatedHubs(['medium-french-nails']));
 
 		// Act
 		const result = await buildHubPage(ports, { area: 'manicure', slug: 'medium-nails' });
@@ -208,7 +227,7 @@ describe('buildHubPage', () => {
 
 		it('links combination hubs to their indexable core style hub', async () => {
 			// Arrange
-			const ports = createPorts(glitterFrenchNails(MIN_DESIGNS_FOR_INDEX));
+			const ports = createPorts(glitterFrenchNails(MIN_DESIGNS_FOR_INDEX), curatedHubs(['french-nails']));
 
 			// Act
 			const result = await buildHubPage(ports, { area: 'manicure', slug: 'glitter-french-nails' });
@@ -221,20 +240,23 @@ describe('buildHubPage', () => {
 			});
 		});
 
-		it('adds the core style hub to the breadcrumbs', async () => {
+		it('adds the first facet hub to combination breadcrumbs', async () => {
 			// Arrange
-			const ports = createPorts(glitterFrenchNails(MIN_DESIGNS_FOR_INDEX));
+			const ports = createPorts(
+				glitterFrenchNails(MIN_DESIGNS_FOR_INDEX),
+				curatedHubs(['french-nails', 'glitter-nails']),
+			);
 
 			// Act
 			const result = await buildHubPage(ports, { area: 'manicure', slug: 'glitter-french-nails' });
 
 			// Assert
-			expect(result.breadcrumbs.map(({ href }) => href)).toEqual(['/', '/manicure/', '/manicure/french-nails/', undefined]);
+			expect(result.breadcrumbs.map(({ href }) => href)).toEqual(['/', '/manicure/', '/manicure/glitter-nails/', undefined]);
 		});
 
 		it('does not link the core style hub itself', async () => {
 			// Arrange
-			const ports = createPorts(glitterFrenchNails(MIN_DESIGNS_FOR_INDEX));
+			const ports = createPorts(glitterFrenchNails(MIN_DESIGNS_FOR_INDEX), curatedHubs(['french-nails']));
 
 			// Act
 			const result = await buildHubPage(ports, { area: 'manicure', slug: 'french-nails' });
@@ -256,14 +278,123 @@ describe('buildHubPage', () => {
 		});
 	});
 
+	describe('combination breadcrumbs', () => {
+		it.each([
+			['short-glitter-nails', 'short-nails'],
+			['glitter-pink-nails', 'glitter-nails'],
+			['pink-french-nails', 'pink-nails'],
+			['almond-french-nails', 'almond-nails'],
+			['short-glitter-pink-nails', 'short-nails'],
+		])('links %s to its first-facet hub', async (slug, parentSlug) => {
+			// Arrange
+			const nails = Array.from({ length: MIN_DESIGNS_FOR_INDEX }, (_, index) => aNail({
+				slug: `design-${index + 1}`,
+				colors: ['pink'],
+				types: ['french'],
+				finishes: ['glitter'],
+				length: 'short',
+				shape: 'almond',
+			}));
+			const ports = createPorts(nails, curatedHubs([
+				'short-nails',
+				'glitter-nails',
+				'pink-nails',
+				'almond-nails',
+			]));
+
+			// Act
+			const result = await buildHubPage(ports, { area: 'manicure', slug });
+
+			// Assert
+			expect(result.breadcrumbs.map(({ href }) => href)).toEqual([
+				'/',
+				'/manicure/',
+				`/manicure/${parentSlug}/`,
+				undefined,
+			]);
+		});
+	});
+
+	it('does not link a single-facet hub to itself in breadcrumbs', async () => {
+		// Arrange
+		const ports = createPorts(
+			[aNail({ occasions: ['wedding'] })],
+			curatedHubs(['wedding-nails']),
+		);
+
+		// Act
+		const result = await buildHubPage(ports, { area: 'manicure', slug: 'wedding-nails' });
+
+		// Assert
+		expect(result.breadcrumbs).toEqual([
+			{ label: 'Home', href: '/' },
+			{ label: 'Manicure', href: '/manicure/' },
+			{ label: 'Wedding' },
+		]);
+	});
+
 	it('sets a large social image from the canonical origin', async () => {
 		// Arrange
-		const ports = createPorts();
+		const ports = createPorts([aNail({
+			image: '/images/nails/red-1.jpg',
+			imageSrc: '/_astro/red-1.abc123.jpg',
+			imageAlt: 'A glossy red design.',
+			colors: ['red'],
+			types: ['solid'],
+		})]);
 
 		// Act
 		const result = await buildHubPage(ports, { area: 'manicure', slug: 'red-nails' });
 
 		// Assert
-		expect(result.layout.socialImage).toBe(new URL('/og/home.jpg', ports.siteConfig.siteUrl).toString());
+		expect(result.layout.socialImage).toBe(new URL('/_astro/red-1.abc123.jpg', ports.siteConfig.siteUrl).toString());
+		expect(result.layout.socialImageAlt).toBe('A glossy red design.');
+	});
+
+	it('builds gallery schema from the visible card title, description, and alt text', async () => {
+		// Arrange
+		const nail = aNail({
+			slug: 'red-1',
+			title: 'Short Square Nails: Red French Tips',
+			image: '/images/nails/red-1.jpg',
+			imageSrc: '/_astro/red-1.abc123.jpg',
+			imageAlt: 'Short square nails with red French tips.',
+			description: 'A sheer base sets off red tips on short square nails.',
+			colors: ['red'],
+			types: ['french'],
+		});
+		const ports = createPorts([nail]);
+
+		// Act
+		const result = await buildHubPage(ports, { area: 'manicure', slug: 'red-nails' });
+
+		// Assert
+		expect(result.layout.structuredData?.['@graph']).toContainEqual(expect.objectContaining({
+			'@type': 'ImageGallery',
+			associatedMedia: [expect.objectContaining({
+				contentUrl: new URL('/_astro/red-1.abc123.jpg', ports.siteConfig.siteUrl).toString(),
+				name: nail.title,
+				description: nail.description,
+				caption: nail.imageAlt,
+			})],
+		}));
+	});
+
+	it('does not index a hub with only one of the required editorial fields', async () => {
+		// Arrange
+		const nails = Array.from({ length: MIN_DESIGNS_FOR_INDEX }, () => aNail({ colors: ['red'], types: ['solid'] }));
+		const ports = createPorts(nails, [aHub({
+			area: 'manicure',
+			urlSlug: 'red-nails',
+			intro: 'A curated introduction.',
+			metaDescription: ' ',
+		})]);
+
+		// Act
+		const result = await buildHubPage(ports, { area: 'manicure', slug: 'red-nails' });
+
+		// Assert
+		expect(result.layout.noIndex).toBe(true);
+		expect(result.layout.markdownAlternate).toBeUndefined();
 	});
 });

@@ -30,6 +30,8 @@ export async function resolveSitemapRoutes({
 	return [
 		{ url: '/', lastmod: latestContentDate(nails) },
 		{ url: '/about/' },
+		{ url: '/terms/' },
+		{ url: '/privacy-policy/' },
 		...nailAreas.flatMap((area) => {
 			const areaNails = getNailsForArea(nails, area);
 			return isIndexablePage(areaNails.length) ? [{

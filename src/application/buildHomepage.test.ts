@@ -25,6 +25,9 @@ describe('buildHomepage', () => {
 			aHub({ area: 'manicure', urlSlug: 'french-nails' }),
 			aHub({ area: 'manicure', urlSlug: 'almond-nails' }),
 			aHub({ area: 'manicure', urlSlug: 'short-nails' }),
+			aHub({ area: 'manicure', urlSlug: 'glossy-nails' }),
+			aHub({ area: 'manicure', urlSlug: 'glossy-french-nails' }),
+			aHub({ area: 'manicure', urlSlug: 'red-french-almond-nails' }),
 			aHub({ area: 'manicure', urlSlug: 'wedding-nails' }),
 			aHub({ area: 'manicure', urlSlug: 'spring-nails' }),
 		];
@@ -50,6 +53,7 @@ describe('buildHomepage', () => {
 
 		// Assert
 		expect(result.featured).toHaveLength(9);
+		expect(result.layout.socialImageDimensions).toEqual({ width: 1200, height: 630 });
 		expect(result.categories.map(({ title }) => title)).toEqual([
 			'Nail shapes',
 			'Nail colors',

@@ -1,6 +1,7 @@
 ---
 import type { HomepageViewModel } from '../application/view-models';
 import BaseLayout from '../layouts/BaseLayout.astro';
+import AiImageDisclosure from './AiImageDisclosure.astro';
 import BrowseFeatureCard from './BrowseFeatureCard.astro';
 import CategoryCard from './CategoryCard.astro';
 import FaqSection from './FaqSection.astro';
@@ -42,7 +43,8 @@ const primaryArea = layout.siteChrome.header.availableAreas[0];
 			<SectionHeader title="Featured nail ideas" eyebrow="From the Nails collection">
 				{primaryArea && <a slot="action" class="rounded-control border border-line bg-surface px-5 py-3 text-[0.6875rem] font-semibold uppercase tracking-[0.16em] text-ink shadow-soft transition hover:-translate-y-0.5 hover:border-coral hover:text-coral hover:shadow-lift" href={primaryArea.href}>View all {primaryArea.label.toLowerCase()} ideas</a>}
 			</SectionHeader>
-			<p class="-mt-5 mb-6 max-w-prose text-sm leading-6 text-muted">Designs are organized by color, shape, length, finish, and occasion. Nail design photos are AI-generated visual references and may differ from results on natural nails.</p>
+			<p class="-mt-5 mb-5 max-w-prose text-sm leading-6 text-muted">Designs are organized by color, shape, length, finish, and occasion.</p>
+			<div class="mb-6 max-w-2xl"><AiImageDisclosure /></div>
 			<NailCollectionGrid items={featured.map((nail) => ({ nail }))} />
 			{primaryArea && <div class="mt-8 flex justify-center"><Chip href={primaryArea.href}>View all {primaryArea.label.toLowerCase()} ideas</Chip></div>}
 		</Section>

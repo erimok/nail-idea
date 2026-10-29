@@ -15,14 +15,21 @@ describe('resolveSitemapRoutes', () => {
 		}));
 		const ports = {
 			nailRepository: new InMemoryNailRepository(nails),
-			hubRepository: new InMemoryHubRepository([]),
+			hubRepository: new InMemoryHubRepository([aHub({
+				area: 'manicure',
+				urlSlug: 'red-nails',
+				intro: 'A curated introduction.',
+				metaDescription: 'A curated description.',
+			})]),
 		};
 
 		// Act
 		const result = await resolveSitemapRoutes(ports);
 
 		// Assert
-		expect(result.map(({ url }) => url)).toEqual(['/','/about/','/manicure/','/manicure/red-nails/']);
+		expect(result.map(({ url }) => url)).toEqual([
+			'/', '/about/', '/terms/', '/privacy-policy/', '/manicure/', '/manicure/red-nails/',
+		]);
 	});
 
 	it('excludes hubs below the six-design threshold', async () => {
@@ -41,7 +48,7 @@ describe('resolveSitemapRoutes', () => {
 		const result = await resolveSitemapRoutes(ports);
 
 		// Assert
-		expect(result.map(({ url }) => url)).toEqual(['/','/about/']);
+		expect(result.map(({ url }) => url)).toEqual(['/', '/about/', '/terms/', '/privacy-policy/']);
 	});
 
 	it('uses the latest contributing content timestamp for each route', async () => {
@@ -57,6 +64,8 @@ describe('resolveSitemapRoutes', () => {
 			hubRepository: new InMemoryHubRepository([aHub({
 				urlSlug: 'red-nails',
 				updatedAt: '2026-10-20T12:00:00.000Z',
+				intro: 'A curated introduction.',
+				metaDescription: 'A curated description.',
 			})]),
 		};
 
@@ -68,5 +77,7 @@ describe('resolveSitemapRoutes', () => {
 		expect(result.find(({ url }) => url === '/manicure/')?.lastmod).toBe('2026-10-12');
 		expect(result.find(({ url }) => url === '/manicure/red-nails/')?.lastmod).toBe('2026-10-20');
 		expect(result.find(({ url }) => url === '/about/')).toEqual({ url: '/about/' });
+		expect(result.find(({ url }) => url === '/terms/')).toEqual({ url: '/terms/' });
+		expect(result.find(({ url }) => url === '/privacy-policy/')).toEqual({ url: '/privacy-policy/' });
 	});
 });

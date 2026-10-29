@@ -41,6 +41,7 @@ export async function buildHomepage({
 			canonical,
 			socialImage,
 			socialImageAlt: 'AI-generated manicure design with a polished nude finish',
+			socialImageDimensions: { width: 1200, height: 630 },
 			structuredData: buildHomepageStructuredData(canonical, description, socialImage, nails.slice(0, 9), faqItems),
 			siteChrome: buildSiteChromeViewModel(nails, editorial, navigationGroups),
 		},

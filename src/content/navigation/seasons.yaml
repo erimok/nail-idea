@@ -1,4 +1,12 @@
 title: Seasons
-order: 4
+order: 7
 placement: both
-links: []
+links:
+  - label: Autumn
+    href: /manicure/autumn-nails/
+  - label: Spring
+    href: /manicure/spring-nails/
+  - label: Summer
+    href: /manicure/summer-nails/
+  - label: Winter
+    href: /manicure/winter-nails/

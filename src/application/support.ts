@@ -59,6 +59,7 @@ function buildImageGalleryStructuredData(
 				'@type': 'ImageObject',
 				contentUrl: buildCanonicalUrl(canonical, imageUrl),
 				name: nail.title,
+				description: nail.description,
 				caption: nail.imageAlt ?? nail.description,
 			}];
 		}),

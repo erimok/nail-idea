@@ -11,6 +11,7 @@ const expectedHubs = [
 		updatedAt: '2026-10-04T12:00',
 		intro: 'Red hub intro.',
 		metaDescription: 'Red hub description.',
+		sections: [{ heading: 'Choosing a red shade', body: 'Use a reference image to compare undertones.' }],
 		faq: [{ question: 'What is a red manicure?', answer: 'A manicure with red polish.' }],
 	},
 	{
@@ -18,6 +19,7 @@ const expectedHubs = [
 		urlSlug: 'nude-nails',
 		intro: 'Nude hub intro.',
 		metaDescription: 'Nude hub description.',
+		sections: [],
 		faq: [],
 	},
 ] as const;

@@ -4,6 +4,9 @@ urlSlug: red-nails
 updated_at: 2026-10-04T12:00:00.000Z
 intro: '  Red hub intro.  '
 metaDescription: '  Red hub description.  '
+sections:
+  - heading: Choosing a red shade
+    body: Use a reference image to compare undertones.
 faq:
   - question: '  What is a red manicure?  '
     answer: '  A manicure with red polish.  '

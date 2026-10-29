@@ -14,14 +14,32 @@ describe('domain indexability', () => {
 		expect(result).toEqual([false, true]);
 	});
 
-	it('makes hubs indexable from design count alone', () => {
+	it('requires six designs and curated introduction and meta description for hubs', () => {
 		// Arrange
-		const hubs = [{ nails: Array(MIN_DESIGNS_FOR_INDEX) }, { nails: Array(MIN_DESIGNS_FOR_INDEX - 1) }];
+		const hubs = [
+			{
+				nails: Array(MIN_DESIGNS_FOR_INDEX),
+				editorial: { intro: 'A curated introduction.', metaDescription: 'A curated description.' },
+			},
+			{
+				nails: Array(MIN_DESIGNS_FOR_INDEX - 1),
+				editorial: { intro: 'A curated introduction.', metaDescription: 'A curated description.' },
+			},
+			{ nails: Array(MIN_DESIGNS_FOR_INDEX) },
+			{
+				nails: Array(MIN_DESIGNS_FOR_INDEX),
+				editorial: { intro: ' ', metaDescription: 'A curated description.' },
+			},
+			{
+				nails: Array(MIN_DESIGNS_FOR_INDEX),
+				editorial: { intro: 'A curated introduction.', metaDescription: ' ' },
+			},
+		];
 
 		// Act
 		const result = hubs.map(isIndexable);
 
 		// Assert
-		expect(result).toEqual([true, false]);
+		expect(result).toEqual([true, false, false, false, false]);
 	});
 });

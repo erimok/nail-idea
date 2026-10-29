@@ -1,25 +1,10 @@
 import type { SitePorts } from './ports';
-import { buildCanonicalUrl, buildSiteChromeViewModel } from './support';
-import type { StaticPageViewModel } from './view-models';
+import { buildStaticPage } from './buildStaticPage';
 
-export async function buildAboutPage({
-	nailRepository,
-	hubRepository,
-	siteContentRepository,
-	siteConfig,
-}: SitePorts): Promise<StaticPageViewModel> {
-	const [nails, editorial, navigationGroups] = await Promise.all([
-		nailRepository.findAllNails(),
-		hubRepository.listHubs(),
-		siteContentRepository.listNavigationGroups(),
-	]);
-
-	return {
-		layout: {
-			title: 'About nail-idea.com | Nail Design Inspiration',
-			description: 'Learn about nail-idea.com, a searchable collection of manicure and pedicure ideas organized around the details you care about.',
-			canonical: buildCanonicalUrl(siteConfig.siteUrl, '/about/'),
-			siteChrome: buildSiteChromeViewModel(nails, editorial, navigationGroups),
-		},
-	};
+export function buildAboutPage(ports: SitePorts) {
+	return buildStaticPage(ports, {
+		title: 'About nail-idea.com | Nail Design Inspiration',
+		description: 'Learn about nail-idea.com, a searchable collection of manicure and pedicure ideas organized around the details you care about.',
+		pathname: '/about/',
+	});
 }

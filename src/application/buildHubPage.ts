@@ -1,4 +1,9 @@
-import { findCoreStyleParentPage, getAllFacetPages, isDirectSubpageOfFacetPage } from '../domain/facet-combinations';
+import {
+	findCoreStyleParentPage,
+	findFirstFacetParentPage,
+	getAllFacetPages,
+	isDirectSubpageOfFacetPage,
+} from '../domain/facet-combinations';
 import type { NailArea } from '../domain/areas';
 import { formatHubAnchorLabel, generateHubCopy } from '../domain/hub-copy';
 import { INITIAL_DESIGN_COUNT, splitDesigns } from '../domain/gallery';
@@ -45,12 +50,14 @@ export async function buildHubPage(
 	const pageNailSlugs = new Set(page.nails.map((nail) => nail.slug));
 	const canonical = buildCanonicalUrl(siteConfig.siteUrl, buildFacetRoute(area, slug));
 	const facetLabel = formatFacetBreadcrumbLabel(page);
+	const socialImage = page.nails[0]?.imageSrc || page.nails[0]?.image;
 	const coreStyleParent = findCoreStyleParentPage(page, pages);
+	const breadcrumbParent = findFirstFacetParentPage(page, pages);
 	const breadcrumbs = [
 		{ label: 'Home', href: '/' },
 		{ label: formatAreaLabel(area), href: buildAreaRoute(area) },
-		...(coreStyleParent
-			? [{ label: formatFacetBreadcrumbLabel(coreStyleParent), href: buildFacetRoute(area, coreStyleParent.slug) }]
+		...(breadcrumbParent
+			? [{ label: formatFacetBreadcrumbLabel(breadcrumbParent), href: buildFacetRoute(area, breadcrumbParent.slug) }]
 			: []),
 		{ label: facetLabel },
 	];
@@ -64,8 +71,8 @@ export async function buildHubPage(
 				? buildCanonicalUrl(siteConfig.siteUrl, buildFacetMarkdownRoute(area, slug))
 				: undefined,
 			noIndex: !isIndexable(page),
-			socialImage: buildCanonicalUrl(siteConfig.siteUrl, DEFAULT_SOCIAL_IMAGE_PATH),
-			socialImageAlt: `${copy.heading} on nail-idea.com`,
+			socialImage: buildCanonicalUrl(siteConfig.siteUrl, socialImage || DEFAULT_SOCIAL_IMAGE_PATH),
+			socialImageAlt: page.nails[0]?.imageAlt ?? `${copy.heading} on nail-idea.com`,
 			structuredData: buildCollectionStructuredData({
 				canonical,
 				heading: copy.heading,
@@ -80,6 +87,7 @@ export async function buildHubPage(
 		prompt: `${page.value} ${area} ideas`,
 		paragraphs: [],
 		intro: copy.intro,
+		editorialSections: page.editorial?.sections ?? [],
 		designs: page.nails,
 		designGrid: splitDesigns(page.nails, INITIAL_DESIGN_COUNT),
 		searchRecords: toSearchRecords(page.nails),

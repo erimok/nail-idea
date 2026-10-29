@@ -1,0 +1,57 @@
+---
+import LegalPageView from '../components/LegalPageView.astro';
+import { siteServices } from '../composition';
+
+const title = 'Terms of Use';
+const viewModel = await siteServices.buildStaticPage({
+	title: 'Terms of Use | nail-idea.com',
+	description: 'Review the terms that apply when using nail-idea.com.',
+	pathname: '/terms/',
+});
+const sections = [
+	{
+		heading: '1. Acceptance of Terms',
+		paragraphs: ['By accessing or using this website (the "Service"), you agree to be bound by these Terms of Use. If you do not agree to these terms, please do not use the Service.'],
+	},
+	{
+		heading: '2. The Service and Its Content',
+		paragraphs: [
+			'The Service provides manicure and pedicure inspiration for general informational purposes. Images are AI-generated visual references and may not represent the appearance or results of a design on natural nails. Content may be incomplete, inaccurate, or unavailable, and is not professional, medical, or safety advice.',
+		],
+	},
+	{
+		heading: '3. Use of the Service and Intellectual Property',
+		paragraphs: [
+			'Unless a page says otherwise, original text, branding, and site design are owned by or used with permission by the site operator. Third-party names and materials remain with their respective owners; image rights may vary.',
+			'You may browse the Service and make personal, non-commercial use of it, subject to applicable law. Do not republish substantial site material or use material beyond what applicable law permits without permission from the relevant rights holder. Nothing in these Terms removes rights or exceptions provided by law.',
+			'Do not interfere with the Service, attempt to bypass its security, or use it in a way that violates applicable law.',
+		],
+	},
+	{
+		heading: '4. Disclaimers and Liability',
+		paragraphs: [
+			'The Service is provided as available. To the extent permitted by applicable law, the operator makes no promise that the Service or its content will be accurate, complete, uninterrupted, or suitable for a particular purpose.',
+			'Nothing in these Terms excludes or limits a right, remedy, or liability that cannot lawfully be excluded or limited. To the extent permitted by law, the operator is not liable for indirect or consequential loss arising from use of, or inability to use, the Service.',
+		],
+	},
+	{
+		heading: '5. External Links',
+		paragraphs: ['The Service may link to third-party websites or services. The operator does not control those sites and is not responsible for their content or practices. A link does not by itself mean the operator endorses that site.'],
+	},
+	{
+		heading: '6. Changes to Terms',
+		paragraphs: ['These Terms may be updated by posting a revised version on this page and changing the update date. Changes apply from publication unless applicable law requires otherwise. Nothing in this section removes rights you have under applicable law.'],
+	},
+	{
+		heading: '7. Applicable Law',
+		paragraphs: ['The operator has not specified a governing law or court in these Terms. Applicable law and any available forum depend on the circumstances and rules that apply to you. These Terms do not limit mandatory consumer protections or other rights that cannot lawfully be waived.'],
+	},
+	{
+		heading: '8. Contact',
+		paragraphs: ['For questions about these Terms, contact the site operator at admin@nail-idea.com. The Service is operated by an individual using the nail-idea.com site name.'],
+		links: [{ label: 'admin@nail-idea.com', href: 'mailto:admin@nail-idea.com' }],
+	},
+];
+---
+
+<LegalPageView layout={viewModel.layout} title={title} updatedAt="2026-10-29" sections={sections} />

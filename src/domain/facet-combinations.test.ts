@@ -1,6 +1,12 @@
 import { describe, expect, it } from 'vitest';
 import { aNail } from '../test/builders';
-import { findCoreStyleParentPage, getAllFacetPages, getFacetPages, getNailsForArea } from './facet-combinations';
+import {
+	findCoreStyleParentPage,
+	findFirstFacetParentPage,
+	getAllFacetPages,
+	getFacetPages,
+	getNailsForArea,
+} from './facet-combinations';
 import { SlugCollisionError } from './slug-collision';
 
 describe('domain facet combinations', () => {
@@ -106,7 +112,19 @@ describe('domain facet combinations', () => {
 
 		it('returns the type hub for a combination containing a type', () => {
 			// Arrange
-			const pages = getAllFacetPages(sixNails({ colors: ['pink'], types: ['french'], finishes: ['glitter'] }));
+			const pages = getAllFacetPages(sixNails({ colors: ['pink'], types: ['french'], finishes: ['glitter'] }))
+				.map((candidate) => candidate.slug === 'french-nails'
+					? {
+						...candidate,
+						editorial: {
+							area: 'manicure' as const,
+							urlSlug: 'french-nails',
+							intro: 'A curated introduction.',
+							metaDescription: 'A curated description.',
+							faq: [],
+						},
+					}
+					: candidate);
 			const page = pages.find(({ slug }) => slug === 'pink-french-nails');
 			if (!page) throw new Error('missing page');
 
@@ -125,6 +143,59 @@ describe('domain facet combinations', () => {
 
 			// Act
 			const result = findCoreStyleParentPage(page, pages);
+
+			// Assert
+			expect(result).toBeUndefined();
+		});
+	});
+
+	describe('findFirstFacetParentPage', () => {
+		it('returns nothing for a single-facet hub', () => {
+			// Arrange
+			const pages = getAllFacetPages([aNail({ occasions: ['wedding'] })]);
+			const page = pages.find(({ slug }) => slug === 'wedding-nails');
+			if (!page) throw new Error('missing page');
+
+			// Act
+			const result = findFirstFacetParentPage(page, pages);
+
+			// Assert
+			expect(result).toBeUndefined();
+		});
+
+		it('returns the indexable single-facet hub matching the combination first facet', () => {
+			// Arrange
+			const nails = Array.from({ length: 6 }, () => aNail({ colors: ['pink'], types: ['french'], length: 'short' }));
+			const pages = getAllFacetPages(nails).map((candidate) => candidate.slug === 'pink-nails'
+				? {
+					...candidate,
+					editorial: {
+						area: 'manicure' as const,
+						urlSlug: 'pink-nails',
+						intro: 'A curated introduction.',
+						metaDescription: 'A curated description.',
+						faq: [],
+					},
+				}
+				: candidate);
+			const page = pages.find(({ slug }) => slug === 'pink-french-nails');
+			if (!page) throw new Error('missing page');
+
+			// Act
+			const result = findFirstFacetParentPage(page, pages);
+
+			// Assert
+			expect(result?.slug).toBe('pink-nails');
+		});
+
+		it('returns nothing when the first-facet hub is not indexable', () => {
+			// Arrange
+			const pages = getAllFacetPages([aNail({ colors: ['pink'], types: ['french'] })]);
+			const page = pages.find(({ slug }) => slug === 'pink-french-nails');
+			if (!page) throw new Error('missing page');
+
+			// Act
+			const result = findFirstFacetParentPage(page, pages);
 
 			// Assert
 			expect(result).toBeUndefined();

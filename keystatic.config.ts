@@ -93,6 +93,10 @@ export default config({
 				urlSlug: fields.text({ label: 'Generated hub slug', validation: { isRequired: true } }),
 				intro: fields.text({ label: 'Unique introduction', multiline: true, validation: { isRequired: true } }),
 				metaDescription: fields.text({ label: 'Meta description', validation: { isRequired: true } }),
+				sections: fields.array(fields.object({
+					heading: fields.text({ label: 'Section heading', validation: { isRequired: true } }),
+					body: fields.text({ label: 'Section copy', multiline: true, validation: { isRequired: true } }),
+				}), { label: 'Editorial sections', itemLabel: (props) => props.fields.heading.value || 'Editorial section' }),
 				faq: fields.array(fields.object({
 					question: fields.text({ label: 'Question', validation: { isRequired: true } }),
 					answer: fields.text({ label: 'Answer', multiline: true, validation: { isRequired: true } }),

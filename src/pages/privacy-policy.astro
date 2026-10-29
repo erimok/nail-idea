@@ -1,0 +1,66 @@
+---
+import LegalPageView from '../components/LegalPageView.astro';
+import { siteServices } from '../composition';
+
+const title = 'Privacy Policy';
+const viewModel = await siteServices.buildStaticPage({
+	title: 'Privacy Policy | nail-idea.com',
+	description: 'Learn what information may be processed when you use nail-idea.com and how to contact the site operator.',
+	pathname: '/privacy-policy/',
+});
+const sections = [
+	{
+		heading: '1. About This Policy',
+		paragraphs: [
+			'nail-idea.com is operated by an individual using the nail-idea.com site name; it is not operated by a company. This policy describes information that may be processed when you visit the site or contact its operator.',
+			'Privacy contact: admin@nail-idea.com.',
+		],
+		links: [{ label: 'Email the site operator', href: 'mailto:admin@nail-idea.com' }],
+	},
+	{
+		heading: '2. Information You Provide',
+		listItems: [
+			'The site does not currently offer user accounts, comment forms, or newsletter sign-ups.',
+			'If you email the operator, the operator receives your email address and the contents and attachments of your message. This information is used to respond and handle the request, and is kept only as long as reasonably needed for that purpose or to meet applicable legal obligations.',
+			'The site does not currently use advertising, behavioral analytics, tracking pixels, or heatmaps.',
+		],
+	},
+	{
+		heading: '3. Hosting and Technical Information',
+		paragraphs: [
+			'The site is hosted on Cloudflare Pages. When your browser requests a page or file, Cloudflare may process technical information such as your IP address, requested URL, request time, browser headers, and security or diagnostic signals to deliver and protect the service. Cloudflare determines its handling and retention under its applicable terms, product settings, and privacy disclosures; the site operator does not set Cloudflare’s retention periods.',
+			'Cloudflare may process information in locations outside your country. Its privacy information explains its processing and applicable safeguards.',
+		],
+		links: [{ label: 'Cloudflare Privacy Policy', href: 'https://www.cloudflare.com/privacypolicy/' }],
+	},
+	{
+		heading: '4. Google Fonts',
+		paragraphs: [
+			'The site loads fonts from Google Fonts. Your browser connects to Google to retrieve those font files, and Google may receive your IP address and technical request information. Google handles that information under its own policies.',
+		],
+		links: [{ label: 'Google Privacy Policy', href: 'https://policies.google.com/privacy' }],
+	},
+	{
+		heading: '5. Cookies and Browser Storage',
+		paragraphs: [
+			'The site itself does not currently use cookies, local storage, or session storage for analytics, advertising, or personalization. Cloudflare or security features may use strictly necessary cookies in some circumstances. Check Cloudflare’s information for details about its technologies.',
+		],
+	},
+	{
+		heading: '6. External Websites',
+		paragraphs: [
+			'The site may link to websites operated by others. Those websites have their own privacy practices, which the site operator does not control. Review their policies before providing them with information.',
+		],
+	},
+	{
+		heading: '7. Privacy Requests and Contact',
+		paragraphs: [
+			'Privacy rights depend on the laws that apply to you. You can contact the operator at admin@nail-idea.com with a question or request about information you have sent by email. Where applicable, you may also contact your local data protection or privacy regulator.',
+			'This notice is general information, not a statement that every privacy-law requirement in every country has been assessed.',
+		],
+		links: [{ label: 'admin@nail-idea.com', href: 'mailto:admin@nail-idea.com' }],
+	},
+];
+---
+
+<LegalPageView layout={viewModel.layout} title={title} updatedAt="2026-10-29" sections={sections} />

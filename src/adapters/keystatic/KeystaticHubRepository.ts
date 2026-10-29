@@ -15,6 +15,10 @@ const hubEntrySchema = z.object({
 	updated_at: timestampSchema.nullish(),
 	intro: z.string().trim().min(1),
 	metaDescription: z.string().trim().min(1),
+	sections: z.array(z.object({
+		heading: z.string().trim().min(1),
+		body: z.string().trim().min(1),
+	})).optional(),
 	faq: z.array(z.object({
 		question: z.string().trim().min(1),
 		answer: z.string().trim().min(1),
@@ -50,6 +54,7 @@ export class KeystaticHubRepository implements HubRepository {
 			...(parsedEntry.updated_at ? { updatedAt: parsedEntry.updated_at } : {}),
 			intro: parsedEntry.intro,
 			metaDescription: parsedEntry.metaDescription,
+			sections: parsedEntry.sections ?? [],
 			faq: parsedEntry.faq,
 		};
 	}

@@ -10,6 +10,7 @@ import { buildAreaPage } from './application/buildAreaPage';
 import { buildHomepage } from './application/buildHomepage';
 import { buildHubPage } from './application/buildHubPage';
 import { buildLlmsIndex } from './application/buildLlmsIndex';
+import { buildStaticPage } from './application/buildStaticPage';
 import { listHubRoutes } from './application/listHubRoutes';
 import { resolveBrowseLinks } from './application/resolveBrowseLinks';
 import { resolveSitemapRoutes } from './application/resolveSitemapRoutes';
@@ -70,6 +71,7 @@ export const siteServices = {
 	buildHomepage: () => buildHomepage(ports),
 	buildHubPage: (params: Parameters<typeof buildHubPage>[1]) => buildHubPage(ports, params),
 	buildLlmsIndex: () => buildLlmsIndex(ports),
+	buildStaticPage: (params: Parameters<typeof buildStaticPage>[1]) => buildStaticPage(ports, params),
 	listHubRoutes: () => listHubRoutes(ports),
 	resolveBrowseLinks,
 	resolveSitemapRoutes: () => resolveSitemapRoutes(ports),

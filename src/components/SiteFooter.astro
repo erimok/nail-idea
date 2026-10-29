@@ -28,7 +28,11 @@ const { groups } = Astro.props;
 		</div>
 		<div class="mt-10 flex flex-wrap items-center justify-between gap-3 border-t border-ink-soft pt-5 text-xs text-white">
 			<p>© {new Date().getFullYear()} nail-idea.com</p>
-			<nav aria-label="Footer links"><a class="text-link font-semibold hover:!text-lime" href="/about/">About</a></nav>
+			<nav aria-label="Footer links" class="flex flex-wrap gap-x-5 gap-y-2">
+				<a class="text-link font-semibold hover:!text-lime" href="/about/">About</a>
+				<a class="text-link font-semibold hover:!text-lime" href="/terms/">Terms of Use</a>
+				<a class="text-link font-semibold hover:!text-lime" href="/privacy-policy/">Privacy Policy</a>
+			</nav>
 		</div>
 	</div>
 </footer>

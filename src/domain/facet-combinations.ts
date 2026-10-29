@@ -57,6 +57,23 @@ export function findCoreStyleParentPage<T extends Pick<NailFacetPage, 'area' | '
 	return undefined;
 }
 
+export function findFirstFacetParentPage<T extends Pick<NailFacetPage, 'area' | 'facets' | 'nails'>>(
+	page: Pick<NailFacetPage, 'area' | 'facets'>,
+	pages: readonly T[],
+): T | undefined {
+	if (page.facets.length < 2) return undefined;
+
+	const firstFacet = page.facets[0];
+	if (!firstFacet) return undefined;
+
+	const parent = pages.find((candidate) => candidate.area === page.area
+		&& candidate.facets.length === 1
+		&& candidate.facets[0].kind === firstFacet.kind
+		&& candidate.facets[0].value === firstFacet.value);
+
+	return parent && isIndexable(parent) ? parent : undefined;
+}
+
 function belongsToArea(nail: NailRecord, area: NailArea): boolean {
 	return nail.typesOfNails === area || nail.typesOfNails === 'both';
 }

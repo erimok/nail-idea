@@ -33,6 +33,7 @@ export function aHub(overrides: Partial<HubEditorial> = {}): HubEditorial {
 		urlSlug: `hub-${hubSequence}`,
 		intro: 'Curated hub intro.',
 		metaDescription: 'Curated hub description.',
+		sections: [],
 		faq: [],
 		...overrides,
 	};
