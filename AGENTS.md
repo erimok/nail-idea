@@ -6,6 +6,7 @@ Stack: TypeScript, Astro, Keystatic CMS, Vitest.
 ## Read first
 
 - `docs/overview.md` is the source of truth for URL structure, hub indexing rules, and planned routes. Read it before touching routing, sitemap, or hub logic. Update it in the same change when route conventions change.
+- `docs/validated-nails.md` lists nails in `src/content/nails/` whose title, imageAlt, description, and tags are already validated. Skip those nails when reviewing copy. See "Nail validation" below.
 - `keystatic.config.ts` defines the content schema. Keep code and content in sync with it.
 
 ## Content copy conventions
@@ -25,6 +26,7 @@ Apply these rules to every task, not just to a single hub or example page:
 | Type/lint check | `npm run check` |
 | Unit tests + sitemap smoke test | `npm test` |
 | Production build | `npm run build` |
+| Validate nail copy | `npm run validate:nails` (`-- --all` to ignore the table, `-- --update` to record) |
 | Dev server (always background) | `npm run dev -- --background` |
 | Dev server control | `astro dev status`, `astro dev logs`, `astro dev stop` |
 
@@ -304,6 +306,23 @@ Prefer in-memory fakes over mocking libraries. Fakes implement the real port int
 ### Test placement
 
 Co-locate tests with source as `*.test.ts`. Shared builders, fakes, and repository contract suites live in `adapters/in-memory/` or a `test/` helpers folder.
+
+## Nail validation
+
+Every nail in `src/content/nails/` needs a `title`, `imageAlt`, and `description` that match its own metadata and photo, and that do not contradict each other.
+
+- Title follows `{Length} {Shape} Nails: {Design}` and agrees with `length`, `shape`, `colors`, and `types`.
+- `imageAlt` describes what is visible in the photo. `description` sells the design. They must not be identical, and neither may mention a different shape, length, color, or style than the tags.
+- No typos, no lowercase `french` or `micro french` (use `French`, `micro French`), no “flawless”, no duplicate titles, alts, or descriptions across nails.
+- Never edit a slug, image path, or URL to fix copy.
+
+**Bypass table:** `docs/validated-nails.md` stores a fingerprint (hash of title, imageAlt, description, image, shape, length, colors, types, finishes) for each validated nail.
+
+1. Run `npm run validate:nails`. Nails with a matching fingerprint are bypassed. Do not re-review them.
+2. A new or edited nail has no matching fingerprint, so it is checked automatically. Fix every reported problem, and open the photo to confirm the alt and description match it.
+3. When all checks pass, run `npm run validate:nails -- --update` to add or refresh the row. Add `--visual slug-a,slug-b` for nails whose photo you compared with the copy. Rows marked `text` were only checked against their tags.
+4. Commit the updated `docs/validated-nails.md` with the content change. Never edit the table by hand and never copy a fingerprint to bypass a check.
+5. To force a full re-check (for example after the rules change), run `npm run validate:nails -- --all`.
 
 ## Domain rules
 

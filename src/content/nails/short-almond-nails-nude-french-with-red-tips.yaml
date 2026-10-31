@@ -28,5 +28,6 @@ season:
   - winter
 shape: almond
 length: short
-finishes: []
+finishes:
+  - glossy
 nailConcerns: []

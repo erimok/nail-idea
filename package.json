@@ -10,6 +10,7 @@
     "build": "astro build",
     "preview": "astro preview",
     "check": "astro check",
+    "validate:nails": "node scripts/validate-nails.mjs",
     "test": "vitest run && npm run test:sitemap",
     "test:sitemap": "npm run build && node --test scripts/sitemap.test.mjs",
     "test:watch": "vitest",

@@ -4,7 +4,7 @@ import { facetKinds, getFacetValues, type FacetKind } from './facets/registry';
 import { facetKindMoods, facetMoods } from './hub-moods';
 import { buildFacetRoute } from './routes';
 
-export const MAX_TITLE_LENGTH = 65;
+export const MAX_TITLE_LENGTH = 59;
 export const MAX_DESCRIPTION_LENGTH = 160;
 export const MIN_INTRO_WORDS = 40;
 export const MAX_INTRO_WORDS = 70;
@@ -117,13 +117,12 @@ export function rankRelatedHubs<T extends RelatedCandidate>(
 
 function buildTitle(display: string, area: NailArea, designCount: number, year: number): string {
 	const designs = designCount === 1 ? 'Design' : 'Designs';
-	const words = display.split(' ');
+	const title = `${titleCase(display)} ${areaTitleNouns[area]}: ${designCount} ${designs} (${year})${SITE_SUFFIX}`;
+	if (title.length <= MAX_TITLE_LENGTH) return title;
 
-	for (;;) {
-		const title = `${words.join(' ')} ${areaTitleNouns[area]}: ${designCount} ${designs} (${year})${SITE_SUFFIX}`;
-		if (title.length <= MAX_TITLE_LENGTH || words.length === 1) return title.slice(0, MAX_TITLE_LENGTH);
-		words.pop();
-	}
+	const compactTitle = `${titleCase(display)} ${areaTitleNouns[area]} (${designCount})${SITE_SUFFIX}`;
+	if (compactTitle.length <= MAX_TITLE_LENGTH) return compactTitle;
+	return `${compactTitle.slice(0, MAX_TITLE_LENGTH - SITE_SUFFIX.length).trimEnd()}${SITE_SUFFIX}`;
 }
 
 function buildHeading(page: HubCopyPage, display: string): string {

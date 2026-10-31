@@ -58,6 +58,31 @@ const INDEXABLE_SINGLE_FACET_HUBS = [
 ];
 
 describe('Keystatic hub editorial copy', () => {
+	it('provides a 250 to 350-word page description with three distinct sections on every single-facet hub', async () => {
+		// Arrange
+		const repository = new KeystaticHubRepository({ rootPath: process.cwd() });
+
+		// Act
+		const hubs = await repository.listHubs();
+
+		// Assert
+		for (const urlSlug of INDEXABLE_SINGLE_FACET_HUBS) {
+			const hub = hubs.find((candidate) => candidate.area === 'manicure' && candidate.urlSlug === urlSlug);
+			expect(hub, `missing editorial content for ${urlSlug}`).toBeDefined();
+			expect((hub?.intro.match(/[.!?](?=\s|$)/g) ?? []).length, `${urlSlug} intro sentence count`).toBe(2);
+			expect(hub?.sections, `${urlSlug} section count`).toHaveLength(3);
+			const sections = hub?.sections ?? [];
+			const bodies = sections.map(({ body }) => body);
+			const wordCount = [hub?.intro ?? '', ...sections.flatMap(({ heading, body }) => [heading, body])]
+				.join(' ')
+				.split(/\s+/)
+				.filter(Boolean).length;
+			expect(wordCount, `${urlSlug} body word count`).toBeGreaterThanOrEqual(250);
+			expect(wordCount, `${urlSlug} body word count`).toBeLessThanOrEqual(350);
+			expect(new Set(bodies).size, `${urlSlug} distinct sections`).toBe(3);
+		}
+	});
+
 	it('provides 300 to 500 words of distinct guidance on the target French hubs', async () => {
 		// Arrange
 		const repository = new KeystaticHubRepository({ rootPath: process.cwd() });
@@ -102,7 +127,7 @@ describe('Keystatic hub editorial copy', () => {
 			const introWords = hub.intro.split(/\s+/).filter(Boolean).length;
 			expect(introWords, `${hub.urlSlug} intro word count`).toBeGreaterThanOrEqual(40);
 			expect(introWords, `${hub.urlSlug} intro word count`).toBeLessThanOrEqual(70);
-			expect(hub.metaDescription.length, `${hub.urlSlug} meta description length`).toBeLessThanOrEqual(160);
+			expect(hub.metaDescription.length, `${hub.urlSlug} meta description length`).toBeLessThanOrEqual(155);
 		}
 	});
 });

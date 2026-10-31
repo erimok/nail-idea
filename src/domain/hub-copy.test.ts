@@ -120,6 +120,20 @@ describe('generateHubCopy', () => {
 		expect(copy.heading).toBe('Burgundy Nails: 6 Ideas for Every Shape');
 	});
 
+	it('keeps long facet titles under 60 characters without truncating the site name', () => {
+		// Arrange
+		const nails = Array.from({ length: MIN_DESIGNS_FOR_INDEX }, () => aNail({ types: ['russian manicure'] }));
+		const { page, pages } = pageFor(nails, 'russian-manicure-nails');
+
+		// Act
+		const copy = generateHubCopy(page, pages.filter(isIndexable), YEAR);
+
+		// Assert
+		expect(copy.title.length).toBeLessThan(60);
+		expect(copy.title.endsWith(' | nail-idea.com')).toBe(true);
+		expect(copy.title).toContain('Russian Manicure');
+	});
+
 	it('builds the French tip title from the design count and the heading from design count, shapes and lengths', () => {
 		// Arrange
 		const shapes = ['almond', 'coffin', 'square'] as const;
