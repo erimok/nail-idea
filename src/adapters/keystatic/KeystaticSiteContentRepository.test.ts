@@ -4,8 +4,8 @@ import { KeystaticSiteContentRepository } from './KeystaticSiteContentRepository
 
 const fixtureRootPath = fileURLToPath(new URL('./fixtures/content', import.meta.url));
 const expectedFaqs = [
-	{ question: 'First FAQ', answer: 'Answer one.' },
-	{ question: 'Second FAQ', answer: 'Answer two.' },
+	{ question: 'First FAQ', answer: 'Answer one.', order: 1 },
+	{ question: 'Second FAQ', answer: 'Answer two.', order: 2 },
 ] as const;
 const expectedNavigationGroups = [
 	{

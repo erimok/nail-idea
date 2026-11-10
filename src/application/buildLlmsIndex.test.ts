@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { InMemoryHubRepository } from '../adapters/in-memory/InMemoryHubRepository';
+import { InMemoryFaqRepository } from '../adapters/in-memory/InMemoryFaqRepository';
 import { InMemoryNailRepository } from '../adapters/in-memory/InMemoryNailRepository';
 import { InMemorySiteContentRepository } from '../adapters/in-memory/InMemorySiteContentRepository';
 import { InMemorySiteConfig } from '../adapters/in-memory/InMemorySiteConfig';
@@ -26,6 +27,7 @@ describe('buildLlmsIndex', () => {
 				metaDescription: 'Browse 6 red manicure ideas: solid looks. Save your favorites on nail-idea.com.',
 			})]),
 			siteContentRepository: new InMemorySiteContentRepository(),
+			faqRepository: new InMemoryFaqRepository(),
 			siteConfig: new InMemorySiteConfig(),
 		};
 

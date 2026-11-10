@@ -2,16 +2,21 @@
 import { getImage, Picture } from 'astro:assets';
 import type { NailRecord } from '../libs/ai/nail-search';
 import { getNailImageMetadata } from '../libs/nail-images';
+import { buildPinterestUrl } from '../adapters/presentation/human/pinterest';
+import PinterestButton from './PinterestButton.astro';
 
 interface Props {
 	nail: NailRecord;
 	eager?: boolean;
 	deferred?: boolean;
+	canonical: string;
 }
 
-const { nail, eager = false, deferred = false } = Astro.props;
+const { nail, canonical, eager = false, deferred = false } = Astro.props;
 const image = getNailImageMetadata(nail.image);
 const full = await getImage({ src: image, width: 1600, format: 'webp' });
+const pinHref = import.meta.env.PROD ? buildPinterestUrl({ canonical, image: full.src, description: nail.description }) : undefined;
+const pinLabel = `Save ${nail.title} to Pinterest`;
 const meta = [nail.length, nail.shape, ...nail.finishes].filter(Boolean);
 ---
 
@@ -20,6 +25,7 @@ const meta = [nail.length, nail.shape, ...nail.finishes].filter(Boolean);
 	hidden={deferred}
 	data-gallery-deferred={deferred ? '' : undefined}
 >
+	<div class="relative">
 	<button
 		type="button"
 		class="group/zoom relative block w-full cursor-zoom-in rounded-[1.1rem] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-olive"
@@ -27,6 +33,8 @@ const meta = [nail.length, nail.shape, ...nail.finishes].filter(Boolean);
 		data-gallery-src={full.src}
 		data-gallery-alt={nail.imageAlt ?? nail.description}
 		data-gallery-caption={nail.title}
+		data-pinterest-href={pinHref}
+		data-pinterest-label={pinLabel}
 	>
 	<Picture
 		src={image}
@@ -45,6 +53,8 @@ const meta = [nail.length, nail.shape, ...nail.finishes].filter(Boolean);
 	/>
 	<span aria-hidden="true" class="pointer-events-none absolute bottom-3 right-3 flex size-9 items-center justify-center rounded-full bg-white/90 text-ink shadow-soft transition group-hover/zoom:scale-110 group-hover/zoom:bg-white"><svg aria-hidden="true" class="size-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7" /></svg></span>
 	</button>
+	{pinHref && <div class="absolute right-2 top-2"><PinterestButton href={pinHref} label={pinLabel} /></div>}
+	</div>
 	<div class="flex flex-1 flex-col gap-2 px-4 pb-4 pt-3">
 		<h3 class="line-clamp-2 font-display text-xl font-semibold leading-tight text-ink">{nail.title}</h3>
 		<p class="line-clamp-2 text-sm leading-6 text-muted">{nail.description}</p>

@@ -36,7 +36,7 @@ export class KeystaticSiteContentRepository implements SiteContentRepository {
 		return entries
 			.map(({ entry }) => faqEntrySchema.parse(entry))
 			.sort((a, b) => a.order - b.order)
-			.map(({ question, answer }) => ({ question, answer }));
+			.map(({ question, answer, order }) => ({ question, answer, order }));
 	}
 
 	async listNavigationGroups(): Promise<readonly NavigationGroup[]> {

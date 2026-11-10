@@ -3,15 +3,20 @@ import type { NailRecord } from './domain/nail';
 import type { HubEditorial } from './domain/hub-types';
 import { EnvSiteConfig } from './adapters/config/EnvSiteConfig';
 import { KeystaticHubRepository } from './adapters/keystatic/KeystaticHubRepository';
+import { KeystaticFaqRepository } from './adapters/keystatic/KeystaticFaqRepository';
 import { KeystaticNailRepository } from './adapters/keystatic/KeystaticNailRepository';
 import { KeystaticSiteContentRepository } from './adapters/keystatic/KeystaticSiteContentRepository';
 import { buildAboutPage } from './application/buildAboutPage';
+import { buildFaqPage } from './application/buildFaqPage';
+import { buildFaqIndexPage } from './application/buildFaqIndexPage';
+import { listFaqRoutes } from './application/listFaqRoutes';
 import { buildAreaPage } from './application/buildAreaPage';
 import { buildHomepage } from './application/buildHomepage';
 import { buildHubPage } from './application/buildHubPage';
 import { buildLlmsIndex } from './application/buildLlmsIndex';
 import { buildStaticPage } from './application/buildStaticPage';
 import { listHubRoutes } from './application/listHubRoutes';
+import { listFaqPlacements } from './application/listFaqPlacements';
 import { resolveBrowseLinks } from './application/resolveBrowseLinks';
 import { resolveSitemapRoutes } from './application/resolveSitemapRoutes';
 import type { HubRepository } from './ports/HubRepository';
@@ -62,11 +67,16 @@ const nailRepository = createCachedNailRepository(new KeystaticNailRepository())
 const hubRepository = createCachedHubRepository(new KeystaticHubRepository());
 const siteContentRepository: SiteContentRepository = new KeystaticSiteContentRepository();
 const siteConfig = new EnvSiteConfig(process.env);
-const ports = { nailRepository, hubRepository, siteContentRepository, siteConfig };
+const faqRepository = new KeystaticFaqRepository();
+const ports = { nailRepository, hubRepository, siteContentRepository, siteConfig, faqRepository };
 export const siteUrl = siteConfig.siteUrl;
 
 export const siteServices = {
 	buildAboutPage: () => buildAboutPage(ports),
+	buildFaqPage: (slug: string) => buildFaqPage(ports, slug),
+	buildFaqIndexPage: () => buildFaqIndexPage(ports),
+	listFaqRoutes: () => listFaqRoutes(faqRepository),
+	listFaqPlacements: () => listFaqPlacements(ports),
 	buildAreaPage: (params: Parameters<typeof buildAreaPage>[1]) => buildAreaPage(ports, params),
 	buildHomepage: () => buildHomepage(ports),
 	buildHubPage: (params: Parameters<typeof buildHubPage>[1]) => buildHubPage(ports, params),

@@ -7,12 +7,12 @@ import {
 } from '../domain/facet-combinations';
 import { facetKinds, type FacetKind } from '../domain/facets/registry';
 import { formatHubAnchorLabel } from '../domain/hub-copy';
-import type { HubEditorial } from '../domain/hub-types';
+import type { HubEditorial, HubEditorialSection } from '../domain/hub-types';
 import { isIndexable, isIndexablePage } from '../domain/indexability';
 import type { NailRecord, NailSearchRecord } from '../domain/nail';
 import type { SearchHubLink } from '../domain/search-hub-match';
 import type { NavigationGroup, NavigationPlacement } from '../domain/site-content';
-import { buildAreaRoute, buildFacetRoute } from '../domain/routes';
+import { buildAreaRoute, buildFacetRoute, buildFaqIndexRoute } from '../domain/routes';
 import type {
 	BreadcrumbViewModel,
 	BrowseLinkGroupViewModel,
@@ -29,6 +29,7 @@ interface SeoPageCopy {
 	heading: string;
 	prompt: string;
 	paragraphs: readonly string[];
+	editorialSections: readonly HubEditorialSection[];
 }
 
 interface CollectionStructuredDataInput {
@@ -103,6 +104,19 @@ function seasonValues(value: NailRecord['season']): readonly string[] {
 	return [...value];
 }
 
+const areaEditorialSections: Partial<Record<NailArea, readonly HubEditorialSection[]>> = {
+	manicure: [
+		{
+			heading: 'How to choose a manicure design',
+			body: 'Start with the detail you care about most: nail shape, length, color, or finish. Then decide how much decoration you want. A solid shade keeps the focus on color, while French tips and nail art add contrast or detail. If you are comparing options, look at designs with a similar shape or length first to see how a change in color or finish affects the overall look.',
+		},
+		{
+			heading: 'Browse manicure ideas by color, shape, and occasion',
+			body: 'Use the search to narrow the collection by color, shape, finish, or occasion, or browse the full gallery for ideas. Compare how different shades and finishes look, and whether a design keeps every nail simple or adds detail to selected nails. When you find a reference you like, note the elements that stand out so you can explain what you want to your nail technician.',
+		},
+	],
+};
+
 export function attachHubEditorial(
 	pages: readonly NailFacetPage[],
 	entries: readonly HubEditorial[],
@@ -153,6 +167,7 @@ export function buildAreaPageCopy(
 			[`We found ${designs} in the nail-idea.com ${area} collection.`, examples].filter(Boolean).join(' '),
 			[details, `Browse the designs below, or describe a color, shape, finish, or occasion in the search above to narrow down your next ${area}.`].filter(Boolean).join(' '),
 		],
+		editorialSections: areaEditorialSections[area] ?? [],
 	};
 }
 
@@ -168,6 +183,7 @@ export function buildSiteChromeViewModel(
 	const indexableHrefs = new Set(hubPages.filter(isIndexable).map((page) => buildFacetRoute(page.area, page.slug)));
 
 	return {
+		faqIndexHref: buildFaqIndexRoute(),
 		header: {
 			browseGroups: buildHeaderBrowseGroups(hubPages),
 			availableAreas: nailAreas
@@ -367,6 +383,37 @@ export function buildCollectionStructuredData({
 					})),
 				}]
 				: []),
+		],
+	};
+}
+
+export function buildFaqStructuredData(
+	canonical: string,
+	breadcrumbs: readonly BreadcrumbViewModel[],
+	faq: readonly FaqItemViewModel[],
+): Record<string, unknown> {
+	return {
+		'@context': 'https://schema.org',
+		'@graph': [
+			...(faq.length > 0 ? [{
+				'@type': 'FAQPage',
+				'@id': `${canonical}#faq`,
+				mainEntity: faq.map(({ question, answer }) => ({
+					'@type': 'Question',
+					name: question,
+					acceptedAnswer: { '@type': 'Answer', text: answer },
+				})),
+			}] : []),
+			{
+				'@type': 'BreadcrumbList',
+				'@id': `${canonical}#breadcrumb`,
+				itemListElement: breadcrumbs.map(({ label, href }, index) => ({
+					'@type': 'ListItem',
+					position: index + 1,
+					name: label,
+					item: buildCanonicalUrl(canonical, href ?? canonical),
+				})),
+			},
 		],
 	};
 }

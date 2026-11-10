@@ -1,0 +1,28 @@
+---
+import { siteServices } from '../../composition';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Breadcrumbs from '../../components/Breadcrumbs.astro';
+import Section from '../../components/ui/Section.astro';
+
+export async function getStaticPaths() {
+	return (await siteServices.listFaqRoutes()).map(({ slug }) => ({ params: { slug } }));
+}
+
+const viewModel = await siteServices.buildFaqPage(Astro.params.slug!);
+---
+
+<BaseLayout {...viewModel.layout}>
+	<main>
+		<Section bg="canvas">
+			<article class="mx-auto max-w-3xl">
+				<Breadcrumbs items={viewModel.breadcrumbs} />
+				<h1 class="font-display text-4xl text-ink">{viewModel.heading}</h1>
+				<p class="mt-6 whitespace-pre-line text-base leading-8 text-ink-soft">{viewModel.answer}</p>
+				{viewModel.relatedLinks.length > 0 && <nav class="mt-8" aria-label="Related ideas">
+					<h2 class="font-display text-2xl text-ink">Related ideas</h2>
+					<ul class="mt-4 space-y-2">{viewModel.relatedLinks.map((link) => <li><a class="text-link text-ink" href={link.href}>{link.label}</a></li>)}</ul>
+				</nav>}
+			</article>
+		</Section>
+	</main>
+</BaseLayout>

@@ -25,6 +25,9 @@ Implemented static pages:
 /terms/
 /privacy-policy/
 /{area}/{slug}.md # Markdown representation of an indexable hub
+/faq/ # published FAQ listing
+/faq/{slug}/ # published FAQ answer
+/faq/{slug}.md # Markdown representation of a published FAQ
 /llms.txt # index of indexable hub Markdown pages
 {manicure|pedicure}/
 # top level
@@ -75,7 +78,13 @@ Hub design grids render every card in the static HTML. They show the first 24 de
 
 Homepage search results end with a "Show more {hub label}" button that links to the most specific indexable hub covered by the search. For example, "Short nude almond nails with a micro French manicure" links to the combination hub with the most matching facets (`src/domain/search-hub-match.ts`, `findBestHubForSearch`). The prompt's facets map to hub facets in `src/libs/ai/search-facets.ts`. The hub must have all of its facets in the search, and ties go to the hub with more designs. Only indexable hubs are offered (`searchHubLinks` on the homepage view model), so noindex hubs are never linked. The button is hidden when there are no matches or no hub fits. It is shown on the homepage search only; hub and area page search does not receive hub links yet.
 
-Homepage FAQ entries are managed in the Keystatic `faqs` collection, and header/footer browse groups are managed in `navigation`. FAQ and menu display order is set by each entry's `order` field. Navigation links are restricted to generated, indexable hub routes; the About link remains fixed in the presentation.
+Reusable FAQs are managed in Keystatic's `sharedFaqs` collection. An editor writes a question, short answer, fuller answer and meta description, selects areas and relevant facet values, and publishes only after review. A published FAQ appears on any hub in a selected area matching **any** assigned facet; exact hub placements can be added independently. The same item appears only once per hub. Published FAQs can also be explicitly featured on the homepage. Blocks show the summary and link to the full answer. Build output reports resolved placements, including drafts.
+
+Only published FAQs receive indexable HTML pages, sitemap entries, Markdown pages and `/llms.txt` entries; draft records receive none. `/faq/` lists published FAQ summaries in editorial order and links to their full answers; it is noindex and omitted from the sitemap when no FAQs are published. FAQ listing and answer pages include visible breadcrumbs and matching `BreadcrumbList` structured data; their visible question-and-answer content is represented by `FAQPage` structured data. FAQ Markdown uses `/faq/{slug}.md`, and hub Markdown includes its displayed FAQ summaries. FAQ pages link only to indexable hubs. FAQ publication does not alter the hub indexing threshold. An FAQ or a page displaying it omits sitemap `lastmod` when its contributing FAQ timestamp is unknown.
+
+The original homepage `faqs` collection and hub `faq` fields remain supported during migration. The six original homepage FAQs have been published as shared records and their legacy entries removed. When another draft is reviewed and published, remove its legacy entry in the same deployment; duplicate questions on a page fail the build. Never rename or unpublish a public FAQ without a separate approved deployment and redirect/removal decision. Editors must update `updated_at` after content changes.
+
+Header/footer browse groups are managed in `navigation`. FAQ and menu display order is set by each entry's `order` field. Navigation links are restricted to generated, indexable hub routes; the About link remains fixed in the presentation.
 
 Run `npm test` to run unit tests and the sitemap build smoke test. The sitemap check verifies the index and representative top-level and facet URLs in the generated XML.
 
@@ -87,9 +96,9 @@ Planned routes:
 ```
 
 Each indexable hub also has a static Markdown representation at
-`/{area}/{slug}.md`. `/llms.txt` links to these files, grouped by area. Both
-outputs use the hub page view models and exclude routes that fail the shared
-indexability rule.
+`/{area}/{slug}.md`. `/llms.txt` links to these files, grouped by area, and to
+published FAQ Markdown files. Outputs use their HTML page view models and
+exclude routes that fail the applicable publication or indexability rule.
 
 ## Product ideas
 

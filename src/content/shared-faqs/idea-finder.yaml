@@ -1,0 +1,27 @@
+question: How does the nail-idea.com idea finder work?
+status: published
+summary: Type a short description of the nails you imagine. The idea finder parses details it recognizes, such as color, shape, length, finish, and occasion, then ranks designs in the collection and shows up to three close matches. Add details or try a different description to refine the results.
+fullAnswer: |-
+  The nail idea finder helps you explore designs already in the nail-idea.com collection. Describe the look you have in mind in a few words, such as “short nude almond nails with a micro French manicure,” then select “Find my designs.”
+
+  The finder looks for details it recognizes, including colors, nail shapes, lengths, styles, finishes, and occasions. It compares those details with the tags on designs in the collection and shows up to three of the closest matches. A result can match some of your description without matching every detail, so check the images and descriptions before choosing a favorite.
+
+  If you don't see what you imagined, try a different color, shape, or style, or use fewer details. When a relevant collection page is available, a link below the results can help you browse more ideas. The finder suggests existing designs; it does not create a custom image.
+metaDescription: Find out how the nail idea finder matches your description to manicure and pedicure designs, and how to refine your search.
+homepage: true
+order: 6
+areas:
+  - manicure
+  - pedicure
+colors:
+  - nude
+types:
+  - micro french
+occasions: []
+seasons: []
+shapes:
+  - almond
+lengths:
+  - short
+finishes: []
+hubs: []

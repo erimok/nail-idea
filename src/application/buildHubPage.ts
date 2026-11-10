@@ -21,6 +21,7 @@ import {
 } from './support';
 import { resolveBrowseLinks } from './resolveBrowseLinks';
 import type { CollectionPageViewModel } from './view-models';
+import { faqSummary, hubFaqs, validateUniqueFaqQuestions } from './faq-support';
 
 const DEFAULT_SOCIAL_IMAGE_PATH = '/og/home.jpg';
 
@@ -30,13 +31,14 @@ interface BuildHubPageParams {
 }
 
 export async function buildHubPage(
-	{ nailRepository, hubRepository, siteContentRepository, siteConfig }: SitePorts,
+	{ nailRepository, hubRepository, siteContentRepository, siteConfig, faqRepository }: SitePorts,
 	{ area, slug }: BuildHubPageParams,
 ): Promise<CollectionPageViewModel> {
-	const [allNails, editorial, navigationGroups] = await Promise.all([
+	const [allNails, editorial, navigationGroups, faqs] = await Promise.all([
 		nailRepository.findAllNails(),
 		hubRepository.listHubs(),
 		siteContentRepository.listNavigationGroups(),
+		faqRepository.listFaqs(),
 	]);
 	const pages = attachHubEditorial(getAllFacetPages(allNails), editorial);
 	const page = pages.find((candidate) => candidate.area === area && candidate.slug === slug);
@@ -61,6 +63,11 @@ export async function buildHubPage(
 			: []),
 		{ label: facetLabel },
 	];
+	const faq = [
+		...(page.editorial?.faq ?? []).map((item, index) => ({ item, order: index + 1, key: item.question })),
+		...hubFaqs(faqs, page).map((entry) => ({ item: faqSummary(entry), order: entry.order, key: entry.slug })),
+	].sort((a, b) => a.order - b.order || a.key.localeCompare(b.key)).map(({ item }) => item);
+	validateUniqueFaqQuestions(faq, `/${area}/${slug}/`);
 
 	return {
 		layout: {
@@ -79,7 +86,7 @@ export async function buildHubPage(
 				description: copy.description,
 				nails: page.nails,
 				breadcrumbs,
-				faq: page.editorial?.faq ?? [],
+				faq,
 			}),
 			siteChrome: buildSiteChromeViewModel(allNails, editorial, navigationGroups),
 		},
@@ -109,7 +116,7 @@ export async function buildHubPage(
 			}
 			: undefined,
 		sectionTitle: `${page.nails.length} ${facetLabel} designs`,
-		faq: page.editorial?.faq ?? [],
+		faq,
 		emptyStateMessage: `New ${area} ideas are coming soon.`,
 	};
 }

@@ -11,3 +11,15 @@ export function buildFacetRoute(area: NailArea, slug: string): string {
 export function buildFacetMarkdownRoute(area: NailArea, slug: string): string {
 	return `${buildAreaRoute(area)}${slug}.md`;
 }
+
+export function buildFaqRoute(slug: string): string {
+	return `/faq/${slug}/`;
+}
+
+export function buildFaqIndexRoute(): string {
+	return '/faq/';
+}
+
+export function buildFaqMarkdownRoute(slug: string): string {
+	return `/faq/${slug}.md`;
+}

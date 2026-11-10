@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { InMemoryHubRepository } from '../adapters/in-memory/InMemoryHubRepository';
+import { InMemoryFaqRepository } from '../adapters/in-memory/InMemoryFaqRepository';
 import { InMemoryNailRepository } from '../adapters/in-memory/InMemoryNailRepository';
 import { MIN_DESIGNS_FOR_INDEX } from '../domain/indexability';
 import { aHub, aNail } from '../test/builders';
@@ -14,6 +15,7 @@ describe('resolveSitemapRoutes', () => {
 			typesOfNails: 'manicure',
 		}));
 		const ports = {
+			faqRepository: new InMemoryFaqRepository(),
 			nailRepository: new InMemoryNailRepository(nails),
 			hubRepository: new InMemoryHubRepository([aHub({
 				area: 'manicure',
@@ -40,6 +42,7 @@ describe('resolveSitemapRoutes', () => {
 			typesOfNails: 'manicure',
 		}));
 		const ports = {
+			faqRepository: new InMemoryFaqRepository(),
 			nailRepository: new InMemoryNailRepository(nails),
 			hubRepository: new InMemoryHubRepository([]),
 		};
@@ -60,6 +63,7 @@ describe('resolveSitemapRoutes', () => {
 			typesOfNails: 'manicure',
 		}));
 		const ports = {
+			faqRepository: new InMemoryFaqRepository(),
 			nailRepository: new InMemoryNailRepository(nails),
 			hubRepository: new InMemoryHubRepository([aHub({
 				urlSlug: 'red-nails',

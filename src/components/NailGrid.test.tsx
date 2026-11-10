@@ -57,4 +57,22 @@ describe('NailGrid gallery', () => {
 		// Assert
 		expect(screen.getByRole('dialog', { hidden: true }).querySelector('img')).toBeNull();
 	});
+
+	it('updates the Pinterest target when the lightbox image changes', async () => {
+		// Arrange
+		const user = userEvent.setup();
+		render(<NailGrid canonical="https://example.com/manicure/red-nails/" items={[{ nail: aNail('a') }, { nail: aNail('b') }]} />);
+		await user.click(screen.getByRole('button', { name: 'View full image: Nail a' }));
+
+		// Act
+		await user.click(screen.getByRole('button', { name: 'Next image', hidden: true }));
+
+		// Assert
+		const dialog = screen.getByRole('dialog', { hidden: true });
+		const link = dialog.querySelector<HTMLAnchorElement>('[data-pinterest-widget] a');
+		const url = new URL(link?.href ?? '');
+		expect(url.searchParams.get('media')).toBe('https://example.com/b.jpg');
+		expect(url.searchParams.get('url')).toBe('https://example.com/manicure/red-nails/');
+		expect(link?.getAttribute('aria-label')).toBe('Save Nail b to Pinterest');
+	});
 });

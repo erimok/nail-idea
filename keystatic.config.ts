@@ -1,5 +1,7 @@
 import { config, fields, collection } from '@keystatic/core';
 import { aiSearchOptions } from './src/libs/ai/vocabulary';
+import { faqFacetOptions } from './src/libs/ai/faq-facet-options';
+import { nailAreas } from './src/domain/areas';
 
 const optionsFor = <Value extends string>(values: readonly Value[]) => values.map((value) => ({
 	label: value.replaceAll('-', ' ').replace(/\b\w/g, (letter) => letter.toUpperCase()),
@@ -11,6 +13,41 @@ export default config({
 		kind: 'local',
 	},
 	collections: {
+		sharedFaqs: collection({
+			label: 'Reusable FAQs',
+			slugField: 'question',
+			path: 'src/content/shared-faqs/*',
+			columns: ['question', 'status', 'order'],
+			schema: {
+				question: fields.slug({
+					name: { label: 'Question' },
+					slug: { label: 'Public slug', description: 'Do not change after publication without an approved redirect.' },
+				}),
+				status: fields.select({
+					label: 'Status',
+					options: [{ label: 'Draft', value: 'draft' }, { label: 'Published', value: 'published' }],
+					defaultValue: 'draft',
+				}),
+				summary: fields.text({ label: 'Short answer', multiline: true }),
+				fullAnswer: fields.text({ label: 'Full answer', multiline: true }),
+				metaDescription: fields.text({ label: 'Meta description' }),
+				homepage: fields.checkbox({ label: 'Feature on homepage', defaultValue: false }),
+				order: fields.integer({ label: 'Display order', defaultValue: 1 }),
+				areas: fields.multiselect({ label: 'Areas for inherited facets', options: optionsFor(nailAreas), defaultValue: [] }),
+				colors: fields.multiselect({ label: 'Colors', options: optionsFor(faqFacetOptions.colors.values), defaultValue: [] }),
+				types: fields.multiselect({ label: 'Design styles', options: optionsFor(faqFacetOptions.types.values), defaultValue: [] }),
+				occasions: fields.multiselect({ label: 'Occasions', options: optionsFor(faqFacetOptions.occasions.values), defaultValue: [] }),
+				seasons: fields.multiselect({ label: 'Seasons', options: optionsFor(faqFacetOptions.seasons.values), defaultValue: [] }),
+				shapes: fields.multiselect({ label: 'Shapes', options: optionsFor(faqFacetOptions.shapes.values), defaultValue: [] }),
+				lengths: fields.multiselect({ label: 'Lengths', options: optionsFor(faqFacetOptions.lengths.values), defaultValue: [] }),
+				finishes: fields.multiselect({ label: 'Finishes', options: optionsFor(faqFacetOptions.finishes.values), defaultValue: [] }),
+				hubs: fields.array(fields.object({
+					area: fields.select({ label: 'Area', options: optionsFor(nailAreas), defaultValue: 'manicure' }),
+					slug: fields.text({ label: 'Exact hub slug', validation: { isRequired: true } }),
+				}), { label: 'Additional exact hub placements', itemLabel: (props) => props.fields.slug.value || 'Hub' }),
+				updated_at: fields.datetime({ label: 'Last content update' }),
+			},
+		}),
 		faqs: collection({
 			label: 'Homepage FAQs',
 			slugField: 'question',

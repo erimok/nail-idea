@@ -1,4 +1,5 @@
 import { stepIndex } from '../../components/gallery-navigation';
+import { updatePinterestWidget } from '../../adapters/presentation/human/pinterest-widget';
 
 export const GALLERY_TRIGGER = '[data-gallery-src]';
 
@@ -32,6 +33,12 @@ export function initGridGallery(root: HTMLElement, dialog: HTMLDialogElement): v
 		image.src = trigger.dataset.gallerySrc ?? '';
 		image.alt = trigger.dataset.galleryAlt ?? '';
 		caption.textContent = `${trigger.dataset.galleryCaption ?? ''} (${next + 1} / ${triggers.length})`;
+		const wrapper = dialog.querySelector<HTMLElement>('[data-pinterest-widget]');
+		const href = trigger.dataset.pinterestHref;
+		const label = trigger.dataset.pinterestLabel;
+		if (wrapper && href && label) {
+			updatePinterestWidget(wrapper, href, label);
+		}
 	}
 
 	function close(): void {

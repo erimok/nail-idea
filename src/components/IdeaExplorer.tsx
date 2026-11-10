@@ -36,12 +36,14 @@ export default function IdeaExplorer({
 	initialPrompt = '',
 	compact = false,
 	collage = [],
+	canonical,
 }: {
 	nails?: readonly NailSearchRecord[];
 	hubLinks?: readonly SearchHubLink[];
 	initialPrompt?: string;
 	compact?: boolean;
 	collage?: readonly HeroImage[];
+	canonical?: string;
 }) {
 	const [prompt, setPrompt] = useState(initialPrompt);
 	const [result, setResult] = useState<IAIResponse | null>(null);
@@ -173,7 +175,7 @@ export default function IdeaExplorer({
 							<p className="mt-4 text-sm leading-6 text-muted">No close matches yet. Try another color, style, or nail shape.</p>
 						) : (
 							<>
-								<NailGrid items={visibleMatches} />
+								<NailGrid items={visibleMatches} canonical={canonical} />
 								{hub && (
 									<div className="mt-8 flex justify-center">
 										<a

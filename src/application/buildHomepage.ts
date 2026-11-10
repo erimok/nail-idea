@@ -12,19 +12,27 @@ import {
 	toSearchRecords,
 } from './support';
 import type { HomepageViewModel } from './view-models';
+import { faqSummary, publishedFaqs, validateUniqueFaqQuestions } from './faq-support';
 
 export async function buildHomepage({
 	nailRepository,
 	hubRepository,
 	siteContentRepository,
 	siteConfig,
+	faqRepository,
 }: SitePorts): Promise<HomepageViewModel> {
-	const [nails, editorial, faqItems, navigationGroups] = await Promise.all([
+	const [nails, editorial, legacyFaqItems, navigationGroups, faqs] = await Promise.all([
 		nailRepository.findAllNails(),
 		hubRepository.listHubs(),
 		siteContentRepository.listFaqs(),
 		siteContentRepository.listNavigationGroups(),
+		faqRepository.listFaqs(),
 	]);
+	const faqItems = [
+		...legacyFaqItems.map(({ question, answer, order }, index) => ({ item: { question, answer }, order: order ?? index + 1, key: question })),
+		...publishedFaqs(faqs).filter((faq) => faq.homepage).map((faq) => ({ item: faqSummary(faq), order: faq.order, key: faq.slug })),
+	].sort((a, b) => a.order - b.order || a.key.localeCompare(b.key)).map(({ item }) => item);
+	validateUniqueFaqQuestions(faqItems, 'homepage');
 	const facetPages = attachHubEditorial(
 		nailAreas.flatMap((area) => getFacetPages(nails, area)),
 		editorial,

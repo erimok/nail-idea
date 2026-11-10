@@ -1,7 +1,7 @@
 import type { IntroSegment } from '../domain/hub-copy';
 import type { NailArea } from '../domain/areas';
 import type { DesignGrid } from '../domain/gallery';
-import type { HubEditorialSection, HubFaqItem } from '../domain/hub-types';
+import type { HubEditorialSection } from '../domain/hub-types';
 import type { NailRecord, NailSearchRecord } from '../domain/nail';
 import type { SearchHubLink } from '../domain/search-hub-match';
 
@@ -18,6 +18,7 @@ export interface BreadcrumbViewModel {
 export interface FaqItemViewModel {
 	question: string;
 	answer: string;
+	href?: string;
 }
 
 export interface BrowseLinkGroupViewModel {
@@ -31,6 +32,7 @@ export interface FacetBrowseLinksViewModel {
 }
 
 export interface SiteChromeViewModel {
+	faqIndexHref: string;
 	header: {
 		browseGroups: readonly BrowseLinkGroupViewModel[];
 		availableAreas: readonly LinkViewModel[];
@@ -73,7 +75,7 @@ export interface CollectionPageViewModel {
 	relatedLinks?: FacetBrowseLinksViewModel;
 	coreStyleLink?: CoreStyleLinkViewModel;
 	sectionTitle: string;
-	faq: readonly HubFaqItem[];
+	faq: readonly FaqItemViewModel[];
 	emptyStateMessage: string;
 }
 
@@ -121,4 +123,21 @@ export interface LlmsIndexViewModel {
 			markdownUrl: string;
 		}[];
 	}[];
+	faqs?: readonly { title: string; description: string; markdownUrl: string }[];
+}
+
+export interface FaqPageViewModel {
+	layout: LayoutViewModel;
+	heading: string;
+	answer: string;
+	breadcrumbs: readonly BreadcrumbViewModel[];
+	relatedLinks: readonly LinkViewModel[];
+}
+
+export interface FaqIndexPageViewModel {
+	layout: LayoutViewModel;
+	heading: string;
+	intro: string;
+	breadcrumbs: readonly BreadcrumbViewModel[];
+	items: readonly FaqItemViewModel[];
 }

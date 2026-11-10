@@ -1,6 +1,7 @@
 export interface FaqEntry {
 	question: string;
 	answer: string;
+	order?: number;
 }
 
 export interface NavigationLink {

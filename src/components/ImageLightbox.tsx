@@ -1,10 +1,12 @@
 import { useEffect, useRef } from 'react';
 import { stepIndex } from './gallery-navigation';
+import PinterestButton from './PinterestButton';
 
 export interface LightboxImage {
 	src: string;
 	alt: string;
 	caption?: string;
+	pinterestHref?: string;
 }
 
 interface ImageLightboxProps {
@@ -54,6 +56,9 @@ export default function ImageLightbox({ images, activeIndex, onChange }: ImageLi
 			{image && (
 				<figure className="flex h-full w-full flex-col items-center justify-center gap-3 p-4 sm:p-10">
 					<img alt={image.alt} className="max-h-[80dvh] max-w-full rounded-card object-contain" src={image.src} />
+					{image.pinterestHref && <div className="absolute right-16 top-4 sm:right-20">
+						<PinterestButton href={image.pinterestHref} label={`Save ${image.caption ?? image.alt} to Pinterest`} />
+					</div>}
 					<figcaption className="text-center text-sm text-white">
 						{image.caption}
 						{hasMany && <span className="ml-2 tabular-nums opacity-70">{(activeIndex ?? 0) + 1} / {images.length}</span>}

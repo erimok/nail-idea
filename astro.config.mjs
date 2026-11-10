@@ -13,6 +13,11 @@ import { devNailContentEndpoint } from './src/libs/dev-nail-content-endpoint.ts'
 const sitemapRoutes = await siteServices.resolveSitemapRoutes();
 const sitemapPaths = new Set(sitemapRoutes.map(({ url }) => url));
 const sitemapLastmod = new Map(sitemapRoutes.map(({ url, lastmod }) => [url, lastmod]));
+if (process.env.NODE_ENV === 'production') {
+	for (const faq of await siteServices.listFaqPlacements()) {
+		console.info(`[FAQ placement] ${faq.slug} (${faq.status}): ${faq.homepage ? 'homepage; ' : ''}${faq.hubs.join(', ') || 'no hubs'}`);
+	}
+}
 
 export default defineConfig({
 	site: siteUrl,

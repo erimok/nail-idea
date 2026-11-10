@@ -1,0 +1,8 @@
+---
+import FaqIndexView from '../../components/FaqIndexView.astro';
+import { siteServices } from '../../composition';
+
+const viewModel = await siteServices.buildFaqIndexPage();
+---
+
+<FaqIndexView {...viewModel} />

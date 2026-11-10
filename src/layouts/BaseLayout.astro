@@ -4,7 +4,7 @@ import '../styles/global.css';
 import SiteFooter from '../components/SiteFooter.astro';
 import SiteHeader from '../components/SiteHeader.astro';
 
-interface Props extends LayoutViewModel {}
+interface Props extends LayoutViewModel { pinterest?: boolean }
 
 const {
 	title,
@@ -17,6 +17,7 @@ const {
 	socialImageAlt = 'AI-generated manicure design from nail-idea.com',
 	socialImageDimensions,
 	siteChrome,
+	pinterest = false,
 } = Astro.props;
 const serializedStructuredData = structuredData
 	? JSON.stringify(structuredData).replace(/</g, '\\u003c')
@@ -60,5 +61,6 @@ const serializedStructuredData = structuredData
 		<SiteHeader {...siteChrome.header} />
 		<slot />
 		<SiteFooter {...siteChrome.footer} />
+		{pinterest && import.meta.env.PROD && <script is:inline async defer src="https://assets.pinterest.com/js/pinit.js"></script>}
 	</body>
 </html>

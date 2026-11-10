@@ -1,5 +1,34 @@
 import { describe, expect, it } from 'vitest';
-import { renderLlmsTxt, renderPageMarkdown } from './markdown';
+import { renderFaqMarkdown, renderLlmsTxt, renderPageMarkdown } from './markdown';
+
+describe('renderFaqMarkdown', () => {
+	it('renders the full answer, related links, and canonical HTML URL', () => {
+		// Arrange
+		const viewModel = {
+			layout: {
+				title: 'A question',
+				description: 'A description',
+				canonical: 'https://nail-idea.com/faq/example/',
+				siteChrome: { faqIndexHref: '/faq/', header: { browseGroups: [], availableAreas: [] }, footer: { groups: [] } },
+			},
+			heading: 'What is [red]?',
+			answer: 'First paragraph.\n\nSecond paragraph.',
+			breadcrumbs: [{ label: 'Home', href: '/' }, { label: 'FAQs', href: '/faq/' }, { label: 'What is [red]?' }],
+			relatedLinks: [{ label: 'Red nails', href: '/manicure/red-nails/' }],
+		};
+
+		// Act
+		const result = renderFaqMarkdown(viewModel);
+
+		// Assert
+		expect(result).toContain('# What is \\[red]?');
+		expect(result).toContain('First paragraph.');
+		expect(result).toContain('Second paragraph.');
+		expect(result).toContain('https://nail-idea.com/manicure/red-nails/');
+		expect(result).toContain('https://nail-idea.com/faq/example/');
+		expect(result).not.toContain('<a ');
+	});
+});
 
 describe('renderLlmsTxt', () => {
 	it('renders grouped indexable pages as Markdown links', () => {
@@ -36,7 +65,7 @@ describe('renderPageMarkdown', () => {
 				title: 'Red Nail Ideas | nail-idea.com',
 				description: 'A collection of red nail designs.',
 				canonical: 'https://nail-idea.com/manicure/red-nails/',
-				siteChrome: { header: { browseGroups: [], availableAreas: [] }, footer: { groups: [] } },
+				siteChrome: { faqIndexHref: '/faq/', header: { browseGroups: [], availableAreas: [] }, footer: { groups: [] } },
 			},
 			heading: 'Red Nails: 6 Ideas',
 			prompt: 'red manicure ideas',

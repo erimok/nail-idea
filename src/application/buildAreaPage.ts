@@ -1,5 +1,6 @@
 import { getAllFacetPages, getNailsForArea } from '../domain/facet-combinations';
 import type { NailArea } from '../domain/areas';
+import { INITIAL_DESIGN_COUNT, splitDesigns } from '../domain/gallery';
 import { isIndexablePage } from '../domain/indexability';
 import { buildAreaRoute } from '../domain/routes';
 import type { SitePorts } from './ports';
@@ -58,7 +59,9 @@ export async function buildAreaPage(
 		heading: copy.heading,
 		prompt: copy.prompt,
 		paragraphs: copy.paragraphs,
+		editorialSections: copy.editorialSections,
 		designs,
+		designGrid: splitDesigns(designs, INITIAL_DESIGN_COUNT),
 		searchRecords: toSearchRecords(designs),
 		breadcrumbs,
 		relatedLinks: resolveBrowseLinks({

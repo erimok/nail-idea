@@ -8,6 +8,7 @@ import IdeaExplorer from './IdeaExplorer';
 import NailCollectionGrid from './NailCollectionGrid.astro';
 import Section from './ui/Section.astro';
 import SectionHeader from './ui/SectionHeader.astro';
+import FaqSection from './FaqSection.astro';
 
 // Above-the-fold cards load eagerly to protect LCP.
 const EAGER_IMAGE_COUNT = 3;
@@ -36,7 +37,7 @@ const initialDesigns = designGrid?.initial ?? designs;
 const deferredDesigns = designGrid?.remaining ?? [];
 ---
 
-<BaseLayout {...layout}>
+<BaseLayout {...layout} pinterest={designs.length > 0 || searchRecords.length > 0}>
 	<main>
 		<Section bg="canvas">
 			<div class="max-w-3xl">
@@ -46,7 +47,7 @@ const deferredDesigns = designGrid?.remaining ?? [];
 				<div class="mt-5 max-w-2xl"><AiImageDisclosure /></div>
 				{coreStyleLink && <p class="mt-3 max-w-prose text-base leading-7 text-muted">Part of our <a href={coreStyleLink.href} class="text-link text-ink">{coreStyleLink.label}</a> collection with {coreStyleLink.designCount} designs.</p>}
 				{paragraphs.map((paragraph) => <p class="mt-3 max-w-prose text-base leading-7 text-muted">{paragraph}</p>)}
-				<div class="mt-6 max-w-2xl"><IdeaExplorer nails={searchRecords} initialPrompt={prompt} compact client:idle /></div>
+				<div class="mt-6 max-w-2xl"><IdeaExplorer nails={searchRecords} initialPrompt={prompt} canonical={import.meta.env.PROD ? layout.canonical : undefined} compact client:idle /></div>
 			</div>
 		</Section>
 		<Section bg="surface">
@@ -57,6 +58,7 @@ const deferredDesigns = designGrid?.remaining ?? [];
 					deferredItems={deferredDesigns.map((nail) => ({ nail }))}
 					batchSize={designGrid?.batchSize}
 					totalCount={designs.length}
+					canonical={layout.canonical}
 				/>
 				: <p class="text-base leading-7 text-muted">{emptyStateMessage}</p>}
 		</Section>
@@ -68,12 +70,12 @@ const deferredDesigns = designGrid?.remaining ?? [];
 				</section>)}
 			</div>
 		</Section>}
-		{faq.length > 0 && <Section bg="tint">
-			<div class="grid gap-8 lg:grid-cols-[minmax(220px,0.7fr)_minmax(0,1.3fr)] lg:gap-14">
-				<div><h2 class="font-display text-3xl text-ink">Frequently asked questions</h2></div>
-				<div>{faq.map(({ question, answer }) => <details class="border-b border-line py-5"><summary class="cursor-pointer font-display text-xl text-ink">{question}</summary><p class="mt-3 max-w-prose text-base leading-7 text-ink-soft">{answer}</p></details>)}</div>
-			</div>
-		</Section>}
+		{faq.length > 0 && <FaqSection items={faq} indexHref={layout.siteChrome.faqIndexHref} />}
 		{relatedLinks && <Section bg="canvas"><FacetLinks {...relatedLinks} /></Section>}
 	</main>
 </BaseLayout>
+
+<script>
+	import { initPinterestWidgets } from '../adapters/presentation/human/pinterest-widget';
+	initPinterestWidgets(document.body);
+</script>

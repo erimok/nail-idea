@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { InMemoryHubRepository } from '../adapters/in-memory/InMemoryHubRepository';
+import { InMemoryFaqRepository } from '../adapters/in-memory/InMemoryFaqRepository';
 import { InMemoryNailRepository } from '../adapters/in-memory/InMemoryNailRepository';
 import { InMemorySiteContentRepository } from '../adapters/in-memory/InMemorySiteContentRepository';
 import { InMemorySiteConfig } from '../adapters/in-memory/InMemorySiteConfig';
@@ -15,6 +16,7 @@ function createPorts(
 	hubs: readonly HubEditorial[] = [],
 ) {
 	return {
+		faqRepository: new InMemoryFaqRepository(),
 		nailRepository: new InMemoryNailRepository(nails),
 		hubRepository: new InMemoryHubRepository(hubs),
 		siteContentRepository: new InMemorySiteContentRepository(),

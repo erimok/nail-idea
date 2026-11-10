@@ -1,5 +1,6 @@
 import { nailAreas } from '../domain/areas';
-import { buildFacetMarkdownRoute } from '../domain/routes';
+import { buildFacetMarkdownRoute, buildFaqMarkdownRoute } from '../domain/routes';
+import { publishedFaqs } from './faq-support';
 import type { SitePorts } from './ports';
 import type { LlmsIndexViewModel } from './view-models';
 import { buildCanonicalUrl } from './support';
@@ -22,6 +23,11 @@ export async function buildLlmsIndex(ports: SitePorts): Promise<LlmsIndexViewMod
 	}));
 
 	return {
+		faqs: publishedFaqs(await ports.faqRepository.listFaqs()).map((faq) => ({
+			title: faq.question,
+			description: faq.metaDescription,
+			markdownUrl: buildCanonicalUrl(ports.siteConfig.siteUrl, buildFaqMarkdownRoute(faq.slug)),
+		})),
 		areas: nailAreas.flatMap((area) => {
 			const areaPages = pages
 				.filter((page) => page.area === area)

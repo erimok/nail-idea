@@ -4,9 +4,10 @@ import Section from './ui/Section.astro';
 
 interface Props {
 	items: readonly FaqItemViewModel[];
+	indexHref: string;
 }
 
-const { items } = Astro.props;
+const { items, indexHref } = Astro.props;
 ---
 
 <Section bg="tint">
@@ -14,9 +15,10 @@ const { items } = Astro.props;
 		<div class="lg:sticky lg:top-10 lg:self-start">
 			<p class="eyebrow mb-3">Helpful answers</p>
 			<h2 class="font-display text-4xl font-semibold leading-[1.15] text-ink sm:text-5xl">Nail idea <em class="font-semibold italic text-olive">FAQ</em></h2>
+			<a class="mt-4 inline-flex text-link text-ink" href={indexHref}>Browse all FAQs</a>
 		</div>
 		<div class="grid gap-4">
-			{items.map(({ question, answer }, index) => (
+			{items.map(({ question, answer, href }, index) => (
 				<details class="group rounded-card border border-line bg-surface px-6 py-5 shadow-soft transition duration-200 open:shadow-lift hover:border-olive/60">
 					<summary class="flex cursor-pointer list-none items-baseline gap-5 font-display text-xl font-semibold leading-snug text-ink sm:text-2xl transition-colors hover:text-olive focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-olive [&::-webkit-details-marker]:hidden">
 						<span class="flex size-9 shrink-0 items-center justify-center self-center rounded-full bg-tint font-sans text-xs font-semibold not-italic text-olive" aria-hidden="true">{String(index + 1).padStart(2, '0')}</span>
@@ -24,6 +26,7 @@ const { items } = Astro.props;
 						<span class="flex size-9 shrink-0 items-center justify-center self-center rounded-control border border-line font-sans text-xl font-light transition group-open:rotate-45 group-open:border-transparent group-open:bg-lime" aria-hidden="true">+</span>
 					</summary>
 					<p class="mt-4 max-w-prose pl-14 text-base leading-8 text-ink-soft">{answer}</p>
+					{href && <p class="mt-2 pl-14"><a class="text-link text-ink" href={href}>Read the full answer: {question}</a></p>}
 				</details>
 			))}
 		</div>

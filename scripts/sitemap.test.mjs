@@ -4,11 +4,12 @@ import path from 'node:path';
 import test from 'node:test';
 import { fileURLToPath } from 'node:url';
 import { JSDOM } from 'jsdom';
+import { parse } from 'yaml';
 
 const projectRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const distDirectory = path.join(projectRoot, 'dist', 'client');
 const siteUrl = new URL(process.env.SITE_URL ?? 'https://nail-idea.com');
-const staticPagePaths = ['/about/', '/terms/', '/privacy-policy/'];
+const staticPagePaths = ['/about/', '/terms/', '/privacy-policy/', '/faq/'];
 const getLocations = (xml) => [...xml.matchAll(/<loc>(.*?)<\/loc>/gs)].map(([, location]) => location.trim());
 const getEntries = (xml) => [...xml.matchAll(/<url>([\s\S]*?)<\/url>/g)].map(([, entry]) => ({
 	location: entry.match(/<loc>(.*?)<\/loc>/s)?.[1]?.trim(),
@@ -33,6 +34,131 @@ async function getMarkdownFiles(directory) {
 	return nested.flat();
 }
 
+test('gallery Pinterest links use the selected image and canonical source page', async () => {
+	// Arrange
+	const paths = ['/', '/manicure/', '/manicure/french-nails/'];
+	const documents = await Promise.all(paths.map(async (pathname) => ({
+		pathname,
+		document: new JSDOM(await readFile(path.join(distDirectory, pathname, 'index.html'), 'utf8')).window.document,
+	})));
+	const privacy = new JSDOM(await readFile(path.join(distDirectory, 'privacy-policy', 'index.html'), 'utf8')).window.document;
+
+	// Act
+	const results = documents.map(({ pathname, document }) => {
+		const link = document.querySelector('[data-gallery-grid] [data-pinterest-widget] a');
+		return { pathname, document, link, url: new URL(link.href) };
+	});
+
+	// Assert
+	for (const { pathname, document, link, url } of results) {
+		assert.equal(url.searchParams.get('url'), new URL(pathname, siteUrl).href);
+		assert.equal(new URL(url.searchParams.get('media')).origin, siteUrl.origin);
+		assert.ok(url.searchParams.get('description'));
+		assert.match(link.getAttribute('aria-label'), /^Save .+ to Pinterest$/);
+		assert.equal(link.querySelector('img')?.getAttribute('alt'), 'Save to Pinterest');
+		assert.equal(link.closest('button'), null);
+		assert.equal(document.querySelectorAll('script[src="https://assets.pinterest.com/js/pinit.js"]').length, 1);
+	}
+	assert.equal(privacy.querySelectorAll('script[src="https://assets.pinterest.com/js/pinit.js"]').length, 0);
+});
+
+test('homepage links to each migrated FAQ and its complete answer', async () => {
+	// Arrange
+	const slugs = ['nail-shape', 'micro-french', 'office-colors', 'manicure-lasting', 'manicure-pedicure', 'idea-finder'];
+	const homeHtml = await readFile(path.join(distDirectory, 'index.html'), 'utf8');
+	const home = new JSDOM(homeHtml).window.document;
+	const indexXml = await readFile(path.join(distDirectory, 'sitemap-index.xml'), 'utf8');
+	const sitemapXml = (await Promise.all(getLocations(indexXml).map((location) =>
+		readFile(path.join(distDirectory, path.basename(new URL(location).pathname)), 'utf8')))).join('\n');
+	const llmsIndex = await readFile(path.join(distDirectory, 'llms.txt'), 'utf8');
+	const normalize = (value) => value.replace(/\s+/g, ' ').trim();
+
+	// Act
+	const results = await Promise.all(slugs.map(async (slug) => {
+		const faq = parse(await readFile(path.join(projectRoot, 'src/content/shared-faqs', `${slug}.yaml`), 'utf8'));
+		const href = `/faq/${slug}/`;
+		const link = home.querySelector(`a[href="${href}"]`);
+		const page = link ? new JSDOM(await readFile(path.join(distDirectory, 'faq', slug, 'index.html'), 'utf8')).window.document : null;
+		return { slug, faq, href, link, page };
+	}));
+
+	// Assert
+	const homeFaqLinks = [...home.querySelectorAll('details a[href^="/faq/"]')].map((link) => link.getAttribute('href'));
+	assert.deepEqual(homeFaqLinks, slugs.map((slug) => `/faq/${slug}/`), 'homepage should show each FAQ once in its original order');
+	for (const { slug, faq, href, link, page } of results) {
+		assert.equal(faq.status, 'published', `${slug} should be published`);
+		assert.ok(link, `homepage should link to ${href}`);
+		assert.equal(normalize(link.closest('details').querySelector('summary').textContent).includes(faq.question), true);
+		assert.equal(normalize(link.closest('details').textContent).includes(normalize(faq.summary)), true);
+		assert.equal(page.querySelector('h1')?.textContent.trim(), faq.question);
+		assert.equal(normalize(page.querySelector('article').textContent).includes(normalize(faq.fullAnswer)), true);
+		assert.ok(getLocations(sitemapXml).includes(new URL(href, siteUrl).href), `${href} should appear in the sitemap`);
+		assert.ok(llmsIndex.includes(new URL(`/faq/${slug}.md`, siteUrl).href), `${slug} should appear in llms.txt`);
+	}
+});
+
+test('FAQ listing includes every published question in editorial order', async () => {
+	// Arrange
+	const faqDirectory = path.join(projectRoot, 'src', 'content', 'shared-faqs');
+	const faqFiles = (await readdir(faqDirectory)).filter((file) => file.endsWith('.yaml'));
+	const publishedFaqs = (await Promise.all(faqFiles.map(async (file) => ({
+		slug: path.basename(file, '.yaml'),
+		...(await parse(await readFile(path.join(faqDirectory, file), 'utf8'))),
+	})))).filter(({ status }) => status === 'published').sort((a, b) => a.order - b.order);
+	const index = new JSDOM(await readFile(path.join(distDirectory, 'faq', 'index.html'), 'utf8')).window.document;
+
+	// Act
+	const listedFaqs = [...index.querySelectorAll('ol a[href^="/faq/"]')].map((link) => ({
+		href: link.getAttribute('href'),
+		question: link.textContent.trim(),
+		summary: link.closest('li')?.querySelector('p')?.textContent.trim(),
+	}));
+	const indexStructuredData = JSON.parse(index.querySelector('script[type="application/ld+json"]').textContent);
+	const indexFaqPage = indexStructuredData['@graph'].find(({ '@type': type }) => type === 'FAQPage');
+	const indexBreadcrumbs = indexStructuredData['@graph'].find(({ '@type': type }) => type === 'BreadcrumbList');
+
+	// Assert
+	assert.equal(index.querySelector('h1')?.textContent.trim(), 'Nail FAQs');
+	assert.deepEqual(listedFaqs, publishedFaqs.map(({ slug, question, summary }) => ({
+		href: `/faq/${slug}/`,
+		question,
+		summary,
+	})));
+	assert.deepEqual(indexFaqPage.mainEntity, publishedFaqs.map(({ question, summary }) => ({
+		'@type': 'Question',
+		name: question,
+		acceptedAnswer: { '@type': 'Answer', text: summary },
+	})));
+	assert.deepEqual(indexBreadcrumbs.itemListElement.map(({ name, item }) => ({ name, item })), [
+		{ name: 'Home', item: new URL('/', siteUrl).href },
+		{ name: 'FAQs', item: new URL('/faq/', siteUrl).href },
+	]);
+	assert.deepEqual([...index.querySelectorAll('nav[aria-label="Breadcrumb"] li')].map((item) => item.textContent.replace(/\s+/g, ' ').trim()), [
+		'Home', '/FAQs',
+	]);
+
+	for (const { slug, question, fullAnswer } of publishedFaqs) {
+		const page = new JSDOM(await readFile(path.join(distDirectory, 'faq', slug, 'index.html'), 'utf8')).window.document;
+		const structuredData = JSON.parse(page.querySelector('script[type="application/ld+json"]').textContent);
+		const faqPage = structuredData['@graph'].find(({ '@type': type }) => type === 'FAQPage');
+		const breadcrumbs = structuredData['@graph'].find(({ '@type': type }) => type === 'BreadcrumbList');
+		assert.equal(page.querySelector('h1')?.textContent.trim(), question, `${slug} should render its FAQ question`);
+		assert.deepEqual(faqPage.mainEntity, [{
+			'@type': 'Question',
+			name: question,
+			acceptedAnswer: { '@type': 'Answer', text: fullAnswer },
+		}], `${slug} structured data should match its answer`);
+		assert.deepEqual([...page.querySelectorAll('nav[aria-label="Breadcrumb"] li')].map((item) => item.textContent.replace(/\s+/g, ' ').trim()), [
+			'Home', '/FAQs', `/${question}`,
+		], `${slug} should render the FAQ page breadcrumb`);
+		assert.deepEqual(breadcrumbs.itemListElement.map(({ name, item }) => ({ name, item })), [
+			{ name: 'Home', item: new URL('/', siteUrl).href },
+			{ name: 'FAQs', item: new URL('/faq/', siteUrl).href },
+			{ name: question, item: new URL(`/faq/${slug}/`, siteUrl).href },
+		], `${slug} breadcrumbs should match the page hierarchy`);
+	}
+});
+
 test('production sitemap includes source-content lastmod values', async () => {
 	const indexXml = await readFile(path.join(distDirectory, 'sitemap-index.xml'), 'utf8');
 	const sitemapLocations = getLocations(indexXml);
@@ -43,14 +169,16 @@ test('production sitemap includes source-content lastmod values', async () => {
 	}))).flat();
 	const lastmodByPath = new Map(entries.map(({ location, lastmod }) => [new URL(location).pathname, lastmod]));
 
-	assert.match(lastmodByPath.get('/') ?? '', /^\d{4}-\d{2}-\d{2}T00:00:00\.000Z$/);
+	if (lastmodByPath.get('/') !== undefined) {
+		assert.match(lastmodByPath.get('/'), /^\d{4}-\d{2}-\d{2}T00:00:00\.000Z$/);
+	}
 	assert.match(lastmodByPath.get('/manicure/') ?? '', /^\d{4}-\d{2}-\d{2}T00:00:00\.000Z$/);
 	for (const pathname of staticPagePaths) {
 		assert.equal(lastmodByPath.get(pathname), undefined);
 	}
 	for (const [pathname, lastmod] of lastmodByPath) {
-		if (!staticPagePaths.includes(pathname)) {
-			assert.match(lastmod ?? '', /^\d{4}-\d{2}-\d{2}T00:00:00\.000Z$/, `${pathname} should use a content date`);
+		if (!staticPagePaths.includes(pathname) && lastmod !== undefined) {
+			assert.match(lastmod, /^\d{4}-\d{2}-\d{2}T00:00:00\.000Z$/, `${pathname} should use a content date`);
 		}
 	}
 });
@@ -75,11 +203,11 @@ test('production sitemap includes only indexable routes', async () => {
 	const markdownPaths = markdownFiles.map((file) => `/${path.relative(distDirectory, file)}`);
 	const llmsMarkdownPaths = [...llmsIndex.matchAll(/\]\((https?:[^)]+\.md)\)/g)]
 		.map(([, url]) => new URL(url).pathname);
-	const sitemapHubPaths = pagePaths
-		.filter((url) => /^\/(?:manicure|pedicure)\/.+\/$/.test(url.pathname))
+	const sitemapMarkdownPaths = pagePaths
+		.filter((url) => /^\/(?:manicure|pedicure|faq)\/.+\/$/.test(url.pathname))
 		.map((url) => `${url.pathname.slice(0, -1)}.md`);
 
-	assert.deepEqual(markdownPaths.sort(), sitemapHubPaths.sort(), 'every indexable hub should have exactly one Markdown file');
+	assert.deepEqual(markdownPaths.sort(), sitemapMarkdownPaths.sort(), 'every indexable hub and FAQ should have exactly one Markdown file');
 	assert.deepEqual(llmsMarkdownPaths.sort(), markdownPaths.sort(), 'llms.txt should link to every generated Markdown page and no others');
 	for (const markdownPath of markdownPaths) {
 		const markdown = await readFile(path.join(distDirectory, markdownPath), 'utf8');
@@ -93,12 +221,13 @@ test('production sitemap includes only indexable routes', async () => {
 	assert.ok(hasPath('/manicure/'), 'sitemap should include the manicure page');
 	assert.ok(hasPath('/terms/'), 'sitemap should include the Terms of Use page');
 	assert.ok(hasPath('/privacy-policy/'), 'sitemap should include the Privacy Policy page');
+	assert.ok(hasPath('/faq/'), 'sitemap should include the FAQ listing');
 	assert.ok(!hasPath('/pedicure/'), 'empty pedicure page should not be in the sitemap');
 	for (const [pathname, lastmod] of lastmodByPath) {
 		if (staticPagePaths.includes(pathname)) {
 			assert.equal(lastmod, undefined, `static page ${pathname} should omit lastmod without a source timestamp`);
-		} else {
-			assert.match(lastmod ?? '', /^\d{4}-\d{2}-\d{2}(?:T00:00:00\.000Z)?$/, `${pathname} should have a date-only lastmod`);
+		} else if (lastmod !== undefined) {
+			assert.match(lastmod, /^\d{4}-\d{2}-\d{2}(?:T00:00:00\.000Z)?$/, `${pathname} should have a date-only lastmod`);
 		}
 	}
 

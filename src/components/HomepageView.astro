@@ -17,9 +17,9 @@ const { layout, nails, searchRecords, searchHubLinks, featured, categories, faqI
 const primaryArea = layout.siteChrome.header.availableAreas[0];
 ---
 
-<BaseLayout {...layout}>
+<BaseLayout {...layout} pinterest={featured.length > 0 || searchRecords.length > 0}>
 	<main>
-		<HomeHero nails={nails} searchRecords={searchRecords} searchHubLinks={searchHubLinks} />
+		<HomeHero nails={nails} searchRecords={searchRecords} searchHubLinks={searchHubLinks} canonical={import.meta.env.PROD ? layout.canonical : undefined} />
 		<Section bg="surface">
 			<div class="grid gap-10 lg:grid-cols-2 lg:gap-20">
 				<div class="max-w-prose">
@@ -45,9 +45,14 @@ const primaryArea = layout.siteChrome.header.availableAreas[0];
 			</SectionHeader>
 			<p class="-mt-5 mb-5 max-w-prose text-sm leading-6 text-muted">Designs are organized by color, shape, length, finish, and occasion.</p>
 			<div class="mb-6 max-w-2xl"><AiImageDisclosure /></div>
-			<NailCollectionGrid items={featured.map((nail) => ({ nail }))} />
+			<NailCollectionGrid items={featured.map((nail) => ({ nail }))} canonical={layout.canonical} />
 			{primaryArea && <div class="mt-8 flex justify-center"><Chip href={primaryArea.href}>View all {primaryArea.label.toLowerCase()} ideas</Chip></div>}
 		</Section>
-		<FaqSection items={faqItems} />
+		<FaqSection items={faqItems} indexHref={layout.siteChrome.faqIndexHref} />
 	</main>
 </BaseLayout>
+
+<script>
+	import { initPinterestWidgets } from '../adapters/presentation/human/pinterest-widget';
+	initPinterestWidgets(document.body);
+</script>

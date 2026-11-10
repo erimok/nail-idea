@@ -1,6 +1,6 @@
 import { toMarkdown } from 'mdast-util-to-markdown';
 import type { PhrasingContent, Root, RootContent } from 'mdast';
-import type { CollectionPageViewModel, LlmsIndexViewModel } from '../../../application/view-models';
+import type { CollectionPageViewModel, FaqPageViewModel, LlmsIndexViewModel } from '../../../application/view-models';
 
 function text(value: string): PhrasingContent {
 	return { type: 'text', value };
@@ -62,6 +62,20 @@ export function renderPageMarkdown(viewModel: CollectionPageViewModel): string {
 			{ type: 'heading', depth: 2, children: [text(section.heading)] },
 			{ type: 'paragraph', children: [text(section.body)] },
 		);
+	}
+
+	if (viewModel.faq.length > 0) {
+		children.push({ type: 'heading', depth: 2, children: [text('Frequently asked questions')] });
+		for (const faq of viewModel.faq) {
+			children.push(
+				{ type: 'heading', depth: 3, children: [text(faq.question)] },
+				{ type: 'paragraph', children: [text(faq.answer)] },
+			);
+			if (faq.href) children.push({
+				type: 'paragraph',
+				children: [{ type: 'link', url: absoluteUrl(faq.href, viewModel.layout.canonical), children: [text(`Read the full answer: ${faq.question}`)] }],
+			});
+		}
 	}
 
 	if (viewModel.relatedLinks) {
@@ -147,5 +161,50 @@ export function renderLlmsTxt(viewModel: LlmsIndexViewModel): string {
 		);
 	}
 
+	if (viewModel.faqs?.length) {
+		children.push(
+			{ type: 'heading', depth: 2, children: [text('FAQs')] },
+			{
+				type: 'list',
+				ordered: false,
+				spread: false,
+				children: viewModel.faqs.map((faq) => ({
+					type: 'listItem',
+					spread: false,
+					children: [{ type: 'paragraph', children: [
+						{ type: 'link', url: faq.markdownUrl, children: [text(faq.title)] },
+						text(`: ${faq.description}`),
+					] }],
+				})),
+			},
+		);
+	}
+
+	return toMarkdown({ type: 'root', children } satisfies Root).trimEnd();
+}
+
+export function renderFaqMarkdown(viewModel: FaqPageViewModel): string {
+	const children: RootContent[] = [
+		{ type: 'heading', depth: 1, children: [text(viewModel.heading)] },
+		{ type: 'blockquote', children: [{ type: 'paragraph', children: [text(viewModel.layout.description)] }] },
+		...viewModel.answer.split(/\n\s*\n/).map((paragraph): RootContent => ({
+			type: 'paragraph', children: [text(paragraph)],
+		})),
+	];
+	if (viewModel.relatedLinks.length) {
+		children.push(
+			{ type: 'heading', depth: 2, children: [text('Related ideas')] },
+			{ type: 'list', ordered: false, spread: false, children: viewModel.relatedLinks.map((link) => ({
+				type: 'listItem', spread: false, children: [{ type: 'paragraph', children: [{
+					type: 'link', url: absoluteUrl(link.href, viewModel.layout.canonical), children: [text(link.label)],
+				}] }],
+			})) },
+		);
+	}
+	children.push({ type: 'paragraph', children: [
+		text('View the '),
+		{ type: 'link', url: viewModel.layout.canonical, children: [text('canonical HTML page')] },
+		text('.'),
+	] });
 	return toMarkdown({ type: 'root', children } satisfies Root).trimEnd();
 }
